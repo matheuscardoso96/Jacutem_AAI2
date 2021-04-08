@@ -253,110 +253,121 @@ namespace Jacutem_AAI2.Textos
             List<ushort> textoConvertido = new List<ushort>();
 
             int valorBasePOnteiro = backupTabela.Length;
-
-            foreach (var secao in textos)
+            string tag = "";
+            string secaoAtual = "";
+            try
             {
-                string aSerconvertido = secao.Split(new[] { "}}" }, StringSplitOptions.RemoveEmptyEntries).Last();
-                int tamanhoSecao = 0;
-                int posInicial = valorBasePOnteiro;
-
-                for (int i = 0; i < aSerconvertido.Length; i++)
+                foreach (var secao in textos)
                 {
-                    if (aSerconvertido[i] == '{')
-                    {
-                        string tag = aSerconvertido[i] + "";
-                        i++;
+                    secaoAtual = secao;
+                    string aSerconvertido = secao.Split(new[] { "}}" }, StringSplitOptions.RemoveEmptyEntries).Last();
+                    int tamanhoSecao = 0;
+                    int posInicial = valorBasePOnteiro;
 
-                        do
+                    for (int i = 0; i < aSerconvertido.Length; i++)
+                    {
+                        if (aSerconvertido[i] == '{')
                         {
-                            tag += aSerconvertido[i];
+                            tag = aSerconvertido[i] + "";
                             i++;
 
-                        } while (aSerconvertido[i] != '}');
-
-
-                        if (tag.Contains(":"))
-                        {
-                            tag = tag.Replace(" ", "");
-
-
-
-                            ushort valorDoCaractere = __tabela.FirstOrDefault(x => x.Value.Contains("=" + tag.Split(':')[0] + ":" + "=")).Key;
-                            textoConvertido.Add(valorDoCaractere);
-                            valorBasePOnteiro += 2;
-                            tamanhoSecao += 2;
-                            string[] argumentos = tag.Split(':')[1].Split(',');
-
-                            for (int y = 0; y < argumentos.Length; y++)
+                            do
                             {
-                                if (tag.Contains("{speed") || tag.Contains("{wait"))
+                                tag += aSerconvertido[i];
+                                i++;
+
+                            } while (aSerconvertido[i] != '}');
+
+
+                            if (tag.Contains(":"))
+                            {
+                                tag = tag.Replace(" ", "");
+
+
+
+                                ushort valorDoCaractere = __tabela.FirstOrDefault(x => x.Value.Contains("=" + tag.Split(':')[0] + ":" + "=")).Key;
+                                textoConvertido.Add(valorDoCaractere);
+                                valorBasePOnteiro += 2;
+                                tamanhoSecao += 2;
+                                string[] argumentos = tag.Split(':')[1].Split(',');
+
+                                for (int y = 0; y < argumentos.Length; y++)
+                                {
+                                    if (tag.Contains("{speed") || tag.Contains("{wait"))
+                                    {
+
+                                        textoConvertido.Add((ushort)(0x55AA ^ Convert.ToUInt16(argumentos[y])));
+
+                                    }
+                                    else
+                                    {
+                                        textoConvertido.Add(Convert.ToUInt16(argumentos[y]));
+                                    }
+
+
+                                    valorBasePOnteiro += 2;
+                                    tamanhoSecao += 2;
+                                }
+                            }
+                            else
+                            {
+
+                                ushort caractereTabela = __tabela.FirstOrDefault(x => x.Value.Contains("=" + tag + "=")).Key;
+
+
+                                if (caractereTabela > 0)
                                 {
 
-                                    textoConvertido.Add((ushort)(0x55AA ^ Convert.ToUInt16(argumentos[y])));
 
+                                    textoConvertido.Add(caractereTabela);
+                                    valorBasePOnteiro += 2;
+                                    tamanhoSecao += 2;
                                 }
                                 else
                                 {
-                                    textoConvertido.Add(Convert.ToUInt16(argumentos[y]));
+
+                                    textoConvertido.Add(Convert.ToUInt16("0x" + tag.Replace("{", ""), 16));
+                                    valorBasePOnteiro += 2;
+                                    tamanhoSecao += 2;
                                 }
-
-
-                                valorBasePOnteiro += 2;
-                                tamanhoSecao += 2;
                             }
+
                         }
                         else
                         {
+                            // string valor = br.ReadUInt16().ToString("X4");
+                            // contador += 2;
+                            char c = aSerconvertido[i];
 
-                            ushort caractereTabela = __tabela.FirstOrDefault(x => x.Value.Contains("=" + tag + "=")).Key;
 
 
-                            if (caractereTabela > 0)
+                            ushort valorDoCaractere = __tabela.FirstOrDefault(b => b.Value.Contains("=" + c + "=")).Key;
+
+                            if (valorDoCaractere > 0)
                             {
-
-
-                                textoConvertido.Add(caractereTabela);
+                                textoConvertido.Add(valorDoCaractere);
                                 valorBasePOnteiro += 2;
                                 tamanhoSecao += 2;
                             }
                             else
                             {
-
-                                textoConvertido.Add(Convert.ToUInt16("0x" + tag.Replace("{", ""), 16));
+                                textoConvertido.Add(0x65B5);
                                 valorBasePOnteiro += 2;
                                 tamanhoSecao += 2;
                             }
                         }
-
                     }
-                    else
-                    {
-                        // string valor = br.ReadUInt16().ToString("X4");
-                        // contador += 2;
-                        char c = aSerconvertido[i];
 
+                    infomacoesSecoes.Add(posInicial, tamanhoSecao);
 
-
-                        ushort valorDoCaractere = __tabela.FirstOrDefault(b => b.Value.Contains("=" + c + "=")).Key;
-
-                        if (valorDoCaractere > 0)
-                        {
-                            textoConvertido.Add(valorDoCaractere);
-                            valorBasePOnteiro += 2;
-                            tamanhoSecao += 2;
-                        }
-                        else
-                        {
-                            textoConvertido.Add(0x65B5);
-                            valorBasePOnteiro += 2;
-                            tamanhoSecao += 2;
-                        }
-                    }
                 }
-
-                infomacoesSecoes.Add(posInicial, tamanhoSecao);
-
             }
+            catch (Exception)
+            {
+
+                throw new Exception("Uma tag inválida foi encontrada: " + tag + "\nNo script: " + Path.GetFileName(dirSpt) + "\nNa Seção:\n" + secaoAtual);
+            }
+           
 
 
             byte[] final = new byte[backupTabela.Length + textoConvertido.Count * 2];
