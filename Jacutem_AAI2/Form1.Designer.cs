@@ -220,6 +220,7 @@
             this.pictureBoxFonte = new System.Windows.Forms.PictureBox();
             this.listBoxFonteProp = new System.Windows.Forms.ListBox();
             this.comboBoxFonte = new System.Windows.Forms.ComboBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel13.SuspendLayout();
@@ -1103,6 +1104,7 @@
             // tabPage5
             // 
             this.tabPage5.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage5.Controls.Add(this.button2);
             this.tabPage5.Controls.Add(this.checkBoxNumerosOam);
             this.tabPage5.Controls.Add(this.comboBoxResolucaoOamAdicionar);
             this.tabPage5.Controls.Add(this.buttonSalvarModifcaoesOam);
@@ -1158,11 +1160,11 @@
             // 
             this.buttonSalvarModifcaoesOam.BackColor = System.Drawing.SystemColors.Control;
             this.buttonSalvarModifcaoesOam.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.buttonSalvarModifcaoesOam.Location = new System.Drawing.Point(675, 316);
+            this.buttonSalvarModifcaoesOam.Location = new System.Drawing.Point(656, 323);
             this.buttonSalvarModifcaoesOam.Name = "buttonSalvarModifcaoesOam";
-            this.buttonSalvarModifcaoesOam.Size = new System.Drawing.Size(118, 24);
+            this.buttonSalvarModifcaoesOam.Size = new System.Drawing.Size(118, 37);
             this.buttonSalvarModifcaoesOam.TabIndex = 26;
-            this.buttonSalvarModifcaoesOam.Text = "Salvar Modificações";
+            this.buttonSalvarModifcaoesOam.Text = "Salvar modificações de edição de OAM";
             this.buttonSalvarModifcaoesOam.UseVisualStyleBackColor = false;
             this.buttonSalvarModifcaoesOam.Click += new System.EventHandler(this.buttonSalvarModifcaoesOam_Click);
             // 
@@ -1207,7 +1209,7 @@
             this.buttonExportOam.Name = "buttonExportOam";
             this.buttonExportOam.Size = new System.Drawing.Size(120, 36);
             this.buttonExportOam.TabIndex = 17;
-            this.buttonExportOam.Text = "Exportar oams marcados";
+            this.buttonExportOam.Text = "Exportar todas as camadas";
             this.buttonExportOam.UseVisualStyleBackColor = false;
             this.buttonExportOam.Click += new System.EventHandler(this.button2_Click_3);
             // 
@@ -1219,7 +1221,7 @@
             this.buttonImportOam.Name = "buttonImportOam";
             this.buttonImportOam.Size = new System.Drawing.Size(120, 34);
             this.buttonImportOam.TabIndex = 18;
-            this.buttonImportOam.Text = "Importar oam marcados";
+            this.buttonImportOam.Text = "Importar camada";
             this.buttonImportOam.UseVisualStyleBackColor = false;
             this.buttonImportOam.Click += new System.EventHandler(this.button3_Click_1);
             // 
@@ -2300,6 +2302,17 @@
             this.comboBoxFonte.TabIndex = 0;
             this.comboBoxFonte.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(656, 377);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(118, 30);
+            this.button2.TabIndex = 28;
+            this.button2.Text = "Salvar Imagem";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2606,6 +2619,7 @@
         private System.Windows.Forms.Button buttonSalvarModifcaoesOam;
         private System.Windows.Forms.ComboBox comboBoxResolucaoOamAdicionar;
         private System.Windows.Forms.CheckBox checkBoxNumerosOam;
+        private System.Windows.Forms.Button button2;
     }
 }
 

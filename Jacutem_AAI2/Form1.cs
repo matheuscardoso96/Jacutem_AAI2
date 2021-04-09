@@ -10,8 +10,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
-using Jacutem_AAI2.Custom;
-using System.Data;
 using System.Drawing.Drawing2D;
 
 namespace Jacutem_AAI2
@@ -132,6 +130,7 @@ namespace Jacutem_AAI2
             numericUpDownPosOamY.Enabled = false;
             numericUpDownPosOamY.Minimum = 0;
             numericUpDownPosOamY.Maximum = 255;
+            checkedListBoxSpriteSelecionado.Enabled = false;
 
         }
 
@@ -1168,21 +1167,10 @@ namespace Jacutem_AAI2
             }
             PreenchaListBoxSprites(comboBoxSprites.SelectedItem.ToString());
 
-            buttonExportOam.Enabled = false;
-            buttonImportOam.Enabled = false;
             listBoxSpritesDoNgcr.Items.Clear();
+            DesativarBotoesSprite();
 
-            checkedListBoxSpriteSelecionado.Items.Clear();
-
-            checkBoxAtivarBordas.Checked = false;
-            checkBoxEditarPosicao.Checked = false;
-            checkBoxFundoTransparenteOam.Checked = false;
-            checkBoxNumerosOam.Checked = false;
-
-            checkBoxAtivarBordas.Enabled = false;
-            checkBoxEditarPosicao.Enabled = false;
-            checkBoxFundoTransparenteOam.Enabled = false;
-            checkBoxNumerosOam.Enabled = false;
+            
 
             //checkBoxAtivarBordas = new CheckBox();
             // checkBoxFundoTransparenteOam = new CheckBox();
@@ -1198,17 +1186,22 @@ namespace Jacutem_AAI2
 
         private void listBoxSprites_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _adicionouOam = false;
-            _imagemNovaTemporaria = null;
-            LimparComponentesTelaDeSprite();
-            string argumentosImg = listaCarregadaDeSprites[listBoxSprites.SelectedIndex];
-            ExportarSpritesDoNcgrEhAdicionarLista(argumentosImg);
-            listBoxSpritesDoNgcr.SelectedIndex = 0;
-            _adicionouOam = false;
-            checkBoxAtivarBordas.Enabled = true;
-            checkBoxEditarPosicao.Enabled = true;
-            checkBoxFundoTransparenteOam.Enabled = true;
-            checkBoxNumerosOam.Enabled = true;
+            if (listBoxSprites.SelectedIndex > -1)
+            {
+                string argumentosImg = listaCarregadaDeSprites[listBoxSprites.SelectedIndex];
+                _adicionouOam = false;
+                _imagemNovaTemporaria = null;
+                LimparComponentesTelaDeSprite();
+
+                ExportarSpritesDoNcgrEhAdicionarLista(argumentosImg);
+                listBoxSpritesDoNgcr.SelectedIndex = 0;
+                _adicionouOam = false;
+                checkBoxAtivarBordas.Enabled = true;
+                checkBoxEditarPosicao.Enabled = true;
+                checkBoxFundoTransparenteOam.Enabled = true;
+                checkBoxNumerosOam.Enabled = true;
+            }
+           
             //checkBoxAtivarBordas.Checked = false;
             // checkBoxAtivarBordas.Enabled = false;
             //comboBoxSpritesLista.Enabled = true;
@@ -1558,19 +1551,23 @@ namespace Jacutem_AAI2
             //  checkBoxEditarPosicao.Checked = false;
             // checkBoxEditarPosicao.Enabled = true;
             //checkBoxEditarPosicao.Enabled = true;
-            checkBoxEditarPosicao.Enabled = true;
-            string resX = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Imagem.Width.ToString();
-            string resY = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Imagem.Height.ToString();
-            int indexListaResOam = _resolucoesOam[resX + "x" + resY];
-            comboBoxResolucoesOam.SelectedIndex = indexListaResOam;
-            //labelOamResX.Text = "" + ;
-            // labelOamResY.Text = "" + ;
-            numericUpDownPosOamX.Value = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].X;
-            numericUpDownPosOamY.Value = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Y;
-            IndexOamCarregado = checkedListBoxSpriteSelecionado.SelectedIndex;
-            pictureBoxSprite.Image.Dispose();
-            pictureBoxSprite.Image = null;
-            pictureBoxSprite.Image = MonteOamERetorneImagem(_ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams);
+            if (checkedListBoxSpriteSelecionado.SelectedIndex > - 1)
+            {
+                checkBoxEditarPosicao.Enabled = true;
+                string resX = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Imagem.Width.ToString();
+                string resY = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Imagem.Height.ToString();
+                int indexListaResOam = _resolucoesOam[resX + "x" + resY];
+                comboBoxResolucoesOam.SelectedIndex = indexListaResOam;
+                //labelOamResX.Text = "" + ;
+                // labelOamResY.Text = "" + ;
+                numericUpDownPosOamX.Value = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].X;
+                numericUpDownPosOamY.Value = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Y;
+                IndexOamCarregado = checkedListBoxSpriteSelecionado.SelectedIndex;
+                pictureBoxSprite.Image.Dispose();
+                pictureBoxSprite.Image = null;
+                pictureBoxSprite.Image = MonteOamERetorneImagem(_ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams);
+
+            }
 
 
         }
@@ -1759,6 +1756,8 @@ namespace Jacutem_AAI2
                     buttonExportOam.Enabled = false;
                     buttonImportOam.Enabled = false;
                     buttonImportSpritesLote.Enabled = false;
+                    checkedListBoxSpriteSelecionado.Enabled = true;
+                    checkedListBoxSpriteSelecionado.SelectedIndex = 0;
                 }
                 else
                 {
@@ -1769,6 +1768,9 @@ namespace Jacutem_AAI2
                     numericUpDownPosOamY.Enabled = false;
                     buttonAdicionarOam.Enabled = false;
                     buttonSalvarModifcaoesOam.Enabled = false;
+                    checkedListBoxSpriteSelecionado.Enabled = false;
+                    checkedListBoxSpriteSelecionado.SelectedIndex = -1;
+                    AdicionarImagemNaPictureOam(_ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams);
                 }
             }
 
@@ -2055,38 +2057,91 @@ namespace Jacutem_AAI2
 
         private async void button4_Click(object sender, EventArgs e)
         {
+
+            LimparTelaDeSprite();
+            buttonExportSpriteLista.Enabled = false;
             string lista = comboBoxSprites.SelectedItem.ToString();
             textBoxStatusSprite.Text = "Exportando lista de sprites...";
             DesativarBotoesSprite();
+            DesativaListBoxSprites();
             await Task.Run(() => ExportarSpritesEmlote(lista));
             textBoxStatusSprite.Text = "Concluído.";
             AtivarBotoesSprite();
+            AtivaListBoxSprites();
+
+
+        }
+
+        private void LimparTelaDeSprite()
+        {
+            if (_ncgrSpriteCarregado != null)
+            {
+                _ncgrSpriteCarregado = null;
+                listBoxSprites.SelectedIndex = -1;
+                if (listBoxSpritesDoNgcr.Items.Count > 0)
+                {
+                    listBoxSpritesDoNgcr.Items.Clear();
+                }
+
+                if (checkedListBoxSpriteSelecionado.Items.Count > 0)
+                {
+                    checkedListBoxSpriteSelecionado.Items.Clear();
+                }
+
+               
+
+                if (pictureBoxSprite.Image != null)
+                {
+                    pictureBoxSprite.Image.Dispose();
+                    pictureBoxSprite.Image = null;
+                    pictureBoxPaletaOam.Image.Dispose();
+                    pictureBoxPaletaOam.Image = null;
+                }
+               
+
+            }
         }
 
         private void DesativarBotoesSprite()
         {
             buttonExportOam.Enabled = false;
             buttonImportOam.Enabled = false;
-            buttonImportSpritesLote.Enabled = false;
+            buttonImportSpritesLote.Enabled = false;                      
+            checkBoxAtivarBordas.AutoCheck = false;
+            checkBoxFundoTransparenteOam.Enabled = false;
+            checkedListBoxSpriteSelecionado.Items.Clear();
+            checkBoxAtivarBordas.Checked = false;
+            checkBoxEditarPosicao.Checked = false;
+            checkBoxFundoTransparenteOam.Checked = false;
+            checkBoxNumerosOam.Checked = false;
+            checkBoxAtivarBordas.Enabled = false;
+            checkBoxEditarPosicao.Enabled = false;
+            checkBoxFundoTransparenteOam.Enabled = false;
+            checkBoxNumerosOam.Enabled = false;
+        }
+
+        private void DesativaListBoxSprites()
+        {
             listBoxSprites.Enabled = false;
             listBoxSpritesDoNgcr.Enabled = false;
-            buttonExportSpriteLista.Enabled = false;
-            checkBoxAtivarBordas.ForeColor = Color.Gray;
-            checkBoxAtivarBordas.AutoCheck = false;
+        }
 
-            checkBoxFundoTransparenteOam.Enabled = false;
+        private void AtivaListBoxSprites()
+        {
+            listBoxSprites.Enabled = true;
+            listBoxSpritesDoNgcr.Enabled = true;
         }
 
         private void AtivarBotoesSprite()
-        {
-            buttonExportOam.Enabled = true;
-            buttonImportOam.Enabled = true;
-            buttonImportSpritesLote.Enabled = true;
-            listBoxSprites.Enabled = true;
-            listBoxSpritesDoNgcr.Enabled = true;
+        {                   
+            buttonImportSpritesLote.Enabled = true;           
             buttonExportSpriteLista.Enabled = true;
             checkBoxAtivarBordas.AutoCheck = true;
             checkBoxFundoTransparenteOam.Enabled = true;
+            checkBoxAtivarBordas.Enabled = true;
+            checkBoxEditarPosicao.Enabled = true;
+            checkBoxFundoTransparenteOam.Enabled = true;
+            checkBoxNumerosOam.Enabled = true;
         }
 
         private void ExportarSpritesEmlote(string listaSelecionada)
@@ -2102,7 +2157,7 @@ namespace Jacutem_AAI2
                 {
                     Oams oamsPareExportar = oam;
                    // Bitmap imagemFinal = new Bitmap(512, 256);
-                    oamsPareExportar.TabelaDeOams.Reverse();
+                    //oamsPareExportar.TabelaDeOams.Reverse();
                     
                     if (oamsPareExportar.TabelaDeOams.Count > 0)
                     {
@@ -2168,12 +2223,18 @@ namespace Jacutem_AAI2
 
 
                     }*/
-                    int indexQualLayer = Convert.ToInt32(Path.GetFileName(opf.FileName).Split('_')[5]);
+                    
+                    string[] args = Path.GetFileName(opf.FileName).Split('_');
+                    int indexQualLayer = Convert.ToInt32(args[args.Length - 2]);
+
                     oamsParaInserir = Layers[indexQualLayer];
                     // string listaSelecionadaNaCombo = comboBoxBGetc.SelectedItem.ToString();
                     string argImg = listaCarregadaDeSprites[listBoxSprites.SelectedIndex];
                     await Task.Run(() => ImportaSprites(opf.FileName, argImg, listaSelecionadaNaCombo, oamsParaInserir));
                     textBoxStatusSprite.Text = "Sprite Importado com sucesso";
+                    int indexUpdate = listBoxSprites.SelectedIndex;
+                    listBoxSprites.SelectedIndex = -1;
+                    listBoxSprites.SelectedIndex = indexUpdate;
 
                 }
             }
@@ -2240,6 +2301,7 @@ namespace Jacutem_AAI2
         private async void button5_Click_1(object sender, EventArgs e)
         {
             string lista = comboBoxSprites.SelectedItem.ToString();
+            LimparTelaDeSprite();
             textBoxStatusSprite.Text = "Importando sprites da pasta Editados...";
             DesativarBotoesSprite();
             await Task.Run(() => ImnpotarSpriteEmLote());
