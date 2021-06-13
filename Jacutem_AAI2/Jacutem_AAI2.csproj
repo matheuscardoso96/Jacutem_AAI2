@@ -35,6 +35,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="dsdecmp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Bibliotecas\dsdecmp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arquivos\AaiBin.cs" />
+    <Compile Include="Arquivos\IntegracaoComNdsTool.cs" />
     <Compile Include="Compressoes\CompressionFormat.cs" />
     <Compile Include="Compressoes\InputTooLargeException.cs" />
     <Compile Include="Compressoes\IOUtils.cs" />
@@ -64,6 +69,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="GerenciadorDeAcessoAsTabs.cs" />
     <Compile Include="Imagens\Btx.cs" />
     <Compile Include="Imagens\ConversorDeImagens.cs" />
     <Compile Include="Imagens\Enums\Bpp.cs" />

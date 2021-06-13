@@ -16,25 +16,23 @@ namespace Jacutem_AAI2
 {
     public partial class Form1 : Form
     {
+        private GerenciadorDeAcessoAsTabs _gerenciadorDeTabs = new GerenciadorDeAcessoAsTabs();
+        private const string _textoAviso = "1- Só é necessário desmontar a ROM uma única vez.\r\n\r\n2- Após a pasta \"ROM_Desmontada\" ser criada, não será possível \"desmontar\" a ROM.\r\n\r\n3- Caso queira desmonstar a ROM novamente, mova ou apague a pasta \"ROM_Desmontada\".";
+        private const string _textoAvisoArquivo = "1- Os arquivos estão localizos no diretório ROM_Desmontada\\data\\.\r\n\r\n" +
+                "2- Para que as modificações sejam aplicadas no jogo, é preciso criar um novo binário cada vez que imagens ou textos forem modificadas.";
+
         public Form1()
         {
             InitializeComponent();
-            DesabilidarComponentes();
-            VerificarDiretorio();
+            AdicionarTextosNosTabs();
+            VerificarDiretorios();
 
-            textBoxAviso.Text = "1- Só é necessário desmontar a ROM uma única vez.\r\n\r\n2- Após a pasta \"ROM_Desmontada\" ser criada, não será possível \"desmontar\" a ROM.\r\n\r\n3- Caso queira desmonstar a ROM novamente, mova ou apague a pasta \"ROM_Desmontada\".";
             
-            if (!Directory.Exists("ROM_Desmontada"))
-            {
-                tabControlAqBinario.Enabled = false;
-                buttonRemontar.Enabled = false;
-            }
-        
-           
+
+
             textBoxPreviaSpt.ScrollBars = ScrollBars.Both;
             AdicionarResolucoesOamAmDicionario();
-            textBoxAvisoArquivo.Text = "1- Os arquivos estão localizos no diretório ROM_Desmontada\\data\\.\r\n\r\n" +
-                "2- Para que as modificações sejam aplicadas no jogo, é preciso criar um novo binário cada vez que imagens ou textos forem modificadas.";
+           
             DesativeComponentes();
             PreencherComboBoxBgEtc();
             PreencherComboBoxSprite();
@@ -48,39 +46,102 @@ namespace Jacutem_AAI2
             }
         }
 
-        private void VerificarDiretorio()
+        private void AdicionarTextosNosTabs()
         {
-            
+            textBoxAviso.Text = _textoAviso;
+            textBoxAvisoArquivo.Text = _textoAvisoArquivo;
+        }
 
-            if (Directory.Exists(@"__Binarios\jpn_spt\"))
+        private void VerificarDiretorios()
+        {
+            _gerenciadorDeTabs.ExcutarVerificacoes();
+
+            if (_gerenciadorDeTabs.ArquivosBinarios)
             {
-                PreencherListBox();
-                buttonImportaTextos.Enabled = true;
-                buttonExportaTTextos.Enabled = true;
+                VoltarPrimeiraAba();
+                textBoxDirRomDesmontada.Text = "ROM_Desmontada";
             }
-
-            if (Directory.Exists(@"__Binarios\"))
-            {
-                buttonExportarImgSel.Enabled = true;
-                buttonExportaPastaImg.Enabled = true;
-                buttonTodasAsPastaImg.Enabled = true;
-                buttonImportaSelecionadoImg.Enabled = true;
-                buttonImportaImgLote.Enabled = true;
-            }
-                                
-
-            if (Directory.Exists("ROM_Desmontada"))
-            {
-                textBoxDirRomDesmontada.Text = "ROM_Desmontada\\";
-                buttonSelcionarDir.Enabled = false;
-                textBoxDirNds.Enabled = false;
-                PopularCbExportacao();
-                
-                comboBoxFonte.Enabled = true;
+            if (_gerenciadorDeTabs.Imagens)
+                VoltarPrimeiraAba();
+            if (_gerenciadorDeTabs.Textos)
+                PreencherListOuCombo(_gerenciadorDeTabs.TextosDir, " *.spt", listBoxSpt);
+            if (_gerenciadorDeTabs.Fontes)
                 PreencherComboBoxFonte();
-               
+
+        }
+
+        private void PreencherListOuCombo(string dir,string extensao, ListControl listbox)
+        {
+            if (listbox.DataSource == null)
+            {
+                listbox.DataSource = Directory.GetFiles(dir, extensao);
+            }
+            
+        }
+
+        private void PreencherComboBoxFonte()
+        {
+            if (comboBoxFonte.Items.Count == 0)
+            {
+                comboBoxFonte.Items.Add("Fonte 1");
+                comboBoxFonte.Items.Add("Fonte 2");
+                comboBoxFonte.Items.Add("Fonte 3");
+            }
+            
+        }
+
+        # region Funções da aba ROM
+        private void button2_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog opf = new OpenFileDialog())
+            {
+
+                opf.Filter = "Arquivo .nds (*.nds)|*.nds|All files (*.*)|*.*";
+
+                if (opf.ShowDialog() == DialogResult.OK)
+                {
+                    textBoxDirNds.Text = opf.FileName;
+                }
             }
         }
+
+
+
+        private async void buttonDesmontar_Click(object sender, EventArgs e)
+        {
+            DesativarOuDesativaBotoesAbaRom(false);
+            textBoxStatusRom.Text = "Aguarde...";
+            var resultado = await Task.Run(() => IntegracaoComNdsTool.DesmontarArquivoNds(textBoxDirNds.Text, "ROM_Desmontada"));
+            textBoxStatusRom.Text = "Concluido!";
+            MessageBox.Show(this, resultado,"Resultado", MessageBoxButtons.OK,MessageBoxIcon.Information);
+            DesativarOuDesativaBotoesAbaRom(true);
+            VerificarDiretorios();
+            textBoxStatusRom.Text = "";
+
+        }
+
+        private async void buttonRemontar_Click(object sender, EventArgs e)
+        {
+               
+            string dirRomDes = textBoxDirRomDesmontada.Text;
+            DesativarOuDesativaBotoesAbaRom(false);
+            textBoxStatusRom.Text = "Aguarde...";
+            var resultado = await Task.Run(() => IntegracaoComNdsTool.NovoArquivoNds(dirRomDes, "AAI2_nova_rom.nds"));
+            textBoxStatusRom.Text = "Concluido!";
+            MessageBox.Show(this, resultado,"Aviso", MessageBoxButtons.OK,MessageBoxIcon.Information);
+            DesativarOuDesativaBotoesAbaRom(true);
+            textBoxStatusRom.Text = "";
+
+
+        }
+
+        private void DesativarOuDesativaBotoesAbaRom(bool ativa)
+        {
+            buttonDesmontar.Enabled = ativa;
+            buttonRemontar.Enabled = ativa;
+        }
+
+        #endregion
 
         private void AdicionarResolucoesOamAmDicionario()
         {
@@ -138,48 +199,7 @@ namespace Jacutem_AAI2
         {
 
         }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog opf = new OpenFileDialog())
-            {
-
-                opf.Filter = "Arquivo .nds (*.nds)|*.nds|All files (*.*)|*.*";
-
-                if (opf.ShowDialog() == DialogResult.OK)
-                {
-                    textBoxDirNds.Text = opf.FileName;
-                }
-            }
-        }
-
-
-
-        private void buttonDesmontar_Click(object sender, EventArgs e)
-        {
-            DesmontarComNdsToll(textBoxDirNds.Text);
-            MessageBox.Show(this, @"ROM desmontada para o seguinte diretório: ROM_Desmontada\",
-                                  "Aviso", MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
-
-            if (textBoxDirRomDesmontada.Text == "")
-            {
-                textBoxDirRomDesmontada.Text = "ROM_Desmontada\\";
-                buttonSelcionarDir.Enabled = false;
-                textBoxDirNds.Enabled = false;
-                PopularCbExportacao();
-                
-                comboBoxFonte.Enabled = true;
-                PreencherComboBoxFonte();
-                buttonExportarImgSel.Enabled = true;
-                buttonExportaPastaImg.Enabled = true;
-                buttonTodasAsPastaImg.Enabled = true;
-                buttonImportaSelecionadoImg.Enabled = true;
-                buttonImportaImgLote.Enabled = true;
-            }
-
-           
-        }
+        
 
         private void textBoxDirNds_TextChanged(object sender, EventArgs e)
         {
@@ -208,28 +228,9 @@ namespace Jacutem_AAI2
             }
         }
 
-        private void DesabilidarComponentes()
-        {
-            if (textBoxDirNds.Text.Length == 0)
-            {
-                buttonDesmontar.Enabled = false;
-            }
 
 
-        }
-
-        private async void buttonRemontar_Click(object sender, EventArgs e)
-        {
-            string dirRomDes = textBoxDirRomDesmontada.Text;
-            buttonRemontar.Enabled = false;
-            textBoxStatusRom.Text = "Aguarde...";
-            await Task.Run(() => RemontarComNdsToll(dirRomDes));
-            MessageBox.Show(this, @"ROM remontada: AAI2_novo.nds",
-                                  "Aviso", MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
-            textBoxStatusRom.Text = "";
-            buttonRemontar.Enabled = true;
-        }
+       
 
 
 
@@ -285,19 +286,6 @@ namespace Jacutem_AAI2
 
                 }
 
-                progressBarBin.Value = 0;
-                if (Directory.Exists(@"__Binarios\jpn_spt\"))
-                {
-                    if (listBoxSpt.Items.Count == 0)
-                    {
-                        PreencherListBox();
-                        buttonImportaTextos.Enabled = true;
-                        buttonExportaTTextos.Enabled = true;
-
-                    }
-                    
-                }
-                AtivarBotoesBin();
 
             }
             else if (comboBoxItensAexportar.SelectedItem.ToString().Contains("com_"))
@@ -340,23 +328,23 @@ namespace Jacutem_AAI2
 
         private void PopularCbExportacao()
         {
-            string[] listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\jpn", "*.bin");
+             string[] listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\jpn", "*.bin");
 
-            comboBoxItensAexportar.Items.Add("Todos");
+              comboBoxItensAexportar.Items.Add("Todos");
 
-            foreach (var item in listaDeArquivos)
-            {
-                comboBoxItensAexportar.Items.Add("jpn_" + Path.GetFileName(item));
-            }
+              foreach (var item in listaDeArquivos)
+              {
+                  comboBoxItensAexportar.Items.Add("jpn_" + Path.GetFileName(item));
+              }
 
-            listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\com", "*.bin");
+              listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\com", "*.bin");
 
-            foreach (var item in listaDeArquivos)
-            {
-                comboBoxItensAexportar.Items.Add("com_" + Path.GetFileName(item));
-            }
+              foreach (var item in listaDeArquivos)
+              {
+                  comboBoxItensAexportar.Items.Add("com_" + Path.GetFileName(item));
+              }
 
-            comboBoxItensAexportar.SelectedIndex = 0;
+              comboBoxItensAexportar.SelectedIndex = 0;
         }
 
         private void PopularCbImportacao()
@@ -375,53 +363,10 @@ namespace Jacutem_AAI2
             comboBoxImportarBinario.SelectedIndex = 0;
         }
 
-        private void DesmontarComNdsToll(string dirRom)
-        {
-            if (dirRom.Contains(" "))
-            {
-                throw new Exception("O caminho para o diretório contém espaços.");
-            }
-
-            if (!Directory.Exists("ROM_Desmontada"))
-            {
-                Directory.CreateDirectory("ROM_Desmontada");
-            }
+        
 
 
-            Process process = new Process();
-            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", @"/c _Tools\ndstool.exe -x " + dirRom + @" -9 ROM_Desmontada\arm9.bin -7 ROM_Desmontada\arm7.bin -y9 ROM_Desmontada\y9.bin -y7 ROM_Desmontada\y7.bin -d ROM_Desmontada\data -y ROM_Desmontada\overlay -t ROM_Desmontada\banner.bin -h ROM_Desmontada\header.bin");
-            process.StartInfo = processInfo;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
-
-            tabControlAqBinario.Enabled = true;
-            buttonRemontar.Enabled = true;
-        }
-
-
-        private void RemontarComNdsToll(string dirRomDesmontada)
-        {
-            if (dirRomDesmontada.Contains(" "))
-            {
-                throw new Exception("O caminho para o diretório contém espaços.");
-            }
-
-            if (!File.Exists(dirRomDesmontada + "\\arm9.bin"))
-            {
-                throw new Exception("Esta pasta não contém os arquivos necessários para remontar a ROM.");
-            }
-
-
-            Process process = new Process();
-            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", @"/c _Tools\ndstool.exe -c " + "AAI2_nova_rom.nds" + @" -9 ROM_Desmontada\arm9.bin -7 ROM_Desmontada\arm7.bin -y9 ROM_Desmontada\y9.bin -y7 ROM_Desmontada\y7.bin -d ROM_Desmontada\data -y ROM_Desmontada\overlay -t ROM_Desmontada\banner.bin -h ROM_Desmontada\header.bin");
-            process.StartInfo = processInfo;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
-        }
+        
 
 
 
@@ -472,7 +417,7 @@ namespace Jacutem_AAI2
                     {
                         await Task.Run(() => AaiBin.Importar(item));
                     }
-                    
+
 
                 }
 
@@ -492,7 +437,7 @@ namespace Jacutem_AAI2
                 {
                     await Task.Run(() => AaiBin.Importar(@"__Binarios\_InfoBinarios\" + alvo));
                 }
-               
+
                 AtivarBotoesBin();
                 textBoxStatusBin.Text = "";
             }
@@ -534,17 +479,7 @@ namespace Jacutem_AAI2
             comboBoxResolucaoOamAdicionar.Items.Add("32x64");
         }
 
-        private void PreencherListBox()
-        {
-            string[] listaDeArquivos = Directory.GetFiles(@"__Binarios\jpn_spt\", "*.spt");
-
-            // comboBoxItensAexportar.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                listBoxSpt.Items.Add(Path.GetFileName(item));
-            }
-        }
+       
 
         private void PreencherComboBoxBgEtc()
         {
@@ -1170,7 +1105,7 @@ namespace Jacutem_AAI2
             listBoxSpritesDoNgcr.Items.Clear();
             DesativarBotoesSprite();
 
-            
+
 
             //checkBoxAtivarBordas = new CheckBox();
             // checkBoxFundoTransparenteOam = new CheckBox();
@@ -1201,7 +1136,7 @@ namespace Jacutem_AAI2
                 checkBoxFundoTransparenteOam.Enabled = true;
                 checkBoxNumerosOam.Enabled = true;
             }
-           
+
             //checkBoxAtivarBordas.Checked = false;
             // checkBoxAtivarBordas.Enabled = false;
             //comboBoxSpritesLista.Enabled = true;
@@ -1448,10 +1383,10 @@ namespace Jacutem_AAI2
             List<Oam> valoresOamClone = new List<Oam>(valoresOam);
             bool temBorda = checkBoxAtivarBordas.Checked;
             List<Bitmap> camadas = new List<Bitmap>();
-                 
+
             List<List<Oam>> Layers = SepararCamadas(valoresOamClone);
 
-           
+
 
             foreach (var llayer in Layers)
             {
@@ -1462,7 +1397,7 @@ namespace Jacutem_AAI2
                     foreach (var item in llayer)
                     {
 
-                       
+
 
                         Rectangle rectangle = new Rectangle((int)item.X, (int)item.Y, item.Imagem.Width, item.Imagem.Height);
                         g.DrawImage(item.Imagem, rectangle);
@@ -1523,7 +1458,7 @@ namespace Jacutem_AAI2
                     Layers.Add(layer);
                     layer = new List<Oam>();
                     layer.Add(valoresOamClone[0]);
-                    
+
                     valoresOamClone.Remove(valoresOamClone[0]);
 
                     if (valoresOamClone.Count == 0)
@@ -1551,7 +1486,7 @@ namespace Jacutem_AAI2
             //  checkBoxEditarPosicao.Checked = false;
             // checkBoxEditarPosicao.Enabled = true;
             //checkBoxEditarPosicao.Enabled = true;
-            if (checkedListBoxSpriteSelecionado.SelectedIndex > - 1)
+            if (checkedListBoxSpriteSelecionado.SelectedIndex > -1)
             {
                 checkBoxEditarPosicao.Enabled = true;
                 string resX = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].Imagem.Width.ToString();
@@ -1630,10 +1565,10 @@ namespace Jacutem_AAI2
                     }
                 }
 
-               
+
             }
 
-            numericUpDownPosOamX.Value =0;
+            numericUpDownPosOamX.Value = 0;
             numericUpDownPosOamY.Value = 0;
 
 
@@ -1723,7 +1658,7 @@ namespace Jacutem_AAI2
         {
             if (checkBoxEditarPosicao.Checked)
             {
-                if (checkedListBoxSpriteSelecionado.SelectedIndex > -1)
+                if (checkedListBoxSpriteSelecionado.SelectedIndex > -1 && listBoxSpritesDoNgcr.SelectedIndex > -1)
                 {
                     int x = (int)numericUpDownPosOamX.Value;
                     _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams[checkedListBoxSpriteSelecionado.SelectedIndex].X = (uint)x;
@@ -1779,7 +1714,7 @@ namespace Jacutem_AAI2
 
         private void numericUpDownPosOamY_ValueChanged(object sender, EventArgs e)
         {
-            if (checkedListBoxSpriteSelecionado.SelectedIndex > -1)
+            if (checkedListBoxSpriteSelecionado.SelectedIndex > -1 && listBoxSpritesDoNgcr.SelectedIndex > -1)
             {
                 if (checkBoxEditarPosicao.Checked)
                 {
@@ -2046,11 +1981,11 @@ namespace Jacutem_AAI2
 
             foreach (var item in imagemFinal)
             {
-                item.Save(dirSave + prefixo + nome + "_camada_"+ contaCamadas +"_.png");
+                item.Save(dirSave + prefixo + nome + "_camada_" + contaCamadas + "_.png");
                 contaCamadas++;
             }
 
-          
+
 
             textBoxStatusSprite.Text = "Exportado para: " + dirSave;
         }
@@ -2088,7 +2023,7 @@ namespace Jacutem_AAI2
                     checkedListBoxSpriteSelecionado.Items.Clear();
                 }
 
-               
+
 
                 if (pictureBoxSprite.Image != null)
                 {
@@ -2097,7 +2032,7 @@ namespace Jacutem_AAI2
                     pictureBoxPaletaOam.Image.Dispose();
                     pictureBoxPaletaOam.Image = null;
                 }
-               
+
 
             }
         }
@@ -2106,7 +2041,7 @@ namespace Jacutem_AAI2
         {
             buttonExportOam.Enabled = false;
             buttonImportOam.Enabled = false;
-            buttonImportSpritesLote.Enabled = false;                      
+            buttonImportSpritesLote.Enabled = false;
             checkBoxAtivarBordas.AutoCheck = false;
             checkBoxFundoTransparenteOam.Enabled = false;
             checkedListBoxSpriteSelecionado.Items.Clear();
@@ -2133,8 +2068,8 @@ namespace Jacutem_AAI2
         }
 
         private void AtivarBotoesSprite()
-        {                   
-            buttonImportSpritesLote.Enabled = true;           
+        {
+            buttonImportSpritesLote.Enabled = true;
             buttonExportSpriteLista.Enabled = true;
             checkBoxAtivarBordas.AutoCheck = true;
             checkBoxFundoTransparenteOam.Enabled = true;
@@ -2147,7 +2082,7 @@ namespace Jacutem_AAI2
         private void ExportarSpritesEmlote(string listaSelecionada)
         {
             string argumento = "";
-            
+
             foreach (var item in listaCarregadaDeSprites)
             {
                 argumento = item;
@@ -2156,9 +2091,9 @@ namespace Jacutem_AAI2
                 foreach (var oam in _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam)
                 {
                     Oams oamsPareExportar = oam;
-                   // Bitmap imagemFinal = new Bitmap(512, 256);
+                    // Bitmap imagemFinal = new Bitmap(512, 256);
                     //oamsPareExportar.TabelaDeOams.Reverse();
-                    
+
                     if (oamsPareExportar.TabelaDeOams.Count > 0)
                     {
                         List<Bitmap> imagemFinal = MonteOamERetorneImagemParaExportacao(oamsPareExportar.TabelaDeOams);
@@ -2175,13 +2110,13 @@ namespace Jacutem_AAI2
 
                         foreach (var camada in imagemFinal)
                         {
-                            camada.Save(dirSave + prefixo + nome + "_"+ indexDoOam + "_camada_" + contaCamadas + "_.png");
+                            camada.Save(dirSave + prefixo + nome + "_" + indexDoOam + "_camada_" + contaCamadas + "_.png");
                             contaCamadas++;
-                            
+
                             camada.Dispose();
                         }
 
-                       
+
                     }
                     indexDoOam++;
 
@@ -2223,7 +2158,7 @@ namespace Jacutem_AAI2
 
 
                     }*/
-                    
+
                     string[] args = Path.GetFileName(opf.FileName).Split('_');
                     int indexQualLayer = Convert.ToInt32(args[args.Length - 2]);
 
@@ -2347,7 +2282,7 @@ namespace Jacutem_AAI2
                     {
                         nomeNgcrFinal += partes[i] + ".ncgr";
                     }
-                    
+
                 }
 
                 nomeNgcr = nomeNgcrFinal;
@@ -2404,10 +2339,10 @@ namespace Jacutem_AAI2
             if (listaSelecionada.Contains("3_mapa_sprites_modo_1"))
             {
                 string[] argumentos = argumentosImg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0], argumentos[2]);                          
+                Ncgr ncgr = new Ncgr(argumentos[0], argumentos[2]);
                 List<Oam> oams = ncgr.ArquivoNcer.GrupoDeTabelasOam[indexTabela].TabelaDeOams;
                 oams.Reverse();
-                List<List<Oam>> Layers = SepararCamadas(oams);             
+                List<List<Oam>> Layers = SepararCamadas(oams);
                 oams = Layers[indexQualLayer];
                 ncgr.ImportaNCGRSprites(dirImg, argumentos[1], oams);
 
@@ -2865,12 +2800,7 @@ namespace Jacutem_AAI2
 
         }
 
-        private void PreencherComboBoxFonte()
-        {
-            comboBoxFonte.Items.Add("Fonte 1");
-            comboBoxFonte.Items.Add("Fonte 2");
-            comboBoxFonte.Items.Add("Fonte 3");
-        }
+       
 
         private void listBoxFonteProp_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -3140,7 +3070,7 @@ namespace Jacutem_AAI2
         {
             ushort resX = Convert.ToUInt16(comboBoxResolucaoOamAdicionar.SelectedItem.ToString().Split('x')[0]);
             ushort resY = Convert.ToUInt16(comboBoxResolucaoOamAdicionar.SelectedItem.ToString().Split('x')[1]);
-            _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Reverse();
+            //  _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Reverse();
             _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Add(new Oam(_ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.First(),
                 resX,
                resY));
@@ -3215,6 +3145,92 @@ namespace Jacutem_AAI2
 
             _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Last();
 
+            int obt0Backup = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Last()._atributosOBJ0;
+            int obt1Backup = _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Last()._atributosOBJ1;
+            int objShape = 0;
+            int objSize = 0;
+
+            if (resX == resY)
+            {
+                objShape = 0;
+                switch (resX)
+                {
+                    case 8:
+                        objSize = 0;
+                        break;
+                    case 16:
+                        objSize = 1;
+                        break;
+                    case 32:
+                        objSize = 2;
+                        break;
+                    case 64:
+                        objSize = 3;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (resX > resY)
+            {
+                objShape = 1;
+                if (resX == 16)
+                {
+                    objSize = 0;
+                }
+                else if (resX == 32)
+                {
+                    if (resY == 8)
+                    {
+                        objSize = 1;
+                    }
+                    else
+                    {
+                        objSize = 2;
+                    }
+                }
+                else
+                {
+                    objSize = 3;
+                }
+            }
+            else
+            {
+                switch (resY)
+                {
+                    case 16:
+                        objSize = 0;
+                        break;
+                    case 32:
+                        if (resX == 8)
+                        {
+                            objSize = 1;
+                        }
+                        else
+                        {
+                            objSize = 2;
+                        }
+
+                        break;
+                    case 64:
+                        objSize = 3;
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            obt0Backup = obt0Backup & 0x3FF;
+            obt0Backup = obt0Backup | (objShape << 14);
+
+            obt1Backup &= ~(3 << 14);
+            obt1Backup = obt0Backup | (objSize << 14);
+
+            _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Last()._atributosOBJ0 = (ushort)obt0Backup;
+            _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Last()._atributosOBJ1 = (ushort)obt1Backup;
+            //  _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam[listBoxSpritesDoNgcr.SelectedIndex].TabelaDeOams.Reverse();
+
         }
 
         private void checkBoxNumerosOam_CheckedChanged(object sender, EventArgs e)
@@ -3249,8 +3265,8 @@ namespace Jacutem_AAI2
             }
             else
             {
-                dirNcer = argumentosImg.Split(',')[0];
-                dirNcgr = argumentosImg.Split(',')[2];
+                dirNcgr = argumentosImg.Split(',')[0];
+                dirNcer = argumentosImg.Split(',')[2];
             }
 
             _ncgrSpriteCarregado.ArquivoNcer.SalvarNcer(dirNcer);
@@ -3270,6 +3286,47 @@ namespace Jacutem_AAI2
             buttonImportOam.Enabled = true;
             buttonImportSpritesLote.Enabled = true;
 
+            _adicionouOam = false;
+            _imagemNovaTemporaria = null;
+
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ControlarAcesso();
+        }
+
+        private void ControlarAcesso()
+        {
+            switch (tabControl1.SelectedIndex)
+            {
+
+                case 1:
+                    if (!_gerenciadorDeTabs.ArquivosBinarios)
+                        VoltarPrimeiraAba();
+                    break;
+                case 2:
+                    if (!_gerenciadorDeTabs.Imagens)
+                        VoltarPrimeiraAba();
+                    break;
+                case 3:
+                    if (!_gerenciadorDeTabs.Textos)
+                        VoltarPrimeiraAba();
+                    break;
+                case 4:
+                    if (!_gerenciadorDeTabs.Fontes)
+                        VoltarPrimeiraAba();
+                    break;
+                default:
+                    VoltarPrimeiraAba();
+                    break;
+            }
+
+        }
+
+        private void VoltarPrimeiraAba()
+        {
+            tabControl1.SelectedIndex = 0;
         }
     }
 

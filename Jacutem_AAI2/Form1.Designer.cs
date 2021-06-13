@@ -107,6 +107,7 @@
             this.listBoxBGetc = new System.Windows.Forms.ListBox();
             this.pictureBoxBgetc = new System.Windows.Forms.PictureBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.button2 = new System.Windows.Forms.Button();
             this.checkBoxNumerosOam = new System.Windows.Forms.CheckBox();
             this.comboBoxResolucaoOamAdicionar = new System.Windows.Forms.ComboBox();
             this.buttonSalvarModifcaoesOam = new System.Windows.Forms.Button();
@@ -220,7 +221,6 @@
             this.pictureBoxFonte = new System.Windows.Forms.PictureBox();
             this.listBoxFonteProp = new System.Windows.Forms.ListBox();
             this.comboBoxFonte = new System.Windows.Forms.ComboBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel13.SuspendLayout();
@@ -300,6 +300,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1320, 665);
             this.tabControl1.TabIndex = 1;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -1135,6 +1136,17 @@
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Sprites";
             this.tabPage5.Click += new System.EventHandler(this.tabPage5_Click);
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(656, 377);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(118, 30);
+            this.button2.TabIndex = 28;
+            this.button2.Text = "Salvar Imagem";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Visible = false;
             // 
             // checkBoxNumerosOam
             // 
@@ -2294,24 +2306,12 @@
             // comboBoxFonte
             // 
             this.comboBoxFonte.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxFonte.Enabled = false;
             this.comboBoxFonte.FormattingEnabled = true;
             this.comboBoxFonte.Location = new System.Drawing.Point(17, 9);
             this.comboBoxFonte.Name = "comboBoxFonte";
             this.comboBoxFonte.Size = new System.Drawing.Size(144, 21);
             this.comboBoxFonte.TabIndex = 0;
             this.comboBoxFonte.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
-            // 
-            // button2
-            // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(656, 377);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(118, 30);
-            this.button2.TabIndex = 28;
-            this.button2.Text = "Salvar Imagem";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Visible = false;
             // 
             // Form1
             // 

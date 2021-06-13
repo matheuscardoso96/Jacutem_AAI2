@@ -257,7 +257,7 @@ namespace Jacutem_AAI2.Imagens
 
             if (Bpp == Bpp.bpp4)
             {
-                List<byte[]> imgEhTilemap = cv.Converta8bppNcgrTileMap(dirImg);
+                List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
                 InsiranoNcgrEhNcsr(imgEhTilemap, dirNscr);
                // InsiraBytes(img);
             }
@@ -314,13 +314,8 @@ namespace Jacutem_AAI2.Imagens
         {
             byte[] imgOg = File.ReadAllBytes(DirNcgr);
             MemoryStream ms = new MemoryStream(imgOg);
-            using (BinaryWriter bw = new BinaryWriter(ms))
-            {
-                bw.BaseStream.Position = 0x30;
-                bw.Write(imgEhTilemap[1]);
-                imgOg = ms.ToArray();
-                File.WriteAllBytes(DirNcgr, imgOg);
-            }
+            GerarNovoNgcrParaOamAdicionado(DirNcgr, imgEhTilemap[1]);
+          
 
             MemoryStream nscr = new MemoryStream(File.ReadAllBytes(dirNcsr));
 
