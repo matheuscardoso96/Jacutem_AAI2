@@ -13,10 +13,12 @@ namespace Jacutem_AAI2
         public bool Imagens { get; set; }       
         public bool Textos { get; set; }       
         public bool Fontes { get; set; }
+        public bool ImportarBinarios { get; set; }
         public string ArquivosBinariosDir { get; } = "ROM_Desmontada";
         public string ImagenssDir { get; } = "__Binarios";
         public string TextosDir { get; } = @"__Binarios\jpn_spt";
         public string FontesDir { get; } = @"ROM_Desmontada\arm9.bin";
+        public string ImportarBinariosDir { get; } = @"__Binarios\_InfoBinarios\";
 
         public GerenciadorDeAcessoAsTabs()
         {
@@ -29,6 +31,7 @@ namespace Jacutem_AAI2
             VerificaAbaImagens();
             VerificaAbaTextos();
             VerificaAbaFontes();
+            VerificaImportacaoBinarios();
         }
 
 
@@ -45,7 +48,7 @@ namespace Jacutem_AAI2
 
         private void VerificaAbaTextos()
         {            
-            Textos = VerificaPastas(TextosDir);
+            Textos = VerificaArquivos(TextosDir);
         }
 
         private void VerificaAbaFontes()
@@ -53,20 +56,34 @@ namespace Jacutem_AAI2
             Fontes = File.Exists(FontesDir);
         }
 
+        private void VerificaImportacaoBinarios()
+        {
+            ImportarBinarios = VerificaArquivos(ImportarBinariosDir);
+        }
+
         private bool VerificaPastas(string dir)
         {
             if (Directory.Exists(dir))
             {
-
-                if (Directory.GetFiles(dir).Length > 0)
-                {
+                if (Directory.GetDirectories(dir).Length > 0)
                     return true;
-                }
                 else
-                {
                     return false;
-                }
+            }
+            else
+            {
+                return false;
+            }
+        }
 
+        private bool VerificaArquivos(string dir)
+        {
+            if (Directory.Exists(dir))
+            {
+                if (Directory.GetFiles(dir).Length > 0)
+                    return true;
+                else
+                    return false;
             }
             else
             {

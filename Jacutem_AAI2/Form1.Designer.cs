@@ -61,7 +61,6 @@
             this.panel6 = new System.Windows.Forms.Panel();
             this.label6 = new System.Windows.Forms.Label();
             this.panel7 = new System.Windows.Forms.Panel();
-            this.comboBoxItensAexportar = new System.Windows.Forms.ComboBox();
             this.buttonExportarBin = new System.Windows.Forms.Button();
             this.panel8 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
@@ -221,6 +220,7 @@
             this.pictureBoxFonte = new System.Windows.Forms.PictureBox();
             this.listBoxFonteProp = new System.Windows.Forms.ListBox();
             this.comboBoxFonte = new System.Windows.Forms.ComboBox();
+            this.btnCriarTodosBinarios = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel13.SuspendLayout();
@@ -512,7 +512,6 @@
             this.label1.Size = new System.Drawing.Size(115, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Diretório da ROM .nds:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // tabControlAqBinario
             // 
@@ -598,9 +597,9 @@
             this.panel6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel6.Controls.Add(this.label6);
             this.panel6.Controls.Add(this.panel7);
-            this.panel6.Location = new System.Drawing.Point(27, 27);
+            this.panel6.Location = new System.Drawing.Point(27, 8);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(325, 151);
+            this.panel6.Size = new System.Drawing.Size(325, 185);
             this.panel6.TabIndex = 0;
             // 
             // label6
@@ -615,21 +614,11 @@
             // panel7
             // 
             this.panel7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel7.Controls.Add(this.comboBoxItensAexportar);
             this.panel7.Controls.Add(this.buttonExportarBin);
             this.panel7.Location = new System.Drawing.Point(16, 27);
             this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(289, 100);
+            this.panel7.Size = new System.Drawing.Size(289, 147);
             this.panel7.TabIndex = 0;
-            // 
-            // comboBoxItensAexportar
-            // 
-            this.comboBoxItensAexportar.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxItensAexportar.FormattingEnabled = true;
-            this.comboBoxItensAexportar.Location = new System.Drawing.Point(31, 12);
-            this.comboBoxItensAexportar.Name = "comboBoxItensAexportar";
-            this.comboBoxItensAexportar.Size = new System.Drawing.Size(233, 21);
-            this.comboBoxItensAexportar.TabIndex = 4;
             // 
             // buttonExportarBin
             // 
@@ -637,9 +626,9 @@
             this.buttonExportarBin.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.buttonExportarBin.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.buttonExportarBin.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.buttonExportarBin.Location = new System.Drawing.Point(92, 51);
+            this.buttonExportarBin.Location = new System.Drawing.Point(46, 57);
             this.buttonExportarBin.Name = "buttonExportarBin";
-            this.buttonExportarBin.Size = new System.Drawing.Size(112, 23);
+            this.buttonExportarBin.Size = new System.Drawing.Size(189, 39);
             this.buttonExportarBin.TabIndex = 2;
             this.buttonExportarBin.Text = "Exportar";
             this.buttonExportarBin.UseVisualStyleBackColor = false;
@@ -651,9 +640,9 @@
             this.panel8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel8.Controls.Add(this.label7);
             this.panel8.Controls.Add(this.panel9);
-            this.panel8.Location = new System.Drawing.Point(388, 27);
+            this.panel8.Location = new System.Drawing.Point(388, 8);
             this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(325, 151);
+            this.panel8.Size = new System.Drawing.Size(325, 186);
             this.panel8.TabIndex = 2;
             // 
             // label7
@@ -668,11 +657,12 @@
             // panel9
             // 
             this.panel9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel9.Controls.Add(this.btnCriarTodosBinarios);
             this.panel9.Controls.Add(this.comboBoxImportarBinario);
             this.panel9.Controls.Add(this.buttonBnJpnCom);
             this.panel9.Location = new System.Drawing.Point(13, 27);
             this.panel9.Name = "panel9";
-            this.panel9.Size = new System.Drawing.Size(298, 100);
+            this.panel9.Size = new System.Drawing.Size(298, 147);
             this.panel9.TabIndex = 0;
             // 
             // comboBoxImportarBinario
@@ -689,11 +679,11 @@
             this.buttonBnJpnCom.BackColor = System.Drawing.SystemColors.Control;
             this.buttonBnJpnCom.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
             this.buttonBnJpnCom.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.buttonBnJpnCom.Location = new System.Drawing.Point(94, 51);
+            this.buttonBnJpnCom.Location = new System.Drawing.Point(94, 42);
             this.buttonBnJpnCom.Name = "buttonBnJpnCom";
-            this.buttonBnJpnCom.Size = new System.Drawing.Size(112, 23);
+            this.buttonBnJpnCom.Size = new System.Drawing.Size(112, 32);
             this.buttonBnJpnCom.TabIndex = 2;
-            this.buttonBnJpnCom.Text = "Criar";
+            this.buttonBnJpnCom.Text = "Criar selecionado";
             this.buttonBnJpnCom.UseVisualStyleBackColor = false;
             this.buttonBnJpnCom.Click += new System.EventHandler(this.buttonBnJpnCom_Click);
             // 
@@ -2313,6 +2303,19 @@
             this.comboBoxFonte.TabIndex = 0;
             this.comboBoxFonte.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // btnCriarTodosBinarios
+            // 
+            this.btnCriarTodosBinarios.BackColor = System.Drawing.SystemColors.Control;
+            this.btnCriarTodosBinarios.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.btnCriarTodosBinarios.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnCriarTodosBinarios.Location = new System.Drawing.Point(94, 104);
+            this.btnCriarTodosBinarios.Name = "btnCriarTodosBinarios";
+            this.btnCriarTodosBinarios.Size = new System.Drawing.Size(112, 23);
+            this.btnCriarTodosBinarios.TabIndex = 5;
+            this.btnCriarTodosBinarios.Text = "Criar todos";
+            this.btnCriarTodosBinarios.UseVisualStyleBackColor = false;
+            this.btnCriarTodosBinarios.Click += new System.EventHandler(this.btnCriarTodosBinarios_Click_3);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2459,7 +2462,6 @@
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBoxAvisoArquivo;
-        private System.Windows.Forms.ComboBox comboBoxItensAexportar;
         private System.Windows.Forms.ComboBox comboBoxImportarBinario;
         private System.Windows.Forms.ListBox listBoxSpt;
         private System.Windows.Forms.Label label9;
@@ -2620,6 +2622,7 @@
         private System.Windows.Forms.ComboBox comboBoxResolucaoOamAdicionar;
         private System.Windows.Forms.CheckBox checkBoxNumerosOam;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnCriarTodosBinarios;
     }
 }
 

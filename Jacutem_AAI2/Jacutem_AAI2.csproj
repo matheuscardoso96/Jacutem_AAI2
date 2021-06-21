@@ -53,7 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arquivos\AaiBin.cs" />
+    <Compile Include="Arquivos\EntradaAAIBin.cs" />
     <Compile Include="Arquivos\IntegracaoComNdsTool.cs" />
+    <Compile Include="Compressoes\BLZ.cs" />
     <Compile Include="Compressoes\CompressionFormat.cs" />
     <Compile Include="Compressoes\InputTooLargeException.cs" />
     <Compile Include="Compressoes\IOUtils.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="Imagens\Enums\Bpp.cs" />
     <Compile Include="Imagens\Enums\OBJMode.cs" />
     <Compile Include="Imagens\Enums\OBJShape.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
     <Compile Include="Imagens\Ncer.cs" />
     <Compile Include="Imagens\Ncgr.cs" />
     <Compile Include="Imagens\Nclr.cs" />

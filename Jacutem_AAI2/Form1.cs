@@ -25,25 +25,19 @@ namespace Jacutem_AAI2
         {
             InitializeComponent();
             AdicionarTextosNosTabs();
-            VerificarDiretorios();
+            VerificarLiberacaoAcessoAsTabs();
+           
 
             
-
-
-            textBoxPreviaSpt.ScrollBars = ScrollBars.Both;
             AdicionarResolucoesOamAmDicionario();
            
-            DesativeComponentes();
-            PreencherComboBoxBgEtc();
-            PreencherComboBoxSprite();
-            PreencherComboBoxTexturas();
-            PreencherComboBoxResolucoesOam();
-            PreencherComboBoxTabelaCarac();
+           // PreencherComboBoxBgEtc();
+           //   PreencherComboBoxSprite();
+           // PreencherComboBoxTexturas();
+          //  PreencherComboBoxResolucoesOam();
+           // PreencherComboBoxTabelaCarac();
 
-            if (Directory.Exists(@"__Binarios\_InfoBinarios"))
-            {
-                PopularCbImportacao();
-            }
+           
         }
 
         private void AdicionarTextosNosTabs()
@@ -52,43 +46,62 @@ namespace Jacutem_AAI2
             textBoxAvisoArquivo.Text = _textoAvisoArquivo;
         }
 
-        private void VerificarDiretorios()
+        private void VerificarLiberacaoAcessoAsTabs()
         {
             _gerenciadorDeTabs.ExcutarVerificacoes();
+
 
             if (_gerenciadorDeTabs.ArquivosBinarios)
             {
                 VoltarPrimeiraAba();
                 textBoxDirRomDesmontada.Text = "ROM_Desmontada";
             }
+
             if (_gerenciadorDeTabs.Imagens)
-                VoltarPrimeiraAba();
+            {
+                var listaDeResolucoes = new List<string>() { "8x8", "16x16", "32x32", "64x64", "16x8", "32x8", "32x16", "64x32", "8x16", "8x32", "16x32", "32x64" };
+                PreencherListOuCombo(listaDeResolucoes, comboBoxResolucoesOam);
+                PreencherListOuCombo(listaDeResolucoes, comboBoxResolucaoOamAdicionar);
+                
+            }
+               
+
             if (_gerenciadorDeTabs.Textos)
-                PreencherListOuCombo(_gerenciadorDeTabs.TextosDir, " *.spt", listBoxSpt);
+            {
+                PreencherListOuCombo(_gerenciadorDeTabs.TextosDir, "*.spt", listBoxSpt);
+                textBoxPreviaSpt.ScrollBars = ScrollBars.Both;
+            }
+                
+
+            if (_gerenciadorDeTabs.ImportarBinarios)
+            {
+                PreencherListOuCombo(_gerenciadorDeTabs.ImportarBinariosDir, "*.txt", comboBoxImportarBinario);
+               
+            }
+               
+
             if (_gerenciadorDeTabs.Fontes)
-                PreencherComboBoxFonte();
+            {
+                var listaFontes = new List<string>() { "Fonte 1", "Fonte 2", "Fonte 3" };
+                PreencherListOuCombo(listaFontes, comboBoxFonte);
+            }
+                
 
         }
 
         private void PreencherListOuCombo(string dir,string extensao, ListControl listbox)
         {
             if (listbox.DataSource == null)
-            {
                 listbox.DataSource = Directory.GetFiles(dir, extensao);
-            }
+            
             
         }
 
-        private void PreencherComboBoxFonte()
+        private void PreencherListOuCombo(List<string> dir, ListControl listbox)
         {
-            if (comboBoxFonte.Items.Count == 0)
-            {
-                comboBoxFonte.Items.Add("Fonte 1");
-                comboBoxFonte.Items.Add("Fonte 2");
-                comboBoxFonte.Items.Add("Fonte 3");
-            }
-            
+            listbox.DataSource = dir;           
         }
+
 
         # region Funções da aba ROM
         private void button2_Click(object sender, EventArgs e)
@@ -105,6 +118,29 @@ namespace Jacutem_AAI2
             }
         }
 
+        private void textBoxDirNds_TextChanged(object sender, EventArgs e)
+        {
+            if (textBoxDirNds.TextLength > 0)
+            {
+                if (textBoxDirNds.Text.Contains(".nds"))
+                {
+                    buttonDesmontar.Enabled = true;
+                }
+            }
+            else
+            {
+                buttonDesmontar.Enabled = false;
+            }
+
+
+
+            if (textBoxDirRomDesmontada.TextLength > 0)
+            {
+
+                buttonRemontar.Enabled = true;
+
+            }
+        }
 
 
         private async void buttonDesmontar_Click(object sender, EventArgs e)
@@ -115,7 +151,7 @@ namespace Jacutem_AAI2
             textBoxStatusRom.Text = "Concluido!";
             MessageBox.Show(this, resultado,"Resultado", MessageBoxButtons.OK,MessageBoxIcon.Information);
             DesativarOuDesativaBotoesAbaRom(true);
-            VerificarDiretorios();
+            VerificarLiberacaoAcessoAsTabs();
             textBoxStatusRom.Text = "";
 
         }
@@ -126,7 +162,7 @@ namespace Jacutem_AAI2
             string dirRomDes = textBoxDirRomDesmontada.Text;
             DesativarOuDesativaBotoesAbaRom(false);
             textBoxStatusRom.Text = "Aguarde...";
-            var resultado = await Task.Run(() => IntegracaoComNdsTool.NovoArquivoNds(dirRomDes, "AAI2_nova_rom.nds"));
+            var resultado = await Task.Run(() => IntegracaoComNdsTool.NovoArquivoNds(dirRomDes, "AAI2_"));
             textBoxStatusRom.Text = "Concluido!";
             MessageBox.Show(this, resultado,"Aviso", MessageBoxButtons.OK,MessageBoxIcon.Information);
             DesativarOuDesativaBotoesAbaRom(true);
@@ -163,7 +199,7 @@ namespace Jacutem_AAI2
         private void DesativeComponentes()
         {
             //  checkBox1.ForeColor = Color.Gray; // Read-only appearance
-            checkBox4Bpp.AutoCheck = false;
+           /* checkBox4Bpp.AutoCheck = false;
             //  checkBox2.ForeColor = Color.Gray; // Read-only appearance
             checkBox8Bpp.AutoCheck = false;
             //  checkBox2.ForeColor = Color.Gray; // Read-only appearance
@@ -191,278 +227,105 @@ namespace Jacutem_AAI2
             numericUpDownPosOamY.Enabled = false;
             numericUpDownPosOamY.Minimum = 0;
             numericUpDownPosOamY.Maximum = 255;
-            checkedListBoxSpriteSelecionado.Enabled = false;
+            checkedListBoxSpriteSelecionado.Enabled = false;*/
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-        
-
-        private void textBoxDirNds_TextChanged(object sender, EventArgs e)
-        {
-            if (textBoxDirNds.TextLength > 0)
-            {
-                if (textBoxDirNds.Text.Contains(".nds"))
-                {
-                    buttonDesmontar.Enabled = true;
-                }
-            }
-            else
-            {
-                buttonDesmontar.Enabled = false;
-            }
-
-            if (Directory.Exists("ROM_Desmontada"))
-            {
-                buttonDesmontar.Enabled = false;
-            }
-
-            if (textBoxDirRomDesmontada.TextLength > 0)
-            {
-
-                buttonRemontar.Enabled = true;
-
-            }
-        }
 
 
-
-       
-
-
+        #region Funções da aba Arquivos Binários
 
         private async void button5_Click(object sender, EventArgs e)
         {
-            if (comboBoxItensAexportar.SelectedItem.ToString().Contains("Todos"))
-            {
-
-                if (!Directory.Exists("__Binarios"))
-                {
-                    Directory.CreateDirectory("__Binarios");
-                }
-
-                DesativarBotoesBin();
-
-                string[] listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\jpn", "*.bin");
-
-                progressBarBin.Minimum = 0;
-                progressBarBin.Maximum = listaDeArquivos.Length;
-
-                foreach (var item in listaDeArquivos)
-                {
-                    await Task.Run(() => AaiBin.Exportar(item, "jpn"));
-                    progressBarBin.Value += 1;
-                    textBoxStatusBin.Text = Path.GetFileName(item);
-                }
-
-                progressBarBin.Value = 0;
-
-                listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\com", "*.bin");
-
-                progressBarBin.Minimum = 0;
-                progressBarBin.Maximum = listaDeArquivos.Length;
-
-                foreach (var item in listaDeArquivos)
-                {
-                    if (item.Contains("mapchar_ed.bin") || item.Contains("mapchar.decomp"))
-                    {
-                        progressBarBin.Value += 1;
-                        continue;
-                    }
-                    progressBarBin.Value += 1;
-
-                    if (item.Contains("mapchar.decomp"))
-                    {
-                        await Task.Run(() => AaiBin.ExporteBinComLista(@"ROM_Desmontada\data\com\" + item));
-                    }
-                    else
-                    {
-                        await Task.Run(() => AaiBin.Exportar(item, "com"));
-                    }
-
-
-                }
-
-
-            }
-            else if (comboBoxItensAexportar.SelectedItem.ToString().Contains("com_"))
-            {
-                textBoxStatusBin.Text = "Aguarde...";
-                string alvo = comboBoxItensAexportar.SelectedItem.ToString().Replace("com_", "");
-                DesativarBotoesBin();
-                if (alvo.Contains("mapchar.decomp"))
-                {
-                    await Task.Run(() => AaiBin.ExporteBinComLista(@"ROM_Desmontada\data\com\" + alvo));
-                }
-                else
-                {
-                    await Task.Run(() => AaiBin.Exportar(@"ROM_Desmontada\data\com\" + alvo, "com"));
-                }
-
-                AtivarBotoesBin();
-                textBoxStatusBin.Text = "";
-            }
-            else if (comboBoxItensAexportar.SelectedItem.ToString().Contains("jpn_"))
-            {
-                textBoxStatusBin.Text = "Aguarde...";
-                string alvo = comboBoxItensAexportar.SelectedItem.ToString().Replace("jpn_", "");
-                DesativarBotoesBin();
-                await Task.Run(() => AaiBin.Exportar(@"ROM_Desmontada\data\jpn\" + alvo, "jpn"));
-                AtivarBotoesBin();
-                textBoxStatusBin.Text = "";
-            }
-
-            comboBoxImportarBinario.Items.Clear();
-            PopularCbImportacao();
-
+            DesativarOuAtivarBotoesBin(false);
+            await ExportarBinarios();          
             MessageBox.Show(this, @"Exportação de binários concluída para o diretório: _Binarios\\",
                                   "Aviso", MessageBoxButtons.OK,
                                   MessageBoxIcon.Information);
+            VerificarLiberacaoAcessoAsTabs();
+            DesativarOuAtivarBotoesBin(true);
             textBoxStatusBin.Text = "";
-
-        }
-
-
-        private void PopularCbExportacao()
-        {
-             string[] listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\jpn", "*.bin");
-
-              comboBoxItensAexportar.Items.Add("Todos");
-
-              foreach (var item in listaDeArquivos)
-              {
-                  comboBoxItensAexportar.Items.Add("jpn_" + Path.GetFileName(item));
-              }
-
-              listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data\com", "*.bin");
-
-              foreach (var item in listaDeArquivos)
-              {
-                  comboBoxItensAexportar.Items.Add("com_" + Path.GetFileName(item));
-              }
-
-              comboBoxItensAexportar.SelectedIndex = 0;
-        }
-
-        private void PopularCbImportacao()
-        {
-            string[] listaDeArquivos = Directory.GetFiles(@"__Binarios\_InfoBinarios\", "*.txt");
-
-            comboBoxImportarBinario.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                comboBoxImportarBinario.Items.Add(Path.GetFileName(item));
-            }
-
-
-
-            comboBoxImportarBinario.SelectedIndex = 0;
-        }
-
-        
-
-
-        
-
-
-
-        private void ImportaCom(string arg)
-        {
-            if (arg.Contains("Todos"))
-            {
-                string[] listaDeArquivosExt = Directory.GetFiles(@"__Binarios\_InfoBinarios\", "*.txt");
-
-                foreach (var item in listaDeArquivosExt)
-                {
-                    if (item.Contains("jpn_"))
-                    {
-                        continue;
-                    }
-
-                    AaiBin.Importar(item);
-                }
-            }
-            else
-            {
-                AaiBin.Importar(@"__Binarios\_InfoBinarios\" + arg);
-            }
-
-
 
         }
 
         private async void buttonBnJpnCom_Click(object sender, EventArgs e)
         {
-            if (comboBoxImportarBinario.SelectedItem.ToString().Contains("Todos"))
-            {
-                DesativarBotoesBin();
-                string[] listaDeArquivosExt = Directory.GetFiles(@"__Binarios\_InfoBinarios\", "*.txt");
 
-                progressBarBin.Minimum = 0;
-                progressBarBin.Maximum = listaDeArquivosExt.Length;
-
-                foreach (var item in listaDeArquivosExt)
-                {
-                    textBoxStatusBin.Text = Path.GetFileName(item);
-                    progressBarBin.Value += 1;
-                    if (item.Contains("com_mapchar.decomp"))
-                    {
-                        await Task.Run(() => AaiBin.ImporteBin(@"__Binarios\com_mapchar.decomp\", @"ROM_Desmontada\data\com\mapchar.decomp"));
-                    }
-                    else
-                    {
-                        await Task.Run(() => AaiBin.Importar(item));
-                    }
-
-
-                }
-
-                progressBarBin.Value = 0;
-                AtivarBotoesBin();
-            }
-            else
-            {
-                textBoxStatusBin.Text = "Aguarde...";
-                string alvo = comboBoxImportarBinario.SelectedItem.ToString();
-                DesativarBotoesBin();
-                if (alvo.Contains("com_mapchar.decomp"))
-                {
-                    await Task.Run(() => AaiBin.ImporteBin(@"__Binarios\com_mapchar.decomp\", @"ROM_Desmontada\data\com\mapchar.decomp"));
-                }
-                else
-                {
-                    await Task.Run(() => AaiBin.Importar(@"__Binarios\_InfoBinarios\" + alvo));
-                }
-
-                AtivarBotoesBin();
-                textBoxStatusBin.Text = "";
-            }
-
-
-            MessageBox.Show(this, @"Binário(s) criado(s) e inserido(s) na ROM com sucesso.",
+            textBoxStatusBin.Text = Path.GetFileName((string)comboBoxImportarBinario.SelectedItem);
+            string listaSelecionada = (string)comboBoxImportarBinario.SelectedItem;
+            MessageBox.Show(this, await Task.Run(() => AaiBin.Importar(listaSelecionada)),
                                  "Aviso", MessageBoxButtons.OK,
                                  MessageBoxIcon.Information);
-            textBoxStatusBin.Text = "";
         }
+
+        private async void btnCriarTodosBinarios_Click_3(object sender, EventArgs e)
+        {
+            DesativarOuAtivarBotoesBin(false);
+            await RecriarBinarios();
+            progressBarBin.Value = 0;
+            DesativarOuAtivarBotoesBin(true);
+        }
+
+        private async Task ExportarBinarios()
+        {
+           
+            string[] listaDeArquivos = Directory.GetFiles(@"ROM_Desmontada\data", "*.bin",SearchOption.AllDirectories);
+
+            progressBarBin.Minimum = 0;
+            progressBarBin.Maximum = listaDeArquivos.Length;
+
+            foreach (var dir in listaDeArquivos)
+            {
+                if (dir.Contains("data\\data\\"))
+                    continue;
+                
+                string jpnOuCom = dir.Contains("jpn") ? "jpn" : "com";
+                await Task.Run(() => AaiBin.Exportar(dir, jpnOuCom));
+                progressBarBin.Value += 1;
+                textBoxStatusBin.Text = Path.GetFileName(dir);
+            }
+
+            progressBarBin.Value = 0;            
+
+        }
+
+
+
+        private async Task RecriarBinarios()
+        {
+
+            var dirListaArquivos =(string[])comboBoxImportarBinario.DataSource;
+
+            progressBarBin.Minimum = 0;
+            progressBarBin.Maximum = dirListaArquivos.Length;
+
+            foreach (var dirLista in dirListaArquivos)
+            {
+                textBoxStatusBin.Text = Path.GetFileName(dirLista);
+                progressBarBin.Value += 1;
+                await Task.Run(() => AaiBin.Importar(dirLista));              
+            }
+
+        }
+
+
+        private void DesativarOuAtivarBotoesBin(bool ativa)
+        {
+            buttonExportarBin.Enabled = ativa;
+            buttonBnJpnCom.Enabled = ativa;
+            comboBoxImportarBinario.Enabled = ativa;
+            btnCriarTodosBinarios.Enabled = ativa;
+
+        }
+
+        #endregion
+
 
         private void PreencherComboBoxResolucoesOam()
         {
-            comboBoxResolucoesOam.Items.Add("8x8");
-            comboBoxResolucoesOam.Items.Add("16x16");
-            comboBoxResolucoesOam.Items.Add("32x32");
-            comboBoxResolucoesOam.Items.Add("64x64");
-            comboBoxResolucoesOam.Items.Add("16x8");
-            comboBoxResolucoesOam.Items.Add("32x8");
-            comboBoxResolucoesOam.Items.Add("32x16");
-            comboBoxResolucoesOam.Items.Add("64x32");
-            comboBoxResolucoesOam.Items.Add("8x16");
-            comboBoxResolucoesOam.Items.Add("8x32");
-            comboBoxResolucoesOam.Items.Add("16x32");
-            comboBoxResolucoesOam.Items.Add("32x64");
+            
+
+            
 
 
             comboBoxResolucaoOamAdicionar.Items.Add("8x8");
@@ -544,7 +407,7 @@ namespace Jacutem_AAI2
 
         private async void listBoxSpt_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DesativarBotoesTexto();
+           /*DesativarBotoesTexto();
             textBoxPreviaSpt.Text = "";
             listBoxSpt.Enabled = false;
             string alvo = listBoxSpt.SelectedItem.ToString();
@@ -554,7 +417,7 @@ namespace Jacutem_AAI2
             textBoxUltimoScript.Text = alvo;
             AtivarBotoesTexto();
             listBoxSpt.Enabled = true;
-            buttonConverteSeleTexto.Enabled = true;
+            buttonConverteSeleTexto.Enabled = true;*/
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -659,14 +522,7 @@ namespace Jacutem_AAI2
 
         }
 
-        private void DesativarBotoesBin()
-        {
-            buttonExportarBin.Enabled = false;
-            buttonBnJpnCom.Enabled = false;
-            comboBoxImportarBinario.Enabled = false;
-            comboBoxItensAexportar.Enabled = false;
-
-        }
+        
 
         private void DesativarBotoesImagem()
         {
@@ -690,14 +546,7 @@ namespace Jacutem_AAI2
 
         }
 
-        private void AtivarBotoesBin()
-        {
-            buttonExportarBin.Enabled = true;
-            buttonBnJpnCom.Enabled = true;
-            comboBoxImportarBinario.Enabled = true;
-            comboBoxItensAexportar.Enabled = true;
 
-        }
 
         private void comboBoxBGetc_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -3328,6 +3177,9 @@ namespace Jacutem_AAI2
         {
             tabControl1.SelectedIndex = 0;
         }
+
+
+        
     }
 
     public class PropriedadeDaFonte
