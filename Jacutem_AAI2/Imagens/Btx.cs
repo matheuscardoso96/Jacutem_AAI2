@@ -5,6 +5,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ImageLibGbaDS.Conversor;
+using ImageLibGbaDS.Formatos;
+using ImageLibGbaDS.Paleta;
 using System.Threading.Tasks;
 
 namespace Jacutem_AAI2.Imagens
@@ -12,7 +15,8 @@ namespace Jacutem_AAI2.Imagens
     public class Btx
     {
         public List<TextureInfo> Texturas { get; set; }
-
+        public string DirBtx { get; set; }
+        public string LocalSalvamento  { get; set; }
         public Btx()
         {
 
@@ -20,15 +24,15 @@ namespace Jacutem_AAI2.Imagens
 
         public Btx(string dirBtx)
         {
-            string dirImg = dirBtx.Split(',')[0];
-            string dirSalva = dirBtx.Split(',')[1];
+            DirBtx = dirBtx.Split(',')[0];
+            LocalSalvamento = dirBtx.Split(',')[1];
 
           //  string nomeRealImg = ObtenhaNomeNaListaDeExtracaoDescomprima(@"cpac_3d\_logs_keys\cpac_3d_1.txt", dirImg);
-            byte[] imgTemp = File.ReadAllBytes(dirImg);
+            byte[] imgTemp = File.ReadAllBytes(DirBtx);
 
             Texturas = new List<TextureInfo>();
 
-          
+            
 
 
             using (BinaryReader br = new BinaryReader(new MemoryStream(imgTemp)))
@@ -66,7 +70,7 @@ namespace Jacutem_AAI2.Imagens
 
                     TextureInfo texture = new TextureInfo();
                     texture.Offset = offsetTextura << 3;
-
+                    texture.Indice = i;
                     texture.Largura = (8 << (paremetros & 7));
                     paremetros = paremetros >> 3;
                     texture.Altura = (8 << (paremetros & 7));
@@ -139,14 +143,10 @@ namespace Jacutem_AAI2.Imagens
                         int tamanhoGrafico = (textura.Altura * textura.Largura) / 2;
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
-                        ci.CoresPaleta = new List<Color>();
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.FirstOrDefault(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
-                        byte[] paleta = br.ReadBytes(0x20);
-                        ci.ConvertaPaleta(paleta);
-                        textura.Textura = ci.Exporte4bppBitmap(img, textura.Largura, textura.Altura);
-                        textura.Bpp = Bpp.bpp4;
-                        textura.PaletaImg = ci.CoresPaleta;
-                      //  imagemFinal.Save(dirSalva + Path.GetFileName(dirImg).Replace(".bin", "_" + contador + ".png"));
+                        BGR565 paleta = new BGR565(br.ReadBytes(0x20));
+                        ConversorDeImagem cdi = new ConversorDeImagem(new F4BPP(), new Indexado2D(paleta));
+                        textura.Textura = cdi.ConvertaFormatoIndexadoParaBmp(new BinaryReader(new MemoryStream(img)), textura.Altura , textura.Largura,0);
                         
                     }
                     else if (textura.Formato == 4)
@@ -159,7 +159,7 @@ namespace Jacutem_AAI2.Imagens
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
                         ci.ConvertaPaleta(paleta);
-                        textura.Textura = ci.Exporte8bppBitmap(img, textura.Largura, textura.Altura);
+                        textura.Textura = ci.Exporte8bpp2D(img, textura.Largura, textura.Altura);
                         textura.Bpp = Bpp.bpp8;
                         textura.PaletaImg = ci.CoresPaleta;
                         // imagemFinal.Save(dirSalva + Path.GetFileName(dirImg).Replace(".bin", "_" + contador + ".png"));
@@ -190,6 +190,20 @@ namespace Jacutem_AAI2.Imagens
             }
 
 
+        }
+
+        public void Exportar() 
+        {
+            int contador = 0;
+            if (!Directory.Exists(LocalSalvamento))
+            {
+                Directory.CreateDirectory(LocalSalvamento);
+            }
+            foreach (var textura in Texturas)
+            {
+                textura.Textura.Save($"{LocalSalvamento}{Path.GetFileName(DirBtx).Replace(".btx", "_")}{contador}.png");
+                contador++;
+            }
         }
 
         public void ImporteImagemParaBtx(string argumentos, string png)
@@ -240,6 +254,7 @@ namespace Jacutem_AAI2.Imagens
                     br.BaseStream.Position += 4;
 
                     TextureInfo texture = new TextureInfo();
+                    texture.Indice = i;
                     texture.Offset = offsetTextura << 3;
 
                     texture.Largura = (8 << (paremetros & 7));
@@ -388,6 +403,7 @@ namespace Jacutem_AAI2.Imagens
 
     public class TextureInfo
     {
+        public int Indice { get; set; }
         public int Paremetros { get; set; }
         public int Offset { get; set; }
         public int Altura { get; set; }
@@ -398,7 +414,11 @@ namespace Jacutem_AAI2.Imagens
         public string NomeTextura { get; set; }
         public Bitmap Textura { get; set; }
         public List<Color> PaletaImg { get; set; }
-        
+
+        public override string ToString()
+        {
+            return Indice.ToString();
+        }
 
     }
 
@@ -409,4 +429,5 @@ namespace Jacutem_AAI2.Imagens
 
 
     }
+
 }

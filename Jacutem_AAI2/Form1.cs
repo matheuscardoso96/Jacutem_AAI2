@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 using System.Drawing.Drawing2D;
+using Jacutem_AAI2.Imagens.MapaDeArquivos;
 
 namespace Jacutem_AAI2
 {
@@ -20,24 +21,73 @@ namespace Jacutem_AAI2
         private const string _textoAviso = "1- Só é necessário desmontar a ROM uma única vez.\r\n\r\n2- Após a pasta \"ROM_Desmontada\" ser criada, não será possível \"desmontar\" a ROM.\r\n\r\n3- Caso queira desmonstar a ROM novamente, mova ou apague a pasta \"ROM_Desmontada\".";
         private const string _textoAvisoArquivo = "1- Os arquivos estão localizos no diretório ROM_Desmontada\\data\\.\r\n\r\n" +
                 "2- Para que as modificações sejam aplicadas no jogo, é preciso criar um novo binário cada vez que imagens ou textos forem modificadas.";
+        private Dictionary<string,MapaDeArquivos> _mapasDeArquivos;
+
+        private Ncgr _ncgrBgCarregado;
+        private Ncgr _ncgrSpriteCarregado;
+        private Btx _btxCarregado;
 
         public Form1()
         {
             InitializeComponent();
             AdicionarTextosNosTabs();
             VerificarLiberacaoAcessoAsTabs();
-           
+            InicializarMapasDeArquivos();
+            PrencherCombosDeImagens();
 
             
             AdicionarResolucoesOamAmDicionario();
            
-           // PreencherComboBoxBgEtc();
-           //   PreencherComboBoxSprite();
-           // PreencherComboBoxTexturas();
+         
           //  PreencherComboBoxResolucoesOam();
            // PreencherComboBoxTabelaCarac();
 
            
+        }
+        
+        #region Funções auxiliares de telas
+        private void InicializarMapasDeArquivos()
+        {
+            var bGTileComMap =  new BGTileComMap();
+            var bGTileSemMap = new BGTileSemMap();
+            var spritesModo2D = new SpritesModo2D();
+            var spritesBinariosModo2D = new SpritesBinariosModo2D();
+            var spritesBinariosModoTile = new SpritesBinariosModoTile();
+            var spritesModoTile = new SpritesModoTile();
+            var texturas = new Texturas();
+
+            _mapasDeArquivos = new Dictionary<string, MapaDeArquivos>() {
+               [bGTileComMap.Tipo] = bGTileComMap,
+                [bGTileSemMap.Tipo] = bGTileSemMap,
+                [spritesModo2D.Tipo] = spritesModo2D,
+                [spritesBinariosModo2D.Tipo] = spritesBinariosModo2D,
+                [spritesBinariosModoTile.Tipo] = spritesBinariosModoTile,
+                [spritesModoTile.Tipo] = spritesModoTile,
+                [texturas.Tipo] = texturas,
+            };            
+           
+        }
+
+        private void PrencherCombosDeImagens() 
+        {
+            Dictionary<string, List<string>> tipoImagem = new Dictionary<string, List<string>>() { };
+            List<string> bg = new List<string>();
+            List<string> sprites = new List<string>();
+            List<string> texturas = new List<string>();
+
+            foreach (var mapa in _mapasDeArquivos)
+            {
+                if (mapa.Value.Tipo.Contains("BG"))
+                    bg.Add(mapa.Value.Tipo);
+                else if (mapa.Value.Tipo.Contains("Sprites"))
+                    sprites.Add(mapa.Value.Tipo);
+                else if (mapa.Value.Tipo.Contains("Texturas"))
+                    texturas.Add(mapa.Value.Tipo);
+            }
+
+            PreencherListOuCombo(bg, comboBoxBGetc);
+            PreencherListOuCombo(sprites, comboBoxSprites);
+            PreencherListOuCombo(texturas, comboBoxTexturas);
         }
 
         private void AdicionarTextosNosTabs()
@@ -90,20 +140,28 @@ namespace Jacutem_AAI2
         }
 
         private void PreencherListOuCombo(string dir,string extensao, ListControl listbox)
-        {
-            if (listbox.DataSource == null)
-                listbox.DataSource = Directory.GetFiles(dir, extensao);
-            
-            
+        { 
+                listbox.DataSource = Directory.GetFiles(dir, extensao);                      
         }
 
-        private void PreencherListOuCombo(List<string> dir, ListControl listbox)
+        private void PreencherListOuCombo<T>(List<T> dir, ListControl listbox)
         {
-            listbox.DataSource = dir;           
+           
+                listbox.DataSource = dir;
+           
+                  
         }
 
+        private void PreencherListOuCombo(Dictionary<string, string> dir, ListControl listbox)
+        {
+            
+                listbox.DataSource = dir;
+            
 
-        # region Funções da aba ROM
+        }
+        #endregion
+
+        #region Funções da aba ROM
         private void button2_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog opf = new OpenFileDialog())
@@ -320,6 +378,149 @@ namespace Jacutem_AAI2
 
         #endregion
 
+        #region Funções da aba Imagens
+
+        private void comboBoxBGetc_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            PreencherListOuCombo(_mapasDeArquivos[comboBoxBGetc.SelectedItem.ToString()].Lista.Keys.ToList(), listBoxBGetc);
+        }
+
+        private void comboBoxTexturas_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            PreencherListOuCombo(_mapasDeArquivos[comboBoxTexturas.SelectedItem.ToString()].Lista.Keys.ToList(), listBoxTexturasDePasta);
+        }
+
+        private void listBoxBGetc_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string argumentosImg = _mapasDeArquivos[comboBoxBGetc.SelectedItem.ToString()].Lista[listBoxBGetc.SelectedItem.ToString()];
+            if (_ncgrBgCarregado!= null)
+            _ncgrBgCarregado.Imagem.Dispose();
+
+             CarregarNcgr(argumentosImg, comboBoxBGetc.SelectedItem.ToString());
+             AdicionarImagemPictureEInformacoes(pictureBoxBgetc, _ncgrBgCarregado);
+
+            
+        }
+
+        private void listBoxTexturasDePasta_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string dirBtx = _mapasDeArquivos[comboBoxTexturas.SelectedItem.ToString()].Lista[listBoxTexturasDePasta.SelectedItem.ToString()];
+            if (_btxCarregado != null)
+                _btxCarregado = null;
+            _btxCarregado = new Btx(dirBtx);
+            PreencherListOuCombo(_btxCarregado.Texturas, listBoxTexturasDoBtx);
+            //string argumentosImg = listaTexturasCarregadas[listBoxTexturasDePasta.SelectedIndex];
+            //AdicionarImagemAPicitureBoxTexturas(argumentosImg);
+            //buttonExportarSelecionaTextura.Enabled = true;
+            //buttonImportarTexturaSelecionada.Enabled = true;
+        }
+
+        private void listBoxTexturasDoBtx_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           // pictureBoxTexturas.Image = _btxCarregado.Texturas[listBoxTexturasDoBtx.SelectedIndex].Textura;
+            AdicionarImagemPictureTexturaEhInfos(pictureBoxTexturas, _btxCarregado, listBoxTexturasDoBtx.SelectedIndex);
+            
+
+           // PaletaNaPicture(pictureBoxPaletaTextura, labelQtdCoresTextura, _btxCarregado.Texturas[listBoxTexturasDoBtx.SelectedIndex].PaletaImg);
+        }
+
+        private void AdicionarImagemPictureEInformacoes(PictureBox pictureBox, Ncgr ncgr)
+        {
+            if (pictureBoxBgetc.Image != null)
+                pictureBoxBgetc.Image.Dispose();
+            labelResX.Text = ncgr.Imagem.Width + "";
+            labelResY.Text = ncgr.Imagem.Height + "";
+            pictureBoxBgetc.Width = ncgr.Imagem.Width + 10;
+            pictureBoxBgetc.Height = ncgr.Imagem.Height + 10;
+            pictureBoxBgetc.Image = ncgr.Imagem;
+        }
+
+        private void AdicionarImagemPictureTexturaEhInfos(PictureBox pictureBox, Btx btx, int index)
+        {
+           
+
+            pictureBox.Image = btx.Texturas[index].Textura;
+
+            ResXTextura.Text = pictureBox.Image.Width + "";
+            ResYTextura.Text = pictureBox.Image.Height + "";
+            checkBoxTex4bpp.Checked = false;
+            checkBoxTex8bpp.Checked = false;
+
+            if (btx.Texturas[index].Bpp == Bpp.bpp4)
+                checkBoxTex4bpp.Checked = true;
+            else
+                checkBoxTex8bpp.Checked = true;
+        }
+
+        private void buttonExportarImgSel_Click(object sender, EventArgs e)
+        {
+            _ncgrBgCarregado.Exportar();             
+            
+            MessageBox.Show(this, $"Imagem exportada para: {_ncgrBgCarregado.LocalParaExportacao}",
+                                  "Aviso", MessageBoxButtons.OK,
+                                  MessageBoxIcon.Information);
+        }
+
+        private async void button3_Click(object sender, EventArgs e)
+        {
+            DesativarOuAtivarBotoesImagensBg(false);
+
+            DialogResult dialogResult = MessageBox.Show("Tem certeza que deseja exportar todas as pastas?", "Aviso", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes) 
+            {
+               
+                await Task.Run(() => ExportarImagensdeTodosCombos(comboBoxBGetc, progressBarExportImgs));
+                MessageBox.Show(this, $"Imagens exportadas para: __imagens\\",
+                              "Aviso", MessageBoxButtons.OK,
+                              MessageBoxIcon.Information);
+            }
+            else
+                MessageBox.Show(this, @"Operação cancelada.",
+                              "Aviso", MessageBoxButtons.OK,
+                              MessageBoxIcon.Information);
+            
+            DesativarOuAtivarBotoesImagensBg(true);
+
+        }
+
+        private void DesativarOuAtivarBotoesImagensBg(bool ativa)
+        {
+            buttonExportarImgSel.Enabled = ativa;
+            buttonExportaPastaImg.Enabled = ativa;
+            buttonTodasAsPastaImg.Enabled = ativa;
+            buttonImportaSelecionadoImg.Enabled = ativa;
+            buttonImportaSelecionadoImg.Enabled = ativa;
+            listBoxBGetc.Enabled = ativa;
+            buttonImportarBgLote.Enabled = ativa;
+
+        }
+
+        private void ExportarImagensdeTodosCombos(ComboBox combox, ProgressBar progresso) 
+        {
+          
+            foreach (var item in combox.Items)
+            {
+                string tipo = item.ToString();
+
+              //  progresso.Minimum = 0;
+               // progresso.Maximum = _mapasDeArquivos[tipo].Lista.Count;
+
+                foreach (var imagemLista in _mapasDeArquivos[tipo].Lista)
+                {
+                    Ncgr ncgr = new Ncgr(imagemLista.Value, _mapasDeArquivos[tipo].Tipo);
+                    ncgr.Exportar();
+                   // progresso.Value++;
+                }
+                    //progresso.Value = 0;
+            }
+
+
+           
+
+           
+        }
+
+        #endregion
 
         private void PreencherComboBoxResolucoesOam()
         {
@@ -344,59 +545,9 @@ namespace Jacutem_AAI2
 
        
 
-        private void PreencherComboBoxBgEtc()
-        {
-            string[] listaDeArquivos = Directory.GetFiles(@"__Imagens\_Info_Imagens\", "*.txt");
+    
 
-            // comboBoxItensAexportar.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                if (item.ToLower().Contains("sprites") || item.ToLower().Contains("texturas"))
-                {
-                    continue;
-                }
-                comboBoxBGetc.Items.Add(Path.GetFileName(item).Replace(".txt", ""));
-            }
-
-            comboBoxBGetc.SelectedIndex = 0;
-        }
-
-        private void PreencherComboBoxSprite()
-        {
-            string[] listaDeArquivos = Directory.GetFiles(@"__Imagens\_Info_Imagens\", "*.txt");
-
-            // comboBoxItensAexportar.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                if (!item.ToLower().Contains("sprites"))
-                {
-                    continue;
-                }
-                comboBoxSprites.Items.Add(Path.GetFileName(item).Replace(".txt", ""));
-            }
-
-            comboBoxSprites.SelectedIndex = 0;
-        }
-
-        private void PreencherComboBoxTexturas()
-        {
-            string[] listaDeArquivos = Directory.GetFiles(@"__Imagens\_Info_Imagens\", "*.txt");
-
-            // comboBoxItensAexportar.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                if (item.ToLower().Contains("texturas"))
-                {
-                    comboBoxTexturas.Items.Add(Path.GetFileName(item).Replace(".txt", ""));
-                }
-
-            }
-
-            comboBoxTexturas.SelectedIndex = 0;
-        }
+       
 
         private void label10_Click(object sender, EventArgs e)
         {
@@ -526,12 +677,7 @@ namespace Jacutem_AAI2
 
         private void DesativarBotoesImagem()
         {
-            buttonExportarImgSel.Enabled = false;
-            buttonExportaPastaImg.Enabled = false;
-            buttonTodasAsPastaImg.Enabled = false;
-            buttonImportaSelecionadoImg.Enabled = false;
-            buttonImportaSelecionadoImg.Enabled = false;
-            listBoxBGetc.Enabled = false;
+           
 
         }
 
@@ -548,16 +694,13 @@ namespace Jacutem_AAI2
 
 
 
-        private void comboBoxBGetc_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            PreenchaListBoxBgEtc(comboBoxBGetc.SelectedItem.ToString());
-        }
+       
 
         private List<string> listaCarregadaDeImagens = new List<string>();
         private List<string> listaCarregadaDeSprites = new List<string>();
         private List<string> listaTexturasCarregadas = new List<string>();
 
-        private void PreenchaListBoxBgEtc(string lista)
+       /* private void PreenchaListBoxBgEtc(string lista)
         {
             string[] listaDeArquivos = File.ReadAllLines(@"__Imagens\_Info_Imagens\" + lista + ".txt");
             listBoxBGetc.Items.Clear();
@@ -577,152 +720,22 @@ namespace Jacutem_AAI2
                 }
 
             }
-        }
+        }*/
 
-        private void PreenchaListBoxSprites(string lista)
+   
+
+        private void CarregarNcgr(string argumentosImg, string tipo)
         {
+            Ncgr ncgr = new Ncgr(argumentosImg, tipo);
 
-            string[] listaDeArquivos = File.ReadAllLines(@"__Imagens\_Info_Imagens\" + lista + ".txt");
-            listBoxSprites.Items.Clear();
-            // listaCarregadaDeSprites.Clear();
-
-
-            listaCarregadaDeSprites.Clear();
-
-            // comboBoxItensAexportar.Items.Add("Todos");
-
-            foreach (var item in listaDeArquivos)
-            {
-                if (item.Contains("//"))
-                {
-                    continue;
-                }
-
-                listaCarregadaDeSprites.Add(item);
-
-                if (item.Contains("com_"))
-                {
-                    listBoxSprites.Items.Add("com_" + item.Split(',')[0].Split('\\')[2]);
-                }
-                else
-                {
-                    listBoxSprites.Items.Add("jpn_" + item.Split(',')[0].Split('\\')[2]);
-                }
-
-
-            }
-        }
-
-
-
-
-        Bitmap imagemCarregada;
-        private List<Color> CoresDaPaleta;
-
-        private void listBoxBGetc_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-            string argumentosImg = listaCarregadaDeImagens[listBoxBGetc.SelectedIndex];
-            AdicionarImagemAPicitureBox(argumentosImg);
-
-
-        }
-
-        private void AdicionarImagemAPicitureBox(string argumentosImg)
-        {
-
-            if (imagemCarregada != null)
-            {
-                imagemCarregada.Dispose();
-            }
-
-            if (pictureBoxBgetc.Image != null)
-            {
-                pictureBoxBgetc.Image.Dispose();
-            }
-
-            imagemCarregada = ExportarImagem(argumentosImg);
-            if (imagemCarregada != null)
-            {
-                labelResX.Text = imagemCarregada.Width + "";
-                labelResY.Text = imagemCarregada.Height + "";
-            }
-
-            pictureBoxBgetc.Width = imagemCarregada.Width;
-            pictureBoxBgetc.Height = imagemCarregada.Height;
-
-            pictureBoxBgetc.Image = imagemCarregada;
-            PaletaNaPicture(pictureBoxPaleta, labelNumeroDeCores, CoresDaPaleta);
-
-        }
-
-        private void PrenchaPictureBoxComPaleta()
-        {
-
-        }
-
-        private Bitmap ExportarImagem(string argumentosImg)
-        {
-            // string[] argumentos = argumentosImg.Split(',');
-
-
-            if (comboBoxBGetc.SelectedItem.ToString().Contains("2_mapa_bgs_sem_tilemap")
-                || comboBoxBGetc.SelectedItem.ToString().Contains("7_mapa_name_tags")
-                || comboBoxBGetc.SelectedItem.ToString().Contains("8_mapa_bg_upcut")
-                || comboBoxBGetc.SelectedItem.ToString().Contains("9_mapa_bg_upcut_local"))
-            {
-                string[] argumentos = argumentosImg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-
-                checkBox4Bpp.Checked = false;
-                checkBox8Bpp.Checked = false;
-
-                if (ncgr.Bpp == Bpp.bpp4)
-                {
-                    checkBox4Bpp.Checked = true;
-                }
-                else if (ncgr.Bpp == Bpp.bpp8)
-                {
-                    checkBox8Bpp.Checked = true;
-                }
-
-
-                Bitmap img = ncgr.ExportarNCGR(argumentos[1]);
-
-                CoresDaPaleta = ncgr.CoresConvertidas;
-                return img;
-
-
-
-
-            }
-            else if (comboBoxBGetc.SelectedItem.ToString().Contains("1_mapa_bgs_tilemap"))
-            {
-                string[] argumentos = argumentosImg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                Bitmap img = ncgr.ExportarNCGRTile(argumentos[1], argumentos[2]);
-                CoresDaPaleta = ncgr.CoresConvertidas;
-                checkBox4Bpp.Checked = false;
-                checkBox8Bpp.Checked = false;
-
-                if (ncgr.Bpp == Bpp.bpp4)
-                {
-                    checkBox4Bpp.Checked = true;
-                }
-                else if (ncgr.Bpp == Bpp.bpp8)
-                {
-                    checkBox8Bpp.Checked = true;
-                }
-                return img;
-            }
+            if (ncgr.EhSprite)
+                _ncgrSpriteCarregado = ncgr;            
             else
-            {
-                return null;
-            }
-
-
-
+                _ncgrBgCarregado = ncgr;
+                      
+      
         }
+
 
 
 
@@ -765,23 +778,7 @@ namespace Jacutem_AAI2
             l.Text = cores.Count + "";
         }
 
-        private void buttonExportarImgSel_Click(object sender, EventArgs e)
-        {
-            string arg = listaCarregadaDeImagens[listBoxBGetc.SelectedIndex];
-            string dir = arg.Split(',').Last();
-
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-
-            string prefixo = arg.Contains("com_") ? "com_" : "jpn_";
-
-            imagemCarregada.Save(dir + listBoxBGetc.SelectedItem.ToString().Replace(".ncgr", ".png"));
-            MessageBox.Show(this, @"Imagem exportada para: " + dir,
-                                  "Aviso", MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
-        }
+        
 
         private async void button2_Click_2(object sender, EventArgs e)
         {
@@ -793,21 +790,14 @@ namespace Jacutem_AAI2
 
 
                 progressBarExportImgs.Minimum = 0;
-                progressBarExportImgs.Maximum = listaCarregadaDeImagens.Count;
+                progressBarExportImgs.Maximum = _mapasDeArquivos[comboBoxBGetc.SelectedItem.ToString()].Lista.Count;
 
-                foreach (var item in listaCarregadaDeImagens)
+                foreach (var item in _mapasDeArquivos[comboBoxBGetc.SelectedItem.ToString()].Lista)
                 {
                     string combo = comboBoxBGetc.SelectedItem.ToString();
-                    Bitmap img = await Task.Run(() => ExportarSomenteImagem(item, combo));
-                    if (!Directory.Exists(item.Split(',').Last()))
-                    {
-                        Directory.CreateDirectory(item.Split(',').Last());
-                    }
+                    Ncgr ncgr = await Task.Run(() => new Ncgr(item.Value, combo));                   
+                    ncgr.Exportar();
 
-                    string prefixo = item.Contains("com_") ? "com_" : "jpn_";
-
-                    img.Save(item.Split(',').Last() + prefixo + Path.GetFileName(item.Split(',')[0]).Replace(".ncgr", ".png"));
-                    img.Dispose();
                     progressBarExportImgs.Value += 1;
                 }
 
@@ -827,94 +817,39 @@ namespace Jacutem_AAI2
         {
 
 
-            if (combo.Contains("2_mapa_bgs_sem_tilemap")
-                || combo.Contains("7_mapa_name_tags")
-                || combo.Contains("8_mapa_bg_upcut")
-                || combo.Contains("9_mapa_bg_upcut_local"))
-            {
-                string[] argumentos = arg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                Bitmap img = ncgr.ExportarNCGR(argumentos[1]);
-                return img;
+            //if (combo.Contains("2_mapa_bgs_sem_tilemap")
+            //    || combo.Contains("7_mapa_name_tags")
+            //    || combo.Contains("8_mapa_bg_upcut")
+            //    || combo.Contains("9_mapa_bg_upcut_local"))
+            //{
+            //    string[] argumentos = arg.Split(',');
+            //    Ncgr ncgr = new Ncgr(argumentos[0]);
+            //    Bitmap img = ncgr.ExportarNCGR(argumentos[1]);
+            //    return img;
 
 
-            }
-            else if (combo.Contains("1_mapa_bgs_tilemap"))
-            {
-                string[] argumentos = arg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                Bitmap img = ncgr.ExportarNCGRTile(argumentos[1], argumentos[2]);
-                return img;
-            }
-            else
-            {
-                return null;
-            }
+            //}
+            //else if (combo.Contains("1_mapa_bgs_tilemap"))
+            //{
+            //    string[] argumentos = arg.Split(',');
+            //    Ncgr ncgr = new Ncgr(argumentos[0]);
+            //    Bitmap img = ncgr.ExportarNCGRTile(argumentos[1], argumentos[2]);
+            //    return img;
+            //}
+            //else
+            //{
+            //    return null;
+            //}
 
 
 
-
+            return null;
 
 
 
         }
 
-        private async void button3_Click(object sender, EventArgs e)
-        {
-            DesativarBotoesImagem();
-
-            DialogResult dialogResult = MessageBox.Show("Tem certeza que deseja exportar todas as pastas?", "Aviso", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
-            {
-
-                for (int i = 0; i < comboBoxBGetc.Items.Count; i++)
-                {
-                    string[] listaDeArquivosTemp = File.ReadAllLines(@"__Imagens\_Info_Imagens\" + comboBoxBGetc.Items[i].ToString() + ".txt");
-
-
-
-                    // comboBoxItensAexportar.Items.Add("Todos");
-                    progressBarExportImgs.Minimum = 0;
-                    progressBarExportImgs.Maximum = listaDeArquivosTemp.Length;
-
-
-                    foreach (var item in listaDeArquivosTemp)
-                    {
-                        if (!Directory.Exists(item.Split(',').Last()))
-                        {
-                            Directory.CreateDirectory(item.Split(',').Last());
-                        }
-
-                        string prefixo = item.Contains("com_") ? "com_" : "jpn_";
-
-                        string combo = comboBoxBGetc.Items[i].ToString();
-                        Bitmap img = await Task.Run(() => ExportarSomenteImagem(item, combo));
-                        img.Save(item.Split(',').Last() + prefixo + Path.GetFileName(item.Split(',')[0]).Replace(".ncgr", ".png"));
-                        img.Dispose();
-                        progressBarExportImgs.Value += 1;
-                    }
-
-                    progressBarExportImgs.Value = 0;
-
-                }
-
-
-
-                MessageBox.Show(this, @"Imagens exportadas para: " + "__imagens\\",
-                                    "Aviso", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-
-                progressBarExportImgs.Value = 0;
-            }
-            else if (dialogResult == DialogResult.No)
-            {
-                //do something else
-            }
-
-
-            AtivarBotoesImagem();
-
-        }
+       
 
         private async void buttonImportaSelecionadoImg_Click(object sender, EventArgs e)
         {
@@ -928,7 +863,7 @@ namespace Jacutem_AAI2
                     await Task.Run(() => ImportarImagemSelecionada(opf.FileName, listaSelecionadaNaCombo));
 
                     string argumentosImg = listaCarregadaDeImagens[listBoxBGetc.SelectedIndex];
-                    AdicionarImagemAPicitureBox(argumentosImg);
+                    //CarregarNcgr(argumentosImg);
                 }
             }
 
@@ -944,7 +879,7 @@ namespace Jacutem_AAI2
 
         private void comboBoxSprites_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (pictureBoxSprite.Image != null)
+          /*  if (pictureBoxSprite.Image != null)
             {
                 pictureBoxSprite.Image.Dispose();
                 pictureBoxSprite.Image = null;
@@ -952,7 +887,7 @@ namespace Jacutem_AAI2
             PreenchaListBoxSprites(comboBoxSprites.SelectedItem.ToString());
 
             listBoxSpritesDoNgcr.Items.Clear();
-            DesativarBotoesSprite();
+            DesativarBotoesSprite();*/
 
 
 
@@ -1015,20 +950,19 @@ namespace Jacutem_AAI2
             ExportarSpritesDoNcgr(argumentosImg);
 
 
-            //pictureBoxSprites.Image = SpritesCarregados[0];
+    
 
             int contador = 0;
 
-            //   comboBoxSpritesLista.Items.Clear();
+  
 
-            foreach (var item in _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam)
-            {
-                // comboBoxSpritesLista.Items.Add(Path.GetFileName(argumentosImg.Split(',')[0]) + "_" + contador++);
-                listBoxSpritesDoNgcr.Items.Add(Path.GetFileName(argumentosImg.Split(',')[0]) + "_" + contador++);
-            }
+            //foreach (var item in _ncgrSpriteCarregado.ArquivoNcer.GrupoDeTabelasOam)
+            //{
+               
+            //    listBoxSpritesDoNgcr.Items.Add(Path.GetFileName(argumentosImg.Split(',')[0]) + "_" + contador++);
+            //}
 
-            //  comboBoxSpritesLista.SelectedIndex = 0;
-            //    PaletaNaPicture();
+           
 
         }
 
@@ -1038,7 +972,7 @@ namespace Jacutem_AAI2
             ExporteSprites(argumentosImg, comboBoxSprites.SelectedItem.ToString(), false);
         }
 
-        private Ncgr _ncgrSpriteCarregado;
+      //  private Ncgr _ncgrSpriteCarregado;
 
         private void ExporteSprites(string argumentosImg, string listaSelecionada, bool fundoTransparente)
         {
@@ -1050,16 +984,16 @@ namespace Jacutem_AAI2
             if (listaSelecionada.Contains("3_mapa_sprites_modo_1"))
             {
                 string[] argumentos = argumentosImg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                ncgr.ExportarNCGRSprites(argumentos[1], argumentos[2], argumentos[3], fundoTransparente);
+                Ncgr ncgr = null;// new Ncgr(argumentos[0]);
+                ncgr.ExportarNCGRSprite1D(argumentos[1], argumentos[2], argumentos[3], fundoTransparente);
                 _ncgrSpriteCarregado = ncgr;
                 // CoresDaPaleta = ncgr.CoresConvertidas;
             }
             else if (listaSelecionada.Contains("4_mapa_sprites_modo_2"))
             {
                 string[] argumentos = argumentosImg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                ncgr.ExportarNCGRSpriteModo2(argumentos[1], argumentos[2], argumentos[3], fundoTransparente);
+                Ncgr ncgr = null; //new Ncgr(argumentos[0]);
+                ncgr.ExportarNCGRSprite2D(argumentos[1], argumentos[2], argumentos[3], fundoTransparente);
                 _ncgrSpriteCarregado = ncgr;
                 // CoresDaPaleta = ncgr.CoresConvertidas;
             }
@@ -1073,8 +1007,8 @@ namespace Jacutem_AAI2
                 // {
                 AaiBin.ExporteBin(argumentos[0]);
                 // }
-                Ncgr ncgr = new Ncgr(argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncgr")));
-                ncgr.ExportarNCGRSprites(argumentos[1], argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncer")), argumentos[2], fundoTransparente);
+                Ncgr ncgr = null; //new Ncgr(argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncgr")));
+                ncgr.ExportarNCGRSprite1D(argumentos[1], argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncer")), argumentos[2], fundoTransparente);
                 _ncgrSpriteCarregado = ncgr;
 
             }
@@ -1086,8 +1020,8 @@ namespace Jacutem_AAI2
 
                 // }
                 AaiBin.ExporteBin(argumentos[0]);
-                Ncgr ncgr = new Ncgr(argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncgr")));
-                ncgr.ExportarNCGRSpriteModo2(argumentos[1], argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncer")), argumentos[2], fundoTransparente);
+                Ncgr ncgr = null; //new Ncgr(argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncgr")));
+                ncgr.ExportarNCGRSprite2D(argumentos[1], argumentos[0].Replace(".bin", "") + "\\" + Path.GetFileName(argumentos[0].Replace(".bin", ".ncer")), argumentos[2], fundoTransparente);
                 _ncgrSpriteCarregado = ncgr;
             }
 
@@ -1577,60 +1511,13 @@ namespace Jacutem_AAI2
 
         }
 
-        private void comboBoxTexturas_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            PreenchaListBoxPastaTexturas(comboBoxTexturas.SelectedItem.ToString());
-            buttonExportarSelecionaTextura.Enabled = false;
-            buttonImportarTexturaSelecionada.Enabled = false;
-            listBoxTexturasDoBtx.Items.Clear();
-            if (pictureBoxTexturas.Image != null)
-            {
-                pictureBoxTexturas.Image.Dispose();
-                pictureBoxTexturas.Image = null;
-            }
-
-            if (pictureBoxPaletaTextura.Image != null)
-            {
-                pictureBoxPaletaTextura.Image.Dispose();
-                pictureBoxPaletaTextura.Image = null;
-            }
-
-
-        }
+       
 
         List<string> listaArgumentosBtx;
 
-        private void PreenchaListBoxPastaTexturas(string lista)
-        {
-            listaArgumentosBtx = File.ReadAllLines(@"__Imagens\_Info_Imagens\" + lista + ".txt").ToList();
-            listBoxTexturasDePasta.Items.Clear();
-            listaTexturasCarregadas.Clear();
-            // comboBoxItensAexportar.Items.Add("Todos");
+       
 
-            foreach (var item in listaArgumentosBtx)
-            {
-                listaTexturasCarregadas.Add(item);
-                if (item.Contains("com_"))
-                {
-                    listBoxTexturasDePasta.Items.Add("com_" + item.Split(',')[0].Split('\\')[2]);
-                }
-                else
-                {
-                    listBoxTexturasDePasta.Items.Add("com_" + item.Split(',')[0].Split('\\')[2]);
-                }
-
-            }
-        }
-
-        private void listBoxTexturasDePasta_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string argumentosImg = listaTexturasCarregadas[listBoxTexturasDePasta.SelectedIndex];
-            AdicionarImagemAPicitureBoxTexturas(argumentosImg);
-            buttonExportarSelecionaTextura.Enabled = true;
-            buttonImportarTexturaSelecionada.Enabled = true;
-        }
-
-        Btx _btxCarregado = new Btx();
+        
 
         private void AdicionarImagemAPicitureBoxTexturas(string argumentosImg)
         {
@@ -1664,25 +1551,7 @@ namespace Jacutem_AAI2
 
         }
 
-        private void listBoxTexturasDoBtx_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            pictureBoxTexturas.Image = _btxCarregado.Texturas[listBoxTexturasDoBtx.SelectedIndex].Textura;
-            ResXTextura.Text = pictureBoxTexturas.Image.Width + "";
-            ResYTextura.Text = pictureBoxTexturas.Image.Height + "";
-            checkBoxTex4bpp.Checked = false;
-            checkBoxTex8bpp.Checked = false;
-
-            if (_btxCarregado.Texturas[listBoxTexturasDoBtx.SelectedIndex].Bpp == Bpp.bpp4)
-            {
-                checkBoxTex4bpp.Checked = true;
-            }
-            else
-            {
-                checkBoxTex8bpp.Checked = true;
-            }
-
-            PaletaNaPicture(pictureBoxPaletaTextura, labelQtdCoresTextura, _btxCarregado.Texturas[listBoxTexturasDoBtx.SelectedIndex].PaletaImg);
-        }
+        
 
         private void ImportarImagemSelecionada(string imagem, string combo)
         {
@@ -1793,14 +1662,14 @@ namespace Jacutem_AAI2
                 || lista.Contains("9_mapa_bg_upcut_local"))
             {
                 string[] argumentos = arg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                ncgr.ImportaNCGRSemMap(imagem, argumentos[1]);
+              //  Ncgr ncgr = new Ncgr(argumentos[0]);
+              //  ncgr.ImportaNCGRSemMap(imagem, argumentos[1]);
             }
             else if (lista.Contains("1_mapa_bgs_tilemap"))
             {
                 string[] argumentos = arg.Split(',');
-                Ncgr ncgr = new Ncgr(argumentos[0]);
-                ncgr.ImportaNCGRComMap(imagem, argumentos[1], argumentos[2]);
+               // Ncgr ncgr = new Ncgr(argumentos[0]);
+               // ncgr.ImportaNCGRComMap(imagem, argumentos[1], argumentos[2]);
             }
         }
 
@@ -2250,27 +2119,14 @@ namespace Jacutem_AAI2
 
         private void button6_Click(object sender, EventArgs e)
         {
-            string argumentos = listaArgumentosBtx[listBoxTexturasDePasta.SelectedIndex];
-            string pastaSave = argumentos.Split(',').Last();
-            if (!Directory.Exists(pastaSave))
-            {
-                Directory.CreateDirectory(pastaSave);
-            }
 
-            int contador = 0;
-
-            foreach (var item in _btxCarregado.Texturas)
-            {
-                item.Textura.Save(pastaSave + Path.GetFileName(argumentos.Split(',')[0]).Replace(".btx", "_") + contador + ".png");
-                contador++;
-            }
-
-            textBoxStatusTexturas.Text = "Textura exportada para: " + pastaSave;
+            _btxCarregado.Exportar();
+            textBoxStatusTexturas.Text = "Texturas exportadas";
         }
 
         private async void button7_Click(object sender, EventArgs e)
         {
-
+            //Terminar
             textBoxStatusTexturas.Text = "Exportando lista de texturas...";
             DesativarBotoesTextura();
             await Task.Run(() => ExportarListaDeBtx());
@@ -2445,7 +2301,7 @@ namespace Jacutem_AAI2
                         int ponteiroFonte = br.ReadInt32() - 0x2000000;
 
                         br.BaseStream.Position = ponteiroFonte;
-                        Bitmap fonte = cv.Exporte1bppBitmap(16, 16, br.ReadBytes(0x20));
+                        Bitmap fonte = cv.Exporte1bpp2D(16, 16, br.ReadBytes(0x20));
                         Rectangle rect = new Rectangle(x, y, 16, 16);
                         PropriedadeDaFonte propriedadeDaFonte = new PropriedadeDaFonte(codigoCaractere, x, y, largura, posTable, 16, 16, ponteiroFonte);
                         propriedadeDasFontes.Add(propriedadeDaFonte);
@@ -2505,7 +2361,7 @@ namespace Jacutem_AAI2
                         int ponteiroFonte = br.ReadInt32() - 0x2000000;
 
                         br.BaseStream.Position = ponteiroFonte;
-                        Bitmap fonte = cv.Exporte2bppBitmap(16, 14, br.ReadBytes(0x56));
+                        Bitmap fonte = cv.Exporte2bpp2D(16, 14, br.ReadBytes(0x56));
                         // fonte.Save("fonte2.png");
                         Rectangle rect = new Rectangle(x, y, 16, 14);
                         PropriedadeDaFonte propriedadeDaFonte = new PropriedadeDaFonte(codigoCaractere, x, y, largura, posTable, 16, 14, ponteiroFonte);
@@ -2566,7 +2422,7 @@ namespace Jacutem_AAI2
                         int ponteiroFonte = br.ReadInt32() - 0x2000000;
 
                         br.BaseStream.Position = ponteiroFonte;
-                        Bitmap fonte = cv.Exporte1bppBitmap(16, 14, br.ReadBytes(0x20));
+                        Bitmap fonte = cv.Exporte1bpp2D(16, 14, br.ReadBytes(0x20));
                         Rectangle rect = new Rectangle(x, y, 16, 14);
                         PropriedadeDaFonte propriedadeDaFonte = new PropriedadeDaFonte(codigoCaractere, x, y, largura, posTable, 16, 14, ponteiroFonte);
                         propriedadeDasFontes.Add(propriedadeDaFonte);
@@ -2636,15 +2492,15 @@ namespace Jacutem_AAI2
         {
             if (fonteSelecionada.Contains("Fonte 1"))
             {
-                CarregueFonte1();
+               // CarregueFonte1();
             }
             else if (fonteSelecionada.Contains("Fonte 2"))
             {
-                CarregueFonte2();
+               // CarregueFonte2();
             }
             else if (fonteSelecionada.Contains("Fonte 3"))
             {
-                CarregueFonte3();
+              //  CarregueFonte3();
             }
 
         }
@@ -3177,7 +3033,6 @@ namespace Jacutem_AAI2
         {
             tabControl1.SelectedIndex = 0;
         }
-
 
         
     }

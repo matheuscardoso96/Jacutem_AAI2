@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jacutem_AAI2.Compressoes
+namespace ImageLibGbaDS.Paleta
 {
-    public class BLZ
+    public interface IFormatoPaleta
     {
-       
+        Color[] Paleta { get; set; }
     }
 }

@@ -39,8 +39,51 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Bibliotecas\dsdecmp.dll</HintPath>
     </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.Fonts.1.0.0-beta15\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.ImageSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.ImageSharp.1.0.3\lib\net472\SixLabors.ImageSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.ImageSharp.Drawing, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.ImageSharp.Drawing.1.0.0-beta13\lib\net472\SixLabors.ImageSharp.Drawing.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.5.0.2\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.UnmanagedMemoryStream, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.UnmanagedMemoryStream.4.3.0\lib\net46\System.IO.UnmanagedMemoryStream.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,16 +98,6 @@
     <Compile Include="Arquivos\AaiBin.cs" />
     <Compile Include="Arquivos\EntradaAAIBin.cs" />
     <Compile Include="Arquivos\IntegracaoComNdsTool.cs" />
-    <Compile Include="Compressoes\BLZ.cs" />
-    <Compile Include="Compressoes\CompressionFormat.cs" />
-    <Compile Include="Compressoes\InputTooLargeException.cs" />
-    <Compile Include="Compressoes\IOUtils.cs" />
-    <Compile Include="Compressoes\LZ11_DS.cs" />
-    <Compile Include="Compressoes\LZUtil.cs" />
-    <Compile Include="Compressoes\NitroCFormat.cs" />
-    <Compile Include="Compressoes\NotEnoughDataException.cs" />
-    <Compile Include="Compressoes\StreamTooShortException.cs" />
-    <Compile Include="Compressoes\TooMuchInputException.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,8 +110,16 @@
     <Compile Include="Imagens\Enums\Bpp.cs" />
     <Compile Include="Imagens\Enums\OBJMode.cs" />
     <Compile Include="Imagens\Enums\OBJShape.cs" />
+    <Compile Include="Imagens\Extensoes\ImageSharpExtensions.cs" />
+    <Compile Include="Imagens\GerenciadorConversaoImagens.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\MapaDeArquivos.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesModo2D.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModo2D.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModoTile.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesModoTile.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\Texturas.cs" />
     <Compile Include="Imagens\Ncer.cs" />
     <Compile Include="Imagens\Ncgr.cs" />
     <Compile Include="Imagens\Nclr.cs" />
@@ -99,6 +140,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -114,6 +156,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Custom\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Bibliotecas\dsdecmp.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LibDeImagensGbaDs\LibDeImagensGbaDs.csproj">
+      <Project>{48030fa5-97c3-45c9-873d-269bd0d4ea4d}</Project>
+      <Name>LibDeImagensGbaDs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

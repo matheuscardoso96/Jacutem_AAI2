@@ -1,10 +1,11 @@
-﻿using Jacutem_AAI2.Compressoes;
+﻿//using Jacutem_AAI2.Compressoes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using dsdecmp.Formats.Nitro;
 
 namespace Jacutem_AAI2.Arquivos
 {
@@ -28,8 +29,8 @@ namespace Jacutem_AAI2.Arquivos
             if (!Directory.Exists(dirExt))
                 Directory.CreateDirectory(dirExt);
             
-
-            LZ11_DS lZ11_DS = new LZ11_DS();
+            LZ11 lZ11 = new LZ11();
+       
 
             using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
             {
@@ -42,7 +43,7 @@ namespace Jacutem_AAI2.Arquivos
                     br.BaseStream.Position = entrada.Endereco;
                     byte[] arquivo = br.ReadBytes((int)entrada.Tamanho);
                     if (entrada.Comprimido)
-                        arquivo = DescomprimirComLZ11(lZ11_DS, arquivo);
+                        arquivo = DescomprimirComLZ11(lZ11, arquivo);
 
                     int ext = 0;
 
@@ -102,7 +103,7 @@ namespace Jacutem_AAI2.Arquivos
             }
         }
 
-        private static byte[] DescomprimirComLZ11(LZ11_DS LZ11, byte[] arquivo)
+        private static byte[] DescomprimirComLZ11(LZ11 LZ11, byte[] arquivo)
         {
             MemoryStream output = new MemoryStream();
             LZ11.Decompress(new MemoryStream(arquivo), arquivo.Length, output);
@@ -128,7 +129,7 @@ namespace Jacutem_AAI2.Arquivos
         private static string CriarNovoBinario(List<string> listaDeArquivos, string dirNovoArquivo)
         {
             var entradas = new List<EntradaAAIBin>();
-            LZ11_DS LZ11 = new LZ11_DS();
+            LZ11 LZ11 = new LZ11();
             uint tamanhoTabela = (uint)listaDeArquivos.Count * 8;
             uint endereco = tamanhoTabela;
 
@@ -196,7 +197,7 @@ namespace Jacutem_AAI2.Arquivos
             }
         }
 
-        private static byte[] ComprimirComLZ11(LZ11_DS LZ11, byte[] arquivo)
+        private static byte[] ComprimirComLZ11(LZ11 LZ11, byte[] arquivo)
         {
 
             MemoryStream output = new MemoryStream();

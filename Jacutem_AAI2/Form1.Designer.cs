@@ -65,6 +65,7 @@
             this.panel8 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
             this.panel9 = new System.Windows.Forms.Panel();
+            this.btnCriarTodosBinarios = new System.Windows.Forms.Button();
             this.comboBoxImportarBinario = new System.Windows.Forms.ComboBox();
             this.buttonBnJpnCom = new System.Windows.Forms.Button();
             this.panel10 = new System.Windows.Forms.Panel();
@@ -76,7 +77,7 @@
             this.label22 = new System.Windows.Forms.Label();
             this.progressBarExportImgs = new System.Windows.Forms.ProgressBar();
             this.panel24 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonImportarBgLote = new System.Windows.Forms.Button();
             this.buttonImportaImgLote = new System.Windows.Forms.Button();
             this.buttonImportaSelecionadoImg = new System.Windows.Forms.Button();
             this.panel23 = new System.Windows.Forms.Panel();
@@ -220,7 +221,6 @@
             this.pictureBoxFonte = new System.Windows.Forms.PictureBox();
             this.listBoxFonteProp = new System.Windows.Forms.ListBox();
             this.comboBoxFonte = new System.Windows.Forms.ComboBox();
-            this.btnCriarTodosBinarios = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel13.SuspendLayout();
@@ -665,6 +665,19 @@
             this.panel9.Size = new System.Drawing.Size(298, 147);
             this.panel9.TabIndex = 0;
             // 
+            // btnCriarTodosBinarios
+            // 
+            this.btnCriarTodosBinarios.BackColor = System.Drawing.SystemColors.Control;
+            this.btnCriarTodosBinarios.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.btnCriarTodosBinarios.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnCriarTodosBinarios.Location = new System.Drawing.Point(94, 104);
+            this.btnCriarTodosBinarios.Name = "btnCriarTodosBinarios";
+            this.btnCriarTodosBinarios.Size = new System.Drawing.Size(112, 23);
+            this.btnCriarTodosBinarios.TabIndex = 5;
+            this.btnCriarTodosBinarios.Text = "Criar todos";
+            this.btnCriarTodosBinarios.UseVisualStyleBackColor = false;
+            this.btnCriarTodosBinarios.Click += new System.EventHandler(this.btnCriarTodosBinarios_Click_3);
+            // 
             // comboBoxImportarBinario
             // 
             this.comboBoxImportarBinario.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -775,7 +788,7 @@
             // panel24
             // 
             this.panel24.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.panel24.Controls.Add(this.button1);
+            this.panel24.Controls.Add(this.buttonImportarBgLote);
             this.panel24.Controls.Add(this.buttonImportaImgLote);
             this.panel24.Controls.Add(this.buttonImportaSelecionadoImg);
             this.panel24.Location = new System.Drawing.Point(1032, 447);
@@ -783,19 +796,19 @@
             this.panel24.Size = new System.Drawing.Size(237, 109);
             this.panel24.TabIndex = 7;
             // 
-            // button1
+            // buttonImportarBgLote
             // 
-            this.button1.BackColor = System.Drawing.SystemColors.Control;
-            this.button1.Enabled = false;
-            this.button1.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button1.Location = new System.Drawing.Point(47, 76);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(149, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Importar modificando paleta";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Visible = false;
+            this.buttonImportarBgLote.BackColor = System.Drawing.SystemColors.Control;
+            this.buttonImportarBgLote.Enabled = false;
+            this.buttonImportarBgLote.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
+            this.buttonImportarBgLote.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.buttonImportarBgLote.Location = new System.Drawing.Point(47, 76);
+            this.buttonImportarBgLote.Name = "buttonImportarBgLote";
+            this.buttonImportarBgLote.Size = new System.Drawing.Size(149, 23);
+            this.buttonImportarBgLote.TabIndex = 2;
+            this.buttonImportarBgLote.Text = "Importar modificando paleta";
+            this.buttonImportarBgLote.UseVisualStyleBackColor = false;
+            this.buttonImportarBgLote.Visible = false;
             // 
             // buttonImportaImgLote
             // 
@@ -1070,7 +1083,7 @@
             this.comboBoxBGetc.Name = "comboBoxBGetc";
             this.comboBoxBGetc.Size = new System.Drawing.Size(164, 21);
             this.comboBoxBGetc.TabIndex = 2;
-            this.comboBoxBGetc.SelectedIndexChanged += new System.EventHandler(this.comboBoxBGetc_SelectedIndexChanged);
+            this.comboBoxBGetc.SelectionChangeCommitted += new System.EventHandler(this.comboBoxBGetc_SelectionChangeCommitted);
             // 
             // listBoxBGetc
             // 
@@ -1887,7 +1900,7 @@
             this.comboBoxTexturas.Name = "comboBoxTexturas";
             this.comboBoxTexturas.Size = new System.Drawing.Size(141, 21);
             this.comboBoxTexturas.TabIndex = 0;
-            this.comboBoxTexturas.SelectedIndexChanged += new System.EventHandler(this.comboBoxTexturas_SelectedIndexChanged);
+            this.comboBoxTexturas.SelectionChangeCommitted += new System.EventHandler(this.comboBoxTexturas_SelectionChangeCommitted);
             // 
             // tabPage4
             // 
@@ -2303,19 +2316,6 @@
             this.comboBoxFonte.TabIndex = 0;
             this.comboBoxFonte.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
-            // btnCriarTodosBinarios
-            // 
-            this.btnCriarTodosBinarios.BackColor = System.Drawing.SystemColors.Control;
-            this.btnCriarTodosBinarios.FlatAppearance.BorderColor = System.Drawing.SystemColors.Control;
-            this.btnCriarTodosBinarios.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnCriarTodosBinarios.Location = new System.Drawing.Point(94, 104);
-            this.btnCriarTodosBinarios.Name = "btnCriarTodosBinarios";
-            this.btnCriarTodosBinarios.Size = new System.Drawing.Size(112, 23);
-            this.btnCriarTodosBinarios.TabIndex = 5;
-            this.btnCriarTodosBinarios.Text = "Criar todos";
-            this.btnCriarTodosBinarios.UseVisualStyleBackColor = false;
-            this.btnCriarTodosBinarios.Click += new System.EventHandler(this.btnCriarTodosBinarios_Click_3);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2522,7 +2522,7 @@
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.ProgressBar progressBarExportImgs;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonImportarBgLote;
         private System.Windows.Forms.ComboBox comboBoxSprites;
         private System.Windows.Forms.ListBox listBoxSprites;
         private System.Windows.Forms.CheckedListBox checkedListBoxSpriteSelecionado;

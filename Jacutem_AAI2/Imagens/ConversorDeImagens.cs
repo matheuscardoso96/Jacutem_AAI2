@@ -1,11 +1,15 @@
 ﻿using Jacutem_AAI2.Imagens.Enums;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-
+//SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Processing;
+using Jacutem_AAI2.Imagens.Extensoes;
 
 namespace Jacutem_AAI2.Imagens
 {
@@ -17,53 +21,53 @@ namespace Jacutem_AAI2.Imagens
         public byte[] Paleta { get; set; }
         public List<Color> CoresPaleta { get; set; }
 
-        public ConversorDeImagens(string dirPaleta, string dirImagem, string dirTilemap, string bpp)
-        {
+        //public ConversorDeImagens(string dirPaleta, string dirImagem, string dirTilemap, string bpp)
+        //{
 
-            TileMap = File.ReadAllBytes(dirTilemap);
-            if (dirImagem.Contains("-"))
-            {
-                Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
-            }
-            else
-            {
-                Imagem = File.ReadAllBytes(dirImagem);
-            }
+        //    TileMap = File.ReadAllBytes(dirTilemap);
+        //    if (dirImagem.Contains("-"))
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
+        //    }
+        //    else
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem);
+        //    }
 
-            Paleta = File.ReadAllBytes(dirPaleta);
-            CoresPaleta = new List<Color>();
-            ConvertaPaleta(Paleta);
-        }
+        //    Paleta = File.ReadAllBytes(dirPaleta);
+        //    CoresPaleta = new List<Color>();
+        //    ConvertaPaleta(Paleta);
+        //}
 
-        public ConversorDeImagens(string dirPaleta, string dirImagem, string bpp)
-        {
-            if (dirImagem.Contains("-"))
-            {
-                Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
-            }
-            else
-            {
-                Imagem = File.ReadAllBytes(dirImagem);
-            }
-            Paleta = File.ReadAllBytes(dirPaleta);
-            CoresPaleta = new List<Color>();
-            ConvertaPaleta(Paleta);
-        }
+        //public ConversorDeImagens(string dirPaleta, string dirImagem, string bpp)
+        //{
+        //    if (dirImagem.Contains("-"))
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
+        //    }
+        //    else
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem);
+        //    }
+        //    Paleta = File.ReadAllBytes(dirPaleta);
+        //    CoresPaleta = new List<Color>();
+        //    ConvertaPaleta(Paleta);
+        //}
 
-        public ConversorDeImagens(string dirPaleta, string dirImagem)
-        {
-            if (dirImagem.Contains("-"))
-            {
-                Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
-            }
-            else
-            {
-                Imagem = File.ReadAllBytes(dirImagem);
-            }
+        //public ConversorDeImagens(string dirPaleta, string dirImagem)
+        //{
+        //    if (dirImagem.Contains("-"))
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem.Split('-').First() + ".bin");
+        //    }
+        //    else
+        //    {
+        //        Imagem = File.ReadAllBytes(dirImagem);
+        //    }
 
-            Paleta = File.ReadAllBytes(dirPaleta);
+        //    Paleta = File.ReadAllBytes(dirPaleta);
 
-        }
+        //}
         public ConversorDeImagens()
         {
 
@@ -140,7 +144,7 @@ namespace Jacutem_AAI2.Imagens
 
                             img.SetPixel(x, y, corComAlhpa);
 
-                          
+
 
                         }
                     }
@@ -153,9 +157,9 @@ namespace Jacutem_AAI2.Imagens
             return img;
         }
 
-        public Bitmap Exporte1bppBitmap(int largura, int altura, byte[] imagem)
+        public Bitmap Exporte1bpp2D(int largura, int altura, byte[] imagem)
         {
-            Bitmap imagemFinal = new Bitmap(largura, altura);
+
             CoresPaleta = new List<Color>();
             CoresPaleta.Add(Color.FromArgb(0, 0, 0));
             CoresPaleta.Add(Color.FromArgb(255, 255, 255));
@@ -163,22 +167,27 @@ namespace Jacutem_AAI2.Imagens
 
             var bits = new BitArray(imagem);
 
-            for (int y = 0; y < altura; y++)
+            SixLabors.ImageSharp.Image<Rgba32> imagemFinal = new SixLabors.ImageSharp.Image<Rgba32>(largura, altura);
+
+            for (int y = 0; y < imagemFinal.Height; y++)
             {
-                for (int x = 0; x < largura; x++)
+                Span<Rgba32> pixelRowSpan = imagemFinal.GetPixelRowSpan(y);
+                for (int x = 0; x < imagemFinal.Width; x++)
                 {
                     int valor = bits[contador] ? 1 : 0;
-                    imagemFinal.SetPixel(x, y, CoresPaleta[valor]);
+                    pixelRowSpan[x] = new Rgba32(CoresPaleta[valor].R, CoresPaleta[valor].G, CoresPaleta[valor].B);
                     contador++;
+
+
                 }
             }
 
-            return imagemFinal;
+            return imagemFinal.ToBitmap();
         }
 
-        public Bitmap Exporte2bppBitmap(int largura, int altura, byte[] imagem)
+        public Bitmap Exporte2bpp2D(int largura, int altura, byte[] imagem)
         {
-            Bitmap imagemFinal = new Bitmap(largura, altura);
+
             CoresPaleta = new List<Color>();
             CoresPaleta.Add(Color.FromArgb(0, 0, 0));
             CoresPaleta.Add(Color.FromArgb(255, 255, 255));
@@ -188,152 +197,132 @@ namespace Jacutem_AAI2.Imagens
 
             var bits = new BitArray(imagem);
 
-            for (int y = 0; y < altura; y++)
+
+            SixLabors.ImageSharp.Image<Rgba32> imagemFinal = new SixLabors.ImageSharp.Image<Rgba32>(largura, altura);
+
+            for (int y = 0; y < imagemFinal.Height; y++)
             {
-                for (int x = 0; x < largura; x++)
+                Span<Rgba32> pixelRowSpan = imagemFinal.GetPixelRowSpan(y);
+                for (int x = 0; x < imagemFinal.Width; x++)
                 {
                     int valor1 = bits[contador] ? 1 : 0;
                     int valor2 = bits[contador + 1] ? 1 : 0;
                     int valorFinal = (valor2 << 1) | valor1;
-                    imagemFinal.SetPixel(x, y, CoresPaleta[valorFinal]);
-                    contador+=2;
+                    pixelRowSpan[x] = new Rgba32(CoresPaleta[valorFinal].R, CoresPaleta[valorFinal].G, CoresPaleta[valorFinal].B);
+                    contador += 2;
+
+
                 }
             }
 
+            return imagemFinal.ToBitmap();
+
+        }
+
+        public Bitmap Exporte4bpp1DTileMap(int largura, int altura, byte[] imagem, List<ushort> tileMap)
+        {
+            Bitmap imagemFinal = new Bitmap(largura, altura);
+            List<SixLabors.ImageSharp.Image> tiles = ConvertaBytesParaTile(imagem, "4");
+            imagemFinal = LeiaTileMapERetorneImagem(tileMap, tiles, imagemFinal);
+            //DisposeListaBmp(tiles);
             return imagemFinal;
         }
 
-        public Bitmap Exporte4bppTile(int largura, int altura, byte[] imagem)
+        public Bitmap Exporte4bpp1DSemTileMap(int largura, int altura, byte[] imagem)
         {
             Bitmap imagemFinal = new Bitmap(largura, altura);
-            List<Bitmap> tiles = ConvertaBytesParaTile(imagem, "4");
-            imagemFinal = LeiaTileMapERetorneImagem(TileMap, tiles, imagemFinal);
-            DisposeListaBmp(tiles);
-            return imagemFinal;
-        }
-
-        public Bitmap Exporte4bppTileRaw(int largura, int altura, byte[] imagem)
-        {
-            Bitmap imagemFinal = new Bitmap(largura, altura);
-            List<Bitmap> tiles = ConvertaBytesParaTile(imagem, "4");
+            List<SixLabors.ImageSharp.Image> tiles = ConvertaBytesParaTile(imagem, "4");
             imagemFinal = ExporteImagemSemTileMap(tiles, imagemFinal);
-            DisposeListaBmp(tiles);
+            //DisposeListaBmp(tiles);
             return imagemFinal;
 
         }
 
-        public Bitmap Exporte4bppBitmap(byte[] imagem, int largura, int altura)
+        public Bitmap Exporte4bpp2D(byte[] imagem, int largura, int altura)
         {
-            Bitmap img = new Bitmap(largura, altura);
+            SixLabors.ImageSharp.Image<Rgba32> imagemFinal = new SixLabors.ImageSharp.Image<Rgba32>(largura, altura);
 
             using (BinaryReader br = new BinaryReader(new MemoryStream(imagem)))
             {
-                while (br.BaseStream.Position < imagem.Length)
+
+                for (int y = 0; y < imagemFinal.Height; y++)
                 {
-                    for (int y = 0; y < altura; y++)
+                    Span<Rgba32> pixelRowSpan = imagemFinal.GetPixelRowSpan(y);
+                    for (int x = 0; x < imagemFinal.Width; x += 2)
                     {
-                        for (int x = 0; x < largura; x += 2)
-                        {
+                        int valorNaPaleta = br.ReadByte();
+                        int nibbleAlto = (valorNaPaleta & 0xF0) >> 4;
+                        int nibbleBaixo = (valorNaPaleta & 0x0F);
+                        pixelRowSpan[x] = new Rgba32(CoresPaleta[nibbleBaixo].R, CoresPaleta[nibbleBaixo].G, CoresPaleta[nibbleBaixo].B);
+                        pixelRowSpan[x + 1] = new Rgba32(CoresPaleta[nibbleAlto].R, CoresPaleta[nibbleAlto].G, CoresPaleta[nibbleAlto].B);
 
-                            int valorNaPaleta = br.ReadByte();
-                            int nibbleAlto = (valorNaPaleta & 0xF0) >> 4;
-                            int nibbleBaixo = (valorNaPaleta & 0x0F);
-                            img.SetPixel(x, y, CoresPaleta[nibbleBaixo]);
-                            img.SetPixel(x + 1, y, CoresPaleta[nibbleAlto]);
 
-                        }
                     }
-
-
-                    // tiles.Add(tile);
-                    // tile.Dispose();
-
                 }
 
             }
 
-            return img;
+
+            return imagemFinal.ToBitmap();
+
+
         }
 
-        public Bitmap Exporte8bppTile(int largura, int altura, byte[] imagem)
+        public Bitmap Exporte8bpp1DTileMap(int largura, int altura, byte[] imagem, List<ushort> tileMap)
         {
             Bitmap imagemFinal = new Bitmap(largura, altura);
-            List<Bitmap> tiles = ConvertaBytesParaTile(imagem, "8");
-            imagemFinal = LeiaTileMapERetorneImagem(TileMap, tiles, imagemFinal);
-            DisposeListaBmp(tiles);
+            List<SixLabors.ImageSharp.Image> tiles = ConvertaBytesParaTile(imagem, "8");
+            imagemFinal = LeiaTileMapERetorneImagem(tileMap, tiles, imagemFinal);
             return imagemFinal;
 
         }
 
-        public Bitmap Exporte8bppTileRaw(int largura, int altura, byte[] imagem)
+        public Bitmap Exporte8bpp1DSemTileMap(int largura, int altura, byte[] imagem)
         {
             Bitmap imagemFinal = new Bitmap(largura, altura);
-            List<Bitmap> tiles = ConvertaBytesParaTile(imagem, "8");
+            List<SixLabors.ImageSharp.Image> tiles = ConvertaBytesParaTile(imagem, "8");
             imagemFinal = ExporteImagemSemTileMap(tiles, imagemFinal);
-            tiles.Clear();
             return imagemFinal;
 
         }
 
-        public Bitmap Exporte8bppBitmap(byte[] imagem, int largura, int altura)
+        public Bitmap Exporte8bpp2D(byte[] imagem, int largura, int altura)
         {
-            Bitmap img = new Bitmap(largura, altura);
+      
+            SixLabors.ImageSharp.Image<Rgba32> imagemFinal = new SixLabors.ImageSharp.Image<Rgba32>(largura, altura);
 
             using (BinaryReader br = new BinaryReader(new MemoryStream(imagem)))
             {
-                while (br.BaseStream.Position < imagem.Length)
+
+                for (int y = 0; y < imagemFinal.Height; y++)
                 {
-                    for (int y = 0; y < altura; y++)
+                    Span<Rgba32> pixelRowSpan = imagemFinal.GetPixelRowSpan(y);
+                    for (int x = 0; x < imagemFinal.Width; x++ )
                     {
-                        for (int x = 0; x < largura; x++)
-                        {
-
-
-                            int valorNaPaleta = br.ReadByte();
-                            img.SetPixel(x, y, CoresPaleta[valorNaPaleta]);
-
-                            /* else
-                             {
-                                 int valorNaPaleta = br.ReadByte();
-                                 int nibbleAlto = (valorNaPaleta & 0xF0) >> 4;
-                                 int nibbleBaixo = (valorNaPaleta & 0x0F);
-                                 tiles.SetPixel(x, y, CoresPaleta[nibbleBaixo]);
-                                 tiles.SetPixel(x + 1, y, CoresPaleta[nibbleAlto]);
-                             }*/
-
-                        }
+                        int valorNaPaleta = br.ReadByte();
+                        pixelRowSpan[x] = new Rgba32(CoresPaleta[valorNaPaleta].R, CoresPaleta[valorNaPaleta].G, CoresPaleta[valorNaPaleta].B);
                     }
-
-
-                    // tiles.Add(tile);
-                    // tile.Dispose();
-
                 }
 
             }
 
-            return img;
+            return imagemFinal.ToBitmap();
         }
 
 
-        public void ExporteSprite(List<Oam> valoresOam, bool fundoTransparente)
+        public void ExporteSprite1D(List<Oam> valoresOam, bool fundoTransparente)
         {
             UtilizeTabelaOamEExporteSprite(valoresOam, "", "aai2", fundoTransparente);
         }
 
-
-        public void ExporteSpriteModo2(List<Oam> valoresOam, bool fundoTransparente)
+        public void ExporteSprite2D(List<Oam> valoresOam, bool fundoTransparente)
         {
-            // List<Oam> valoresOam = ObtenhaTabelaOam(dirArquivoOam, idxTabela);
-            // valoresOam = valoresOam.Take(valoresOam.Count - menosElementos).ToList();
-
-
             UtilizeTabelaOamEExporteSpriteModo2(valoresOam, fundoTransparente);
         }
 
-        public List<Bitmap> ConvertaBytesParaTile(byte[] imagem, string bpp)
+        public List<SixLabors.ImageSharp.Image> ConvertaBytesParaTile(byte[] imagem, string bpp)
         {
-            List<Bitmap> tiles = new List<Bitmap>();
+            List<SixLabors.ImageSharp.Image> tiles = new List<SixLabors.ImageSharp.Image>();
 
             int complemento = 1;
 
@@ -342,34 +331,38 @@ namespace Jacutem_AAI2.Imagens
                 complemento = 2;
             }
 
+
             using (BinaryReader br = new BinaryReader(new MemoryStream(imagem)))
             {
                 while (br.BaseStream.Position < imagem.Length)
                 {
-                    Bitmap tile = new Bitmap(8, 8);
-                    for (int y = 0; y < 8; y++)
+
+
+                    SixLabors.ImageSharp.Image<Rgba32> image = new SixLabors.ImageSharp.Image<Rgba32>(8, 8);
+
+                    for (int y = 0; y < image.Height; y++)
                     {
-                        for (int x = 0; x < 8; x += complemento)
+                        Span<Rgba32> pixelRowSpan = image.GetPixelRowSpan(y);
+                        for (int x = 0; x < image.Width; x += complemento)
                         {
                             if (bpp.Contains("8"))
                             {
                                 int valorNaPaleta = br.ReadByte();
-                                tile.SetPixel(x, y, CoresPaleta[valorNaPaleta]);
+                                pixelRowSpan[x] = new Rgba32(CoresPaleta[valorNaPaleta].R, CoresPaleta[valorNaPaleta].G, CoresPaleta[valorNaPaleta].B);
                             }
                             else
                             {
                                 int valorNaPaleta = br.ReadByte();
                                 int nibbleAlto = (valorNaPaleta & 0xF0) >> 4;
                                 int nibbleBaixo = (valorNaPaleta & 0x0F);
-                                tile.SetPixel(x, y, CoresPaleta[nibbleBaixo]);
-                                tile.SetPixel(x + 1, y, CoresPaleta[nibbleAlto]);
+                                pixelRowSpan[x] = new Rgba32(CoresPaleta[nibbleBaixo].R, CoresPaleta[nibbleBaixo].G, CoresPaleta[nibbleBaixo].B);
+                                pixelRowSpan[x + 1] = new Rgba32(CoresPaleta[nibbleAlto].R, CoresPaleta[nibbleAlto].G, CoresPaleta[nibbleAlto].B);
                             }
 
                         }
                     }
 
-                    tiles.Add(tile);
-                    // tile.Dispose();
+                    tiles.Add(image);
 
                 }
 
@@ -425,115 +418,82 @@ namespace Jacutem_AAI2.Imagens
             return tiles;
         }
 
-        public Bitmap LeiaTileMapERetorneImagem(byte[] tileMap, List<Bitmap> tiles, Bitmap imagemFinal)
+        public Bitmap LeiaTileMapERetorneImagem(List<ushort> tileMap, List<SixLabors.ImageSharp.Image> tiles, Bitmap imagemFinal)
         {
             int contadorTileMap = 0;
-            if (TileMap.Length == 0x600)
-            {
-                imagemFinal.Dispose();
-                imagemFinal = new Bitmap(256, 192);
-            }
-            else if (TileMap.Length == 0x800)
-            {
-                imagemFinal.Dispose();
-                imagemFinal = new Bitmap(256, 256);
-            }
-            Graphics g = Graphics.FromImage(imagemFinal);
-            List<int> tilesMapLido = new List<int>();
+            int resY = tileMap.Count / 32 * 8;
+            imagemFinal = new Bitmap(256, resY);
 
-            using (BinaryReader br = new BinaryReader(new MemoryStream(tileMap)))
+
+            using (SixLabors.ImageSharp.Image<Rgba32> image = new SixLabors.ImageSharp.Image<Rgba32>(imagemFinal.Width, imagemFinal.Height))
             {
-                while (br.BaseStream.Position < tileMap.Length)
+                for (int y = 0; y < imagemFinal.Height; y += 8)
                 {
-                    tilesMapLido.Add(br.ReadInt16());
+
+                    for (int x = 0; x < imagemFinal.Width; x += 8)
+                    {
+                        int valor = tileMap[contadorTileMap];
+                        int tileNum = valor & 0x3FF;
+                        valor = valor >> 10;
+
+                        var tile = tiles[tileNum].Clone(i => i.Flip(FlipMode.None));
+
+                        int horizotal = valor & 1;
+
+                        valor = valor >> 1;
+
+                        int vertical = valor & 1;
+
+                        if (horizotal == 1)
+                            tile.Mutate(t => t.RotateFlip(RotateMode.Rotate180, FlipMode.Vertical));
+
+                        if (vertical == 1)
+                            tile.Mutate(t => t.RotateFlip(RotateMode.Rotate180, FlipMode.Horizontal));
+
+                        image.Mutate(o => o.DrawImage(tile, new SixLabors.ImageSharp.Point(x, y), 1f));
+                        contadorTileMap++;
+                    }
                 }
+
+
+                return image.ToBitmap();
             }
 
-            for (int y = 0; y < imagemFinal.Height; y += 8)
-            {
-                for (int x = 0; x < imagemFinal.Width; x += 8)
-                {
-                    /*   if (tilesMapLido[contadorTileMap] < tiles.Count)
-                       {
-                           g.DrawImage(tiles[tilesMapLido[contadorTileMap]], x, y);
-                       }
-                       else
-                       {
-                           g.DrawImage(tiles[0], x, y);
-                       }
-                    */
 
-                    int valor = tilesMapLido[contadorTileMap];
-                    int tileNum = valor & 0x3FF;
-
-                    Bitmap tile = new Bitmap(tiles[tileNum]);
-
-                    if (valor > tiles.Count())
-                    {
-
-                    }
-
-                    valor = valor >> 10;
-                    int horizotal = valor & 1;
-                    valor = valor >> 1;
-                    int vertical = valor & 1;
-
-                    if (horizotal == 1)
-                    {
-
-                        tile.RotateFlip(RotateFlipType.Rotate180FlipY);
-                        //tile.Save("teste.png");
-                    }
-
-                    if (vertical == 1)
-                    {
-                        tile.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                        // tile.Save("teste.png");
-                    }
-
-                    g.DrawImage(tile, x, y);
-                    contadorTileMap++;
-                    tile.Dispose();
-                }
-            }
-
-            g.Dispose();
-            Bitmap final = new Bitmap(imagemFinal);
-            imagemFinal.Dispose();
-            DisposeListaBmp(tiles);
-            return final;
 
         }
 
-        public Bitmap ExporteImagemSemTileMap(List<Bitmap> tiles, Bitmap imagemFinal)
+        public Bitmap ExporteImagemSemTileMap(List<SixLabors.ImageSharp.Image> tiles, Bitmap imagemFinal)
         {
 
-            Graphics g = Graphics.FromImage(imagemFinal);
-            List<int> tilesMapLido = new List<int>();
 
             if (tiles.Count > 0)
             {
                 int contadorTiles = 0;
 
-                for (int y = 0; y < imagemFinal.Height; y += 8)
+                using (SixLabors.ImageSharp.Image<Rgba32> image = new SixLabors.ImageSharp.Image<Rgba32>(imagemFinal.Width, imagemFinal.Height))
                 {
-                    for (int x = 0; x < imagemFinal.Width; x += 8)
+                    for (int y = 0; y < imagemFinal.Height; y += 8)
                     {
-                        g.DrawImage(tiles[contadorTiles], x, y);
-                        tiles[contadorTiles].Dispose();
-                        contadorTiles++;
-
+                        Span<Rgba32> pixelRowSpan = image.GetPixelRowSpan(y);
+                        for (int x = 0; x < imagemFinal.Width; x += 8)
+                        {
+                            image.Mutate(o => o.DrawImage(tiles[contadorTiles], new SixLabors.ImageSharp.Point(x, y), 1f));
+                            tiles[contadorTiles].Dispose();
+                            //pixelRowSpan[x] = new Rgba32(x / 255, y / 255, 50, 255);
+                            contadorTiles++;
+                        }
                     }
+
+
+                    return image.ToBitmap();
                 }
+
+
             }
 
+            return null;
 
-
-            g.Dispose();
-
-            Bitmap final = new Bitmap(imagemFinal);
-            imagemFinal.Dispose();
-            return final;
 
         }
 
@@ -543,7 +503,7 @@ namespace Jacutem_AAI2.Imagens
 
         public byte[] ConvertaPara1bppBitmap(Bitmap imagemEditada)
         {
-                       
+
 
             CoresPaleta = new List<Color>();
             CoresPaleta.Add(Color.FromArgb(0, 0, 0));
@@ -556,7 +516,7 @@ namespace Jacutem_AAI2.Imagens
             {
                 for (int x = 0; x < imagemEditada.Width; x++)
                 {
-                   // int valor = bits[contador] ? 1 : 0;
+                    // int valor = bits[contador] ? 1 : 0;
                     int valor = ObtenhaIndexCorMaisProxima(imagemEditada.GetPixel(x, y), CoresPaleta);
                     bits[contador] = valor == 1 ? true : false;
                     contador++;
@@ -564,7 +524,7 @@ namespace Jacutem_AAI2.Imagens
             }
 
             byte[] imagembytes = new byte[bits.Count / 8];
-            bits.CopyTo(imagembytes,0);
+            bits.CopyTo(imagembytes, 0);
 
             return imagembytes;
         }
@@ -590,7 +550,7 @@ namespace Jacutem_AAI2.Imagens
                     int v2 = valor >> 1;
                     bits[contador] = v1 == 1 ? true : false;
                     bits[contador + 1] = v2 == 1 ? true : false;
-                    contador +=2;
+                    contador += 2;
                 }
             }
 
@@ -741,7 +701,7 @@ namespace Jacutem_AAI2.Imagens
 
         }
 
-       
+
 
         public byte[] Insira8bppBitmap(string dirImg)
         {
@@ -770,7 +730,7 @@ namespace Jacutem_AAI2.Imagens
         public byte[] Converta4bppRawNcgr(string dirImg)
         {
             Bitmap imagemEditada = new Bitmap(dirImg);
-          
+
 
             var tiles = ObtenhaTilesDeImagem(imagemEditada);
             imagemEditada.Dispose();
@@ -802,13 +762,13 @@ namespace Jacutem_AAI2.Imagens
         public byte[] Converta8bppRawNcgr(string dirImg)
         {
             Bitmap imagemEditada = new Bitmap(dirImg);
-          
+
             var tiles = ObtenhaTilesDeImagem(new Bitmap(dirImg));
             imagemEditada.Dispose();
 
             List<byte> imagembytes = new List<byte>();
 
-           
+
 
             foreach (var tile in tiles)
             {
@@ -899,8 +859,8 @@ namespace Jacutem_AAI2.Imagens
 
         public byte[] InsiraSpriteNgcr(string dirImg, List<Oam> valoresOam)
         {
-            
-            
+
+
             Bitmap imagemASerCortada = new Bitmap(dirImg);
 
             if (imagemASerCortada.Height != 256)
@@ -918,11 +878,11 @@ namespace Jacutem_AAI2.Imagens
                 int x = (int)oam.X;
                 int y = (int)oam.Y;
 
-               
+
 
                 Rectangle rect = new Rectangle(x, y, (int)oam.Largura, (int)oam.Altura);
                 Bitmap pedaco = imagemASerCortada.Clone(rect, imagemASerCortada.PixelFormat);
-    
+
                 if (oam.HorizontalFlip && oam.VerticalFlip)
                 {
                     pedaco.RotateFlip(RotateFlipType.RotateNoneFlipXY);
@@ -941,7 +901,7 @@ namespace Jacutem_AAI2.Imagens
                 int offsePedacoImg = 0;
 
 
-               offsePedacoImg = (int)(oam.TileId * 0x80);
+                offsePedacoImg = (int)(oam.TileId * 0x80);
 
                 // pedaco.Save("teste.png");
 
@@ -952,7 +912,7 @@ namespace Jacutem_AAI2.Imagens
 
             imagemASerCortada.Dispose();
 
-           
+
 
             return Imagem;
         }
@@ -1026,7 +986,7 @@ namespace Jacutem_AAI2.Imagens
             return final;
         }
 
-        public byte[] LeiaImagemERetorneBytes(Bitmap parteImg, Bpp bpp, int idPaleta,bool fundoTransparente)
+        public byte[] LeiaImagemERetorneBytes(Bitmap parteImg, Bpp bpp, int idPaleta, bool fundoTransparente)
         {
 
 
@@ -1081,36 +1041,36 @@ namespace Jacutem_AAI2.Imagens
 
             ConvertaPaletaOam(Paleta, bpp, idPaleta, fundoTransparente);
 
-           
 
 
-           
-                int complemento = 1;
 
-                if (bpp == Bpp.bpp4)
+
+            int complemento = 1;
+
+            if (bpp == Bpp.bpp4)
+            {
+                complemento += 1;
+            }
+
+            for (int y = 0; y < parteImg.Height; y++)
+            {
+                for (int x = 0; x < parteImg.Width; x += complemento)
                 {
-                    complemento += 1;
-                }
-
-                for (int y = 0; y < parteImg.Height; y++)
-                {
-                    for (int x = 0; x < parteImg.Width; x += complemento)
+                    if (bpp == Bpp.bpp4)
                     {
-                        if (bpp == Bpp.bpp4)
-                        {
-                            int valor1 = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x, y), CoresPaleta);
-                            int valor2 = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x + 1, y), CoresPaleta) << 4;
-                            valor2 = valor2 + valor1;
-                            imgEmBytes.Add((byte)valor2);
-                        }
-                        else
-                        {
-                            int valor = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x, y), CoresPaleta);
-                            imgEmBytes.Add((byte)valor);
-                        }
+                        int valor1 = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x, y), CoresPaleta);
+                        int valor2 = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x + 1, y), CoresPaleta) << 4;
+                        valor2 = valor2 + valor1;
+                        imgEmBytes.Add((byte)valor2);
+                    }
+                    else
+                    {
+                        int valor = ObtenhaIndexCorMaisProxima(parteImg.GetPixel(x, y), CoresPaleta);
+                        imgEmBytes.Add((byte)valor);
                     }
                 }
-           
+            }
+
 
 
             return imgEmBytes.ToArray();
@@ -1370,7 +1330,7 @@ namespace Jacutem_AAI2.Imagens
                 foreach (var infoOam in valoresOam)
                 {
                     ConvertaPaletaOam(Paleta, infoOam.Bpp, (int)infoOam.NumeroDaPaleta, fundoTransparente);
-                    
+
 
                     infoOam.Paleta = CoresPaleta;
 
@@ -1388,14 +1348,14 @@ namespace Jacutem_AAI2.Imagens
                         totalBpp = 128;
                     }
                     Array.Copy(Imagem, infoOam.TileId * totalBpp, imgTemp, 0, imgTemp.Length);
-                    List<Bitmap> tiles = ConvertaBytesParaTile(imgTemp, bpp);
+                    List<Bitmap> tiles = null; //ConvertaBytesParaTile(imgTemp, bpp);
 
                     if (infoOam.Bpp == Bpp.bpp8)
                     {
 
                         // List<Bitmap> tilesOam = tiles.Take((int)((infoOam.Largura / 8) * (infoOam.Altura / 8))).ToList();
                         Bitmap pedacao = new Bitmap((int)infoOam.Largura, (int)infoOam.Altura);
-                        Bitmap tile = new Bitmap(ExporteImagemSemTileMap((tiles), pedacao));
+                        Bitmap tile = null; // new Bitmap(ExporteImagemSemTileMap((tiles), pedacao));
                         pedacao.Dispose();
 
                         if (infoOam.HorizontalFlip && infoOam.VerticalFlip)
@@ -1437,7 +1397,8 @@ namespace Jacutem_AAI2.Imagens
                         // List<Bitmap> tilesOam = tiles.Skip((int)infoOam.TileId * 4).Take((int)((infoOam.Largura / 8) * (infoOam.Altura / 8))).ToList();
                         Bitmap pedacao = new Bitmap((int)infoOam.Largura, (int)infoOam.Altura);
 
-                        Bitmap tile = new Bitmap(ExporteImagemSemTileMap((tiles), pedacao));
+                        //Bitmap tile = new Bitmap(ExporteImagemSemTileMap((tiles), pedacao));
+                        Bitmap tile = new Bitmap(ExporteImagemSemTileMap((null), pedacao));
                         pedacao.Dispose();
 
 
@@ -1455,7 +1416,7 @@ namespace Jacutem_AAI2.Imagens
                         }
 
                         infoOam.Imagem = tile;
-                        infoOam.Retangulo = new Rectangle((int)infoOam.X, (int)infoOam.Y, tile.Width,tile.Height);
+                        infoOam.Retangulo = new Rectangle((int)infoOam.X, (int)infoOam.Y, tile.Width, tile.Height);
 
                         // tile.Save("8bpp1\\" + oo + ".png");
                         // oo++;
@@ -1484,7 +1445,7 @@ namespace Jacutem_AAI2.Imagens
         {
 
 
-           
+
             string bpp = "" + valoresOam.First().Bpp;
             //  ConvertaPaletaOam(Paleta, valoresOam.First().Bpp, (int)valoresOam.First().NumeroDaPaleta);
 
@@ -1496,9 +1457,9 @@ namespace Jacutem_AAI2.Imagens
                 //  int oo = 0;
                 foreach (var infoOam in valoresOam)
                 {
-                    ConvertaPaletaOam(Paleta, infoOam.Bpp, (int)infoOam.NumeroDaPaleta,fundoTransparente);
+                    ConvertaPaletaOam(Paleta, infoOam.Bpp, (int)infoOam.NumeroDaPaleta, fundoTransparente);
                     infoOam.Paleta = CoresPaleta;
-                    
+
 
                     if (infoOam.Bpp == Bpp.bpp8)
                     {
@@ -1557,7 +1518,7 @@ namespace Jacutem_AAI2.Imagens
 
                         infoOam.Imagem = tile;
                         infoOam.Retangulo = new Rectangle((int)infoOam.X, (int)infoOam.Y, tile.Width, tile.Height);
-                       
+
 
                     }
 
@@ -1593,7 +1554,7 @@ namespace Jacutem_AAI2.Imagens
 
                     while (contador < 32)
                     {
-                        
+
                         int bgr = br.ReadInt16();
 
                         int r = (bgr & 31) * 255 / 31;
@@ -1626,7 +1587,7 @@ namespace Jacutem_AAI2.Imagens
                 CoresPaleta[0] = Color.FromArgb(0, 0, 0, 0);
             }
 
-           
+
         }
 
         public void DisposeListaBmp(List<Bitmap> bitmaps)
