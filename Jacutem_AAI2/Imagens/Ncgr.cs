@@ -1,4 +1,6 @@
 ﻿using Jacutem_AAI2.Imagens.Enums;
+using LibDeImagensGbaDs.Conversor;
+using LibDeImagensGbaDs.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ namespace Jacutem_AAI2.Imagens
         public byte[] ImagemEmBytes { get; set; }
         public int Altura { get; set; }
         public int Largura { get; set; }
-        public Bpp Bpp { get; set; }
+        public EIndexFormat Bpp { get; set; }
         public int TamanhoGrafico { get; set; }
         public string DirNcgr { get; set; }
         public List<Color> CoresConvertidas { get; set; }
@@ -42,9 +44,10 @@ namespace Jacutem_AAI2.Imagens
                 Largura = br.ReadInt16() * 8;
                 int bpp = br.ReadByte();
                 if (bpp == 0x3)
-                    Bpp = Bpp.bpp4;
+                    Bpp = EIndexFormat.F4BBP;
                 else
-                    Bpp = Bpp.bpp8;
+                    Bpp = EIndexFormat.F8BBP;
+
                 br.BaseStream.Position = 0x28;
                 TamanhoGrafico = br.ReadInt32();
                 br.BaseStream.Position = 0x30;
@@ -66,7 +69,7 @@ namespace Jacutem_AAI2.Imagens
                     break;
                 case "BG Com Tile Map":
                     ArquivoNscr = new Nscr(argumentos[2]);
-                    Imagem = ExportarNCGRTiled();
+                    Imagem = ExportarNCGRTileMap();
                     break;
                 case "Sprites Modo Tile":
                     ArquivoNcer = new Ncer(argumentos[2]);
@@ -80,33 +83,6 @@ namespace Jacutem_AAI2.Imagens
             }
         }
 
-        /*public Ncgr(string dir, string dirNcer)
-        {
-            DirNcgr = dir;
-
-            using (BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(dir))))
-            {
-                br.BaseStream.Position = 0x18;
-                Altura = br.ReadInt16() * 8;
-                Largura = br.ReadInt16() * 8;
-                int bpp = br.ReadByte();
-                if (bpp == 0x3)
-                {
-                    Bpp = Bpp.bpp4;
-                }
-                else
-                {
-                    Bpp = Bpp.bpp8;
-                }
-                br.BaseStream.Position = 0x28;
-                TamanhoGrafico = br.ReadInt32();
-                br.BaseStream.Position = 0x30;
-                ImagemEmBytes = br.ReadBytes(TamanhoGrafico);
-            }
-
-            ArquivoNcer = new Ncer(dirNcer);
-        }*/
-
         public void Exportar() 
         {
             if (!Directory.Exists(LocalParaExportacao))
@@ -117,30 +93,16 @@ namespace Jacutem_AAI2.Imagens
 
         private Bitmap ExportarNCGR()
         {
-                
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.CoresPaleta = ArquivoNclr.Paletas[0];           
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));                                          
+            return cdi.BinParaBmp(ImagemEmBytes, 0);
 
-            CoresConvertidas = cv.CoresPaleta;
-
-            if (Bpp == Bpp.bpp4)
-                return cv.Exporte4bpp1DSemTileMap(Largura, Altura, ImagemEmBytes);
-
-            else
-                return cv.Exporte8bpp1DSemTileMap(Largura, Altura, ImagemEmBytes);
-            
         }
 
-        private Bitmap ExportarNCGRTiled()
-        {
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.CoresPaleta = ArquivoNclr.Paletas[0];      
-            CoresConvertidas = cv.CoresPaleta;
+        private Bitmap ExportarNCGRTileMap()
+        {    
 
-            if (Bpp == Bpp.bpp4)
-                return cv.Exporte4bpp1DTileMap(Largura, Altura, ImagemEmBytes, ArquivoNscr.TileMap);
-            else
-                return cv.Exporte8bpp1DTileMap(Largura, Altura, ImagemEmBytes, ArquivoNscr.TileMap);
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D, ArquivoNscr.TileMap));
+            return cdi.BinParaBmp(ImagemEmBytes, 0);
 
         }
 
@@ -203,26 +165,6 @@ namespace Jacutem_AAI2.Imagens
                              
             }
 
-
-
-            /*    
-                cv.CoresPaleta = new List<Color>();
-                cv.ConvertaPaleta(nclr.PaletaEmBytes);
-               // cv.TileMap = nscr.TileMap;
-
-                if (Bpp == Bpp.bpp4)
-                {
-                    Bitmap img = cv.Exporte4bppTile(Largura, Altura, ImagemEmBytes);
-                    img.Save(dirSalvamento + "\\" + Path.GetFileName(DirNcgr.Replace("ncgr", "png")));
-                    img.Dispose();
-                }
-                else
-                {
-                    Bitmap img = cv.Exporte8bppTile(Largura, Altura, ImagemEmBytes);
-                    img.Save(dirSalvamento + "\\" + Path.GetFileName(DirNcgr.Replace("ncgr", "png")));
-                    img.Dispose();
-                }
-                */
         }
 
 
@@ -232,7 +174,7 @@ namespace Jacutem_AAI2.Imagens
             ConversorDeImagens cv = new ConversorDeImagens();
             cv.CoresPaleta = ArquivoNclr.Paletas[0];
 
-            if (Bpp == Bpp.bpp4)
+            if (Bpp == EIndexFormat.F4BBP)
             {
                 byte[] img = cv.Converta4bppRawNcgr(dirImg);
                 InsiranoNcgr(img);
@@ -251,7 +193,7 @@ namespace Jacutem_AAI2.Imagens
             ConversorDeImagens cv = new ConversorDeImagens();
             cv.CoresPaleta = ArquivoNclr.Paletas[0];
 
-            if (Bpp == Bpp.bpp4)
+            if (Bpp == EIndexFormat.F4BBP)
             {
                 List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
                 InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);

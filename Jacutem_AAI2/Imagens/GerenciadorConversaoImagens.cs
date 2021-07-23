@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LibDeImagensGbaDs.Conversor;
 
 namespace Jacutem_AAI2.Imagens
 {
@@ -11,6 +12,7 @@ namespace Jacutem_AAI2.Imagens
     {
         public static Bitmap BinarioParaBmp(string argumentosImg, string tipo) 
         {
+            
             return null;
         }
     }

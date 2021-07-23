@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Drawing.Drawing2D;
 using Jacutem_AAI2.Imagens.MapaDeArquivos;
+using LibDeImagensGbaDs.Enums;
 
 namespace Jacutem_AAI2
 {
@@ -442,7 +443,7 @@ namespace Jacutem_AAI2
             pictureBox.Image = btx.Texturas[index].Textura;
 
             ResXTextura.Text = pictureBox.Image.Width + "";
-            ResYTextura.Text = pictureBox.Image.Height + "";
+           ResYTextura.Text = pictureBox.Image.Height + "";
             checkBoxTex4bpp.Checked = false;
             checkBoxTex8bpp.Checked = false;
 
@@ -2798,7 +2799,7 @@ namespace Jacutem_AAI2
             {
 
 
-                if (_ncgrSpriteCarregado.Bpp == Bpp.bpp4)
+                if (_ncgrSpriteCarregado.Bpp == EIndexFormat.F4BBP)
                 {
                     tmp = new byte[_imagemNovaTemporaria.Length + (resX * resY / 2)];
 
@@ -2816,7 +2817,7 @@ namespace Jacutem_AAI2
             }
             else
             {
-                if (_ncgrSpriteCarregado.Bpp == Bpp.bpp4)
+                if (_ncgrSpriteCarregado.Bpp == EIndexFormat.F4BBP)
                 {
                     _imagemNovaTemporaria = new byte[_ncgrSpriteCarregado.ImagemEmBytes.Length + (resX * resY / 2)];
 
@@ -2833,7 +2834,7 @@ namespace Jacutem_AAI2
 
             int valorParaCalcularTiuleId = 0;
 
-            if (_ncgrSpriteCarregado.Bpp == Bpp.bpp4)
+            if (_ncgrSpriteCarregado.Bpp == EIndexFormat.F4BBP)
             {
                 valorParaCalcularTiuleId = _imagemNovaTemporaria.Length - (resX * resY / 2);
             }

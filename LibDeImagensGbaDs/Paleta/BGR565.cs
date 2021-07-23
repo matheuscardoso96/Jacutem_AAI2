@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageLibGbaDS.Paleta
 {
-    public class BGR565 : IFormatoPaleta
+    public class BGR565 : IPaleta
     {
-        public Color[] Paleta { get; set; }
-        public BGR565(byte[] bytesDaPaleta)
+        public Color[] Cores { get; set; }
+        public bool TemAlpha { get; set; }
+        public BGR565(byte[] bytesDaPaleta, bool temAlpha)
         {
-            Paleta = new Color[bytesDaPaleta.Length / 2];
+            TemAlpha = temAlpha;
+            Cores = new Color[bytesDaPaleta.Length / 2];
             
             using (BinaryReader br = new BinaryReader(new MemoryStream(bytesDaPaleta)))
             {
@@ -24,7 +21,7 @@ namespace ImageLibGbaDS.Paleta
                     int r = (bgr & 31) * 255 / 31;
                     int g = (bgr >> 5 & 31) * 255 / 31;
                     int b = (bgr >> 10 & 31) * 255 / 31;
-                    Paleta[contador] = Color.FromArgb(r, g, b);
+                    Cores[contador] = Color.FromArgb(r, g, b);
                     contador++;
                 }
             }

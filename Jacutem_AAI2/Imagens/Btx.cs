@@ -5,10 +5,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ImageLibGbaDS.Conversor;
-using ImageLibGbaDS.Formatos;
 using ImageLibGbaDS.Paleta;
 using System.Threading.Tasks;
+using LibDeImagensGbaDs.Conversor;
+using LibDeImagensGbaDs.Enums;
 
 namespace Jacutem_AAI2.Imagens
 {
@@ -59,7 +59,7 @@ namespace Jacutem_AAI2.Imagens
 
                
                 List<PaleteInfo> paleteInfos = new List<PaleteInfo>();
-                //Format: < 0, 8, 2, 4, 8, 2, 8, 16 >
+
 
 
                 for (int i = 0; i < numObjetos; i++)
@@ -76,8 +76,6 @@ namespace Jacutem_AAI2.Imagens
                     texture.Altura = (8 << (paremetros & 7));
                     paremetros = paremetros >> 3;
                     texture.Formato = paremetros & 7;
-                    //paremetros = paremetros >> 3;
-                    // texture.PaleteId = textureFormat[paremetros & 1];
                     Texturas.Add(texture);
 
                 }
@@ -129,13 +127,11 @@ namespace Jacutem_AAI2.Imagens
                         int tamanhoGrafico = (textura.Altura * textura.Largura);
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
-                        ci.CoresPaleta = new List<Color>();
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
-                        ci.ConvertaPaleta(paleta);
-                        textura.Textura = ci.ExporteA3I5(img, textura.Largura, textura.Altura);
+                        ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA3I5, EModoDimensional.M2D,null, true));
+                        textura.Textura = cdi.BinParaBmp(img, 0);
                         textura.Bpp = Bpp.bpp8;
-                        textura.PaletaImg = ci.CoresPaleta;
                     }
 
                     else  if (textura.Formato == 3)
@@ -144,39 +140,33 @@ namespace Jacutem_AAI2.Imagens
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.FirstOrDefault(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
-                        BGR565 paleta = new BGR565(br.ReadBytes(0x20));
-                        ConversorDeImagem cdi = new ConversorDeImagem(new F4BPP(), new Indexado2D(paleta));
-                        textura.Textura = cdi.ConvertaFormatoIndexadoParaBmp(new BinaryReader(new MemoryStream(img)), textura.Altura , textura.Largura,0);
-                        
+                        byte[] paleta = br.ReadBytes(0x20);
+                        ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F4BBP, EModoDimensional.M2D));
+                        textura.Textura = cdi.BinParaBmp(img,0);
+
                     }
-                    else if (textura.Formato == 4)
+                    //else if (textura.Formato == 666666)
+                    //{
+                    //    int tamanhoGrafico = (textura.Altura * textura.Largura);
+                    //    br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
+                    //    byte[] img = br.ReadBytes(tamanhoGrafico);                  
+                    //    br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
+                    //    byte[] paleta = br.ReadBytes(0x200);
+                    //    ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA5I3, EModoDimensional.M2D, null, true));
+                    //    textura.Textura = cdi.BinParaBmp(img, 0);
+                    //    textura.Bpp = Bpp.bpp8;
+
+                    //}
+                    else if (textura.Formato == 6 || textura.Formato == 4)
                     {
                         int tamanhoGrafico = (textura.Altura * textura.Largura);
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
-                        ci.CoresPaleta = new List<Color>();
-
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
-                        ci.ConvertaPaleta(paleta);
-                        textura.Textura = ci.Exporte8bpp2D(img, textura.Largura, textura.Altura);
+                        ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F8BBP, EModoDimensional.M2D));
+                        textura.Textura = cdi.BinParaBmp(img, 0);
                         textura.Bpp = Bpp.bpp8;
-                        textura.PaletaImg = ci.CoresPaleta;
-                        // imagemFinal.Save(dirSalva + Path.GetFileName(dirImg).Replace(".bin", "_" + contador + ".png"));
-
-                    }
-                    else if (textura.Formato == 6)
-                    {
-                        int tamanhoGrafico = (textura.Altura * textura.Largura);
-                        br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
-                        byte[] img = br.ReadBytes(tamanhoGrafico);
-                        ci.CoresPaleta = new List<Color>();
-                        br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
-                        byte[] paleta = br.ReadBytes(0x200);
-                        ci.ConvertaPaleta(paleta);
-                        textura.Textura = ci.ExporteA5I3(img, textura.Largura, textura.Altura);
-                        textura.Bpp = Bpp.bpp8;
-                        textura.PaletaImg = ci.CoresPaleta;
                     }
 
 
@@ -329,17 +319,17 @@ namespace Jacutem_AAI2.Imagens
                             // ci.Exporte4bppBitmap(img, textura.Largura, textura.Altura);
 
                         }
-                        else if (textura.Formato == 4)
-                        {
-                            br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
-                            byte[] paleta = br.ReadBytes(0x200);
-                            ci.CoresPaleta = new List<Color>();
-                            ci.ConvertaPaleta(paleta);
-                            img = ci.Insira8bppBitmap(png);
-                            posicaoGrafico = textura.Offset + OffsetBaseTextura + idxTex;
-                            // ci.Exporte8bppBitmap(img, textura.Largura, textura.Altura);
-                        }
-                        else if (textura.Formato == 6)
+                        //else if (4)
+                        //{
+                        //    br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
+                        //    byte[] paleta = br.ReadBytes(0x200);
+                        //    ci.CoresPaleta = new List<Color>();
+                        //    ci.ConvertaPaleta(paleta);
+                        //    img = ci.Insira8bppBitmap(png);
+                        //    posicaoGrafico = textura.Offset + OffsetBaseTextura + idxTex;
+                        //    // ci.Exporte8bppBitmap(img, textura.Largura, textura.Altura);
+                        //}
+                        else if (textura.Formato == 6 || textura.Formato == 4)
                         {
                             br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                             byte[] paleta = br.ReadBytes(0x200);
