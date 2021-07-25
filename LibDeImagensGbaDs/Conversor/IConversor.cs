@@ -4,6 +4,6 @@ namespace LibDeImagensGbaDs.Conversor
 {
     public interface IConversor
     {
-       Bitmap ConvertaParaBmp(byte[] arquivo, int enderecoInicial);
+       Bitmap ConvertaParaBmp(byte[] arquivo, int tamanho, int enderecoInicial);
     }
 }

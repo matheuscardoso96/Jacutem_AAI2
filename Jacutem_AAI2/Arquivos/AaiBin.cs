@@ -1,18 +1,17 @@
-﻿//using Jacutem_AAI2.Compressoes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using dsdecmp.Formats.Nitro;
 
 namespace Jacutem_AAI2.Arquivos
 {
     public static class AaiBin
     {
-        public static void Exportar(string dirBin, string subPasta)
+        public static void Exportar(string dirBin)
         {
+            string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
+
             if (!Directory.Exists("__Binarios"))
             {
                 Directory.CreateDirectory("__Binarios");
@@ -22,7 +21,8 @@ namespace Jacutem_AAI2.Arquivos
             {
                 Directory.CreateDirectory("__Binarios\\_InfoBinarios");
             }
-            string dirExt = "__Binarios\\" + subPasta + "_" + Path.GetFileName(dirBin).Replace(".bin", "");
+
+            string dirExt = $"__Binarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
             var listaDeArquivos = new List<string>();
 
 
@@ -38,7 +38,7 @@ namespace Jacutem_AAI2.Arquivos
                 List<EntradaAAIBin> entradas = LerEntradas(br);
                 int contador = 0;
                
-                foreach (var entrada in entradas)
+                foreach (EntradaAAIBin entrada in entradas)
                 {
                     br.BaseStream.Position = entrada.Endereco;
                     byte[] arquivo = br.ReadBytes((int)entrada.Tamanho);
@@ -55,10 +55,24 @@ namespace Jacutem_AAI2.Arquivos
                     File.WriteAllBytes($"{dirExt}\\{contador.ToString("0000")}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
                     listaDeArquivos.Add($"{dirExt}\\{contador.ToString("0000")}{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
                     contador++;
-
                 }        
 
-                File.WriteAllLines("__Binarios\\_InfoBinarios\\" + subPasta + "_" + Path.GetFileName(dirBin).Replace(".bin", ".txt"), listaDeArquivos);
+                File.WriteAllLines($"__Binarios\\_InfoBinarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", ".txt")}", listaDeArquivos);
+            }
+
+        }
+
+        public static void ExportarTodos(string diretorioRomDesmontada) 
+        {
+            string[] listaDeArquivos = Directory.GetFiles($"{diretorioRomDesmontada}\\data", "*.bin", SearchOption.AllDirectories);
+
+            foreach (var dir in listaDeArquivos)
+            {
+                if (dir.Contains("data\\data\\"))
+                    continue;
+             
+                Exportar(dir);
+
             }
 
         }

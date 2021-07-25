@@ -10,9 +10,9 @@ namespace LibDeImagensGbaDs.Conversor
             Conversor = conversor;
         }
 
-        public Bitmap BinParaBmp(byte[] arquivo, int enderecoInicial) 
+        public Bitmap BinParaBmp(byte[] arquivo,int tamanho, int enderecoInicial) 
         {
-            return Conversor.ConvertaParaBmp(arquivo,enderecoInicial);
+            return Conversor.ConvertaParaBmp(arquivo,tamanho,enderecoInicial);
         }
 
     }

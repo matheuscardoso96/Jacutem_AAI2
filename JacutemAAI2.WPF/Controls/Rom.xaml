@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="JacutemAAI2.WPF.Controls.Rom"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+               <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+             
+            <TextBlock Grid.Row="0" Grid.Column="0" FontSize="30" HorizontalAlignment="Center">ROM</TextBlock>
+            <materialDesign:PackIcon Grid.Row="0" Grid.Column="0" Margin="0,5,100,0"  HorizontalAlignment="Center" Width="30" Height="30" Kind="ContentSaveSettingsOutline" />
+
+            <TextBlock Grid.Row="1"  FontSize="25" HorizontalAlignment="Center">Desmontar ROM</TextBlock>
+        <materialDesign:Card Padding="10" UniformCornerRadius="10" Height="auto" Margin="16" Grid.Row="2">
+       
+
+        <Grid Height="160" Grid.Row="2">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Margin="30,0,0,0" VerticalAlignment="Bottom" FontSize="16">Diretórios:</Label>
+                <TextBox  materialDesign:HintAssist.Hint="Diretório do .nds"
+            materialDesign:TextFieldAssist.DecorationVisibility="Hidden" IsEnabled="{Binding TxtDirNdsEstaAtivo}" Margin="30,0,0,0" Grid.Row="1" Grid.Column="0" Width="auto" Height="25" Text="{Binding DiretorioDaRom, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button materialDesign:ButtonAssist.CornerRadius="10" Margin="5,0,0,0" IsEnabled="{Binding BtnSelecionarEstaAtivo}" HorizontalAlignment="Left" Command="{Binding MyCommand[AdicionarCaminho]}"
+                        CommandParameter="ParameterValue" Grid.Column="1" Grid.Row="1" Width="100">Selecionar</Button>
+
+                <TextBox Margin="30,0,0,0" Width="auto" Height="25" Grid.Row="2" materialDesign:HintAssist.Hint="Diretório que rom desmontada será salva" IsEnabled="{Binding TxtDirNdsEstaAtivo}" Text="{Binding DiretorioDestino, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <Button materialDesign:ButtonAssist.CornerRadius="10" Margin="5,0,0,0"  IsEnabled="{Binding BtnSelecionarEstaAtivo}" HorizontalAlignment="Left"
+                         Command="{Binding MyCommand[AdicionarCaminhoDestino]}" CommandParameter="ParameterValue"  Grid.Column="1" Grid.Row="2" Width="100">Selecionar</Button>
+            
+            <Button materialDesign:ButtonAssist.CornerRadius="10" IsEnabled="{Binding BtnExportarEstaAtivo}" Margin="30,0,0,0" Command="{Binding MyCommand[ExportarRom]}" Grid.Column="0" Grid.Row="3" Width="150" HorizontalAlignment="Left" Height="30">Desmontar ROM</Button>
+
+            </Grid>
+        </materialDesign:Card>
+
+        <Border>
+            
+        </Border>
+        <Label Grid.Row="3" FontSize="25" HorizontalAlignment="Center" Grid.Column="0" Margin="30,0,0,0" VerticalAlignment="Bottom">Cria novo .nds:</Label>
+        
+        <materialDesign:Card UniformCornerRadius="10" Height="auto"  Padding="32" Margin="16" Grid.Row="4">
+            <Grid Height="160" Grid.Row="4">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Margin="30,0,0,0" VerticalAlignment="Bottom" FontSize="16">Diretório da Rom desmontada:</Label>
+                <TextBox  Margin="30,0,0,0" Grid.Row="1" Grid.Column="0" Width="auto" Height="25" Text="{Binding DiretorioRomDesmontada}" IsEnabled="{Binding TxtDirNdsEstaAtivo}" materialDesign:HintAssist.Hint="Selecione ou escreva caminho da pasta ROM_Desmontada"/>
+                <Button materialDesign:ButtonAssist.CornerRadius="10" Margin="5,0,0,0"  IsEnabled="{Binding BtnSelecionarEstaAtivo}" HorizontalAlignment="Left"
+                         Command="{Binding MyCommand[AdicionarCaminhoRomDesmotada]}" CommandParameter="ParameterValue"  Grid.Column="1" Grid.Row="1" Width="100">Selecionar</Button>
+                <Button materialDesign:ButtonAssist.CornerRadius="10" IsEnabled="{Binding BtnGerarNovaRomEstaAtivo}" Margin="30,0,0,0" Command="{Binding MyCommand[GerarNovaRom]}" Grid.Column="0" Grid.Row="2" Width="150" HorizontalAlignment="Left" Height="30">Gerar novo .nds</Button>
+            </Grid>
+
+        </materialDesign:Card>
+  
+       
+
+
+
+    </Grid>
+</UserControl>

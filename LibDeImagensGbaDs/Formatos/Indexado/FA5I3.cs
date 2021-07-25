@@ -14,11 +14,11 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
             Largura = largura;
             Altura = altura;
         }
-        public void ObtenhaIndicesPorPixel(byte[] arquivo, int enderecoInicial = 0)
+        public void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho, int enderecoInicial = 0)
         {
-            int totalBytes = ((Largura * Altura) * Bpp) / 8;
-            byte[] rawIndexes = new byte[totalBytes];
-            Array.Copy(arquivo, enderecoInicial, rawIndexes, 0, totalBytes);
+           
+            byte[] rawIndexes = new byte[tamanho];
+            Array.Copy(arquivo, enderecoInicial, rawIndexes, 0, tamanho);
 
             byte[] final = new byte[Largura * Altura];
             AlphaValues = new byte[final.Length];

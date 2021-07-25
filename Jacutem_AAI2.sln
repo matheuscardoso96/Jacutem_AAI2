@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jacutem_AAI2", "Jacutem_AAI2\Jacutem_AAI2.csproj", "{1DEDB309-792F-4813-A0D1-7EAA6F16F722}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibDeImagensGbaDs", "LibDeImagensGbaDs\LibDeImagensGbaDs.csproj", "{48030FA5-97C3-45C9-873D-269BD0D4EA4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibDeImagensGbaDs", "LibDeImagensGbaDs\LibDeImagensGbaDs.csproj", "{48030FA5-97C3-45C9-873D-269BD0D4EA4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JacutemAAI2.WPF", "JacutemAAI2.WPF\JacutemAAI2.WPF.csproj", "{96062A53-2258-4996-8182-4A646D694CD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96062A53-2258-4996-8182-4A646D694CD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96062A53-2258-4996-8182-4A646D694CD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96062A53-2258-4996-8182-4A646D694CD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96062A53-2258-4996-8182-4A646D694CD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -130,7 +130,7 @@ namespace Jacutem_AAI2.Imagens
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
                         ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA3I5, EModoDimensional.M2D,null, true));
-                        textura.Textura = cdi.BinParaBmp(img, 0);
+                        textura.Textura = cdi.BinParaBmp(img,img.Length, 0);
                         textura.Bpp = Bpp.bpp8;
                     }
 
@@ -142,7 +142,7 @@ namespace Jacutem_AAI2.Imagens
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.FirstOrDefault(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x20);
                         ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F4BBP, EModoDimensional.M2D));
-                        textura.Textura = cdi.BinParaBmp(img,0);
+                        textura.Textura = cdi.BinParaBmp(img, img.Length, 0);
 
                     }
                     //else if (textura.Formato == 666666)
@@ -165,7 +165,7 @@ namespace Jacutem_AAI2.Imagens
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
                         ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F8BBP, EModoDimensional.M2D));
-                        textura.Textura = cdi.BinParaBmp(img, 0);
+                        textura.Textura = cdi.BinParaBmp(img, img.Length, 0);
                         textura.Bpp = Bpp.bpp8;
                     }
 

@@ -62,9 +62,9 @@ namespace LibDeImagensGbaDs.Conversor
             }
         }
         
-        public Bitmap ConvertaParaBmp(byte[] arquivo, int enderecoInicial) 
+        public Bitmap ConvertaParaBmp(byte[] arquivo, int tamanho , int enderecoInicial) 
         {
-            BitsPorPixel.ObtenhaIndicesPorPixel(arquivo, enderecoInicial);
+            BitsPorPixel.ObtenhaIndicesPorPixel(arquivo,tamanho, enderecoInicial);
             var imagemFinal = IndexConverter.ConvertaIndexado(BitsPorPixel, Paleta);
 
             return imagemFinal;

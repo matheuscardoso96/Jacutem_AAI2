@@ -5,6 +5,6 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
     {
         byte[] AlphaValues { get; set; }
         byte[] Indices { get; set; }
-        void ObtenhaIndicesPorPixel(byte[] arquivo, int enderecoInicial);
+        void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho , int enderecoInicial);
     }
 }

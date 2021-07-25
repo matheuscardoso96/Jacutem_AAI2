@@ -6,52 +6,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jacutem_AAI2.Arquivos
+namespace Jacutem_AAI2.FerramentasExternas
 {
-    public static class IntegracaoComNdsTool
+    public static class NdsTool
     {
-        public static string DesmontarArquivoNds(string dirRom, string dirDestino)
+        public static string Mensagem = "";
+        public static void DesmontarArquivoNds(string dirRom, string dirDestino)
         {
+            Directory.CreateDirectory(dirDestino);
 
-            bool criouDiretorio = CriarDiretorioEVerificarSucesso(dirDestino);
-
-            if (criouDiretorio)
+            if (ValidacoesDeDiretorios(dirDestino, dirRom))
             {
                 string comando = $"/c _Tools\\ndstool.exe -x \"{dirRom}\" -9 \"{dirDestino}\\arm9.bin\" -7 \"{dirDestino}\\arm7.bin\" -y9 \"{dirDestino}\\y9.bin\" -y7 \"{dirDestino}\\y7.bin\" -d \"{dirDestino}\\data\" -y \"{dirDestino}\\overlay\" -t \"{dirDestino}\\banner.bin\" -h \"{dirDestino}\\header.bin\"";
-
-                if (File.Exists(dirRom))
+                ExecutarComando(comando);
+               
+                if (ValidacoesDeExportacao(dirDestino))
                 {
-                    ExecutarComando(comando);
-                    if (!File.Exists($"{dirDestino}\\arm9.bin"))
-                        return "Ocorreu um erro na execução da NDSTool.exe, verifique as permissões de sistema.";
-
                     DescomprimirArm9($"{dirDestino}\\arm9.bin");
-                    return "ROM desmontada para o seguinte diretório: ROM_Desmontada, não mude esta pasta de diretório ou apague os arquivos internos.";
+                    Mensagem = "ROM desmontada para o seguinte diretório: ROM_Desmontada, não mude esta pasta de diretório ou apague os arquivos internos.";
                 }
-
             }
 
-            return "Não foi possivel criar diretório de exportação.";
+                        
 
         }
 
+     
 
-        private static bool CriarDiretorioEVerificarSucesso(string dirDestino)
-        {
-            if (!Directory.Exists(dirDestino))
-            {
-                Directory.CreateDirectory(dirDestino);
-            }
-
-            if (Directory.Exists(dirDestino))
-                return true;
-
-            return false;
-        }
-
-      
-
-        public static string NovoArquivoNds(string dirRomDesmontada, string nomeDaNovaRom)
+        public static void NovoArquivoNds(string dirRomDesmontada, string nomeDaNovaRom)
         {
             nomeDaNovaRom = $"{nomeDaNovaRom}{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}.nds";
             string comando = $"/c _Tools\\ndstool.exe -c {nomeDaNovaRom} -9 \"{dirRomDesmontada}\\arm9.bin\" -7 \"{dirRomDesmontada}\\arm7.bin\" -y9 \"{dirRomDesmontada}\\y9.bin\" -y7 \"{dirRomDesmontada}\\y7.bin\" -d \"{dirRomDesmontada}\\data\" -y \"{dirRomDesmontada}\\overlay\" -t \"{dirRomDesmontada}\\banner.bin\" -h \"{dirRomDesmontada}\\header.bin\"";
@@ -60,15 +42,52 @@ namespace Jacutem_AAI2.Arquivos
             {
                 ExecutarComando(comando);
 
-                if (!File.Exists(nomeDaNovaRom))
-                    return "Ocorreu um erro na execução da NDSTool.exe, verifique as permissões de sistema.";
+                if (!File.Exists(nomeDaNovaRom)) 
+                {
+                   Mensagem = "Ocorreu um erro na criação da nova Rom.";
+                   return; 
+                }
+                    
 
-                return $"ROM criada: {nomeDaNovaRom}";
+                Mensagem = $"ROM criada: {nomeDaNovaRom}";
+                return;
 
             }
 
-            return $"Falha ao recriar ROM.\r\nFaltam os seguites arquivos necessários no diretório {dirRomDesmontada}:\r\n{string.Join(",\r\n",validacaoDeDiretorio)}";
+            Mensagem = $"Falha ao recriar ROM.\r\nFaltam os seguites arquivos necessários no diretório {dirRomDesmontada}:\r\n{string.Join(",\r\n", validacaoDeDiretorio)}";
 
+        }
+
+        private static bool ValidacoesDeDiretorios(string dirCriado, string dirRom)
+        {
+            if (!Directory.Exists(dirCriado))
+            {
+                Mensagem = "Não foi possível criar diretório para exportação.";
+                return false;
+            }
+
+            if (!File.Exists(dirRom))
+            {
+                Mensagem = "Não foi possível encontrar caminho para a ROM.";
+                return false;
+            }
+
+
+            return true;
+        }
+
+        #region Validações
+
+        private static bool ValidacoesDeExportacao(string dirDestino)
+        {
+            if (!File.Exists($"{dirDestino}\\arm9.bin"))
+            {
+                Mensagem = "A operação não foi possível exportar a rom, arquivo .nds inválido";
+                return false;
+            }
+
+
+            return true;
         }
 
         private static List<string> ValideSeDiretorioPodeSerUsadoParaCriarRom(string dirDestino)
@@ -85,12 +104,14 @@ namespace Jacutem_AAI2.Arquivos
             return faltando;
         }
 
+        #endregion
+
         private static void DescomprimirArm9(string dirArm9)
         {
             byte[] arm9ComHeader = File.ReadAllBytes(dirArm9);
             byte[] arm9SemHeader = new byte[arm9ComHeader.Length - 12];
-            Array.Copy(arm9ComHeader,arm9SemHeader, arm9SemHeader.Length);
-            File.WriteAllBytes(dirArm9,arm9SemHeader);
+            Array.Copy(arm9ComHeader, arm9SemHeader, arm9SemHeader.Length);
+            File.WriteAllBytes(dirArm9, arm9SemHeader);
             string comando = $"/c _Tools\\blz.exe -d \"{dirArm9}\"";
             ExecutarComando(comando);
         }
@@ -106,7 +127,8 @@ namespace Jacutem_AAI2.Arquivos
             process.WaitForExit();
         }
 
-       
+        
+
 
         private static IEnumerable<string> _arquivosNecessarioParaCriarRom = new List<string>()
         {

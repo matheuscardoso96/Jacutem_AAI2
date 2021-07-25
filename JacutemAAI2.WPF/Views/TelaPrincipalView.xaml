@@ -1,0 +1,46 @@
+﻿<Window x:Class="JacutemAAI2.WPF.Views.TelaPrincipalView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JacutemAAI2.WPF.Views"
+        mc:Ignorable="d"
+        Title="Jacutem AAI2 Edição WPF" Height="720" Width="1280"
+        xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}" WindowStartupLocation="CenterScreen"
+        xmlns:controls="clr-namespace:JacutemAAI2.WPF.Controls" Icon="/JacutemAAI2.WPF;component/Resources/sigla_js_pb_WmG_icon.ico"
+        >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <dragablz:TabablzControl Grid.Row="1" AllowDrop="False" >
+            <dragablz:TabablzControl.InterTabController>
+                <dragablz:InterTabController />
+            </dragablz:TabablzControl.InterTabController>
+            <TabItem Header="ROM">
+                <controls:Rom/>
+            
+            </TabItem>
+            <TabItem Header="BINÁRIOS">
+
+            </TabItem>
+            <TabItem Header="IMAGENS">
+                
+            </TabItem>
+            <TabItem Header="TEXTOS">
+       
+            </TabItem>
+            <TabItem Header="FONTES">
+            
+            </TabItem>
+        </dragablz:TabablzControl>
+        
+    </Grid>
+</Window>

@@ -69,7 +69,9 @@ namespace Jacutem_AAI2.Imagens
                     break;
                 case "BG Com Tile Map":
                     ArquivoNscr = new Nscr(argumentos[2]);
-                    Imagem = ExportarNCGRTileMap();
+                    Largura = ArquivoNscr.Largura;
+                    Altura = ArquivoNscr.Altura;
+                    Imagem = ExportarNCGRTileMap();                
                     break;
                 case "Sprites Modo Tile":
                     ArquivoNcer = new Ncer(argumentos[2]);
@@ -94,7 +96,7 @@ namespace Jacutem_AAI2.Imagens
         private Bitmap ExportarNCGR()
         {
             ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));                                          
-            return cdi.BinParaBmp(ImagemEmBytes, 0);
+            return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
 
         }
 
@@ -102,7 +104,7 @@ namespace Jacutem_AAI2.Imagens
         {    
 
             ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D, ArquivoNscr.TileMap));
-            return cdi.BinParaBmp(ImagemEmBytes, 0);
+            return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
 
         }
 
