@@ -61,32 +61,51 @@
                             <GridView >
                                 <GridViewColumn
         DisplayMemberBinding="{Binding Nome}"
-        Header="Nome" Width="200"/>
+        Header="Nome" Width="auto"/>
                                 <GridViewColumn
         DisplayMemberBinding="{Binding Diretorio}"
-        Header="Diretorio" Width="200"/>
+        Header="Diretorio" Width="auto"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
                 </materialDesign:Card>
             </Grid>
-            
-            
 
-            <materialDesign:Card Padding="10" UniformCornerRadius="10" Height="auto" Grid.Column="1" Margin="16" Grid.Row="1">
-                <ListView ItemsSource="{Binding Items2}">
-                    <ListView.View >
-                        <GridView >
-                            <GridViewColumn
+
+
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Row="0" Width="150" HorizontalAlignment="Left" Height="25" Margin="30,10,0,0" IsEnabled="{Binding BtnImportarEstaAtivo}"  Command="{Binding MyCommand[ImportarSelecionado]}" CommandParameter="ParameterValue">
+                    Selecionado
+                </Button>
+                <Button
+                     Style="{StaticResource MaterialDesignFloatingActionButton}"
+                     materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                     materialDesign:ButtonProgressAssist.Value="-1"
+                     materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding AnimacaoBotaoImportarEstaAtiva}"
+                    Content="{materialDesign:PackIcon DotsHorizontal}" HorizontalAlignment="Center" Width="20" Height="20"/>
+                <Button Grid.Row="0" Width="150" HorizontalAlignment="Right" Height="25" Margin="0,10,30,0" IsEnabled="{Binding BtnImportarTodosEstaAtivo}"  Command="{Binding MyCommand[ImportarTodos]}">
+                    Todos
+                </Button>
+                <materialDesign:Card Padding="10" UniformCornerRadius="10" Height="auto" Grid.Column="0" Margin="16" Grid.Row="1">
+                    <ListView IsEnabled="{Binding ListaEstaAtiva}" SelectedItem="{Binding ListaImportacaoSelecionada, Mode=TwoWay}" ItemsSource="{Binding ListasDeImportacao}">
+                        <ListView.View >
+                            <GridView >
+                                <GridViewColumn
         DisplayMemberBinding="{Binding Nome}"
-        Header="Nome" Width="200"/>
-                            <GridViewColumn
+        Header="Nome" Width="auto"/>
+                                <GridViewColumn
         DisplayMemberBinding="{Binding Diretorio}"
-        Header="Diretorio" Width="200"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </materialDesign:Card>
+        Header="Diretorio" Width="auto"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </materialDesign:Card>
+            </Grid>
         </Grid>
         
       

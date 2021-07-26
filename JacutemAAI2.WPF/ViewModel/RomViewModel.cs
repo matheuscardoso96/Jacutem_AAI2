@@ -13,6 +13,7 @@ using Microsoft.Win32;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Forms;
 using JacutemAAI2.WPF.Gerenciadores;
+using JacutemAAI2.WPF.Views;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -235,6 +236,7 @@ namespace JacutemAAI2.WPF.ViewModel
             GerenciadoDeConfiguracoes.SetarDiretorioRomDesmotanda($"{_diretorioDestino}\\ROM_Desmontada");
             GerenciadoDeConfiguracoes.SalvarConfiguracoes();
             await Task.Run(() => NdsTool.DesmontarArquivoNds(_diretorioDaRom, GerenciadoDeConfiguracoes.ObtenhaDiretorioRomDesmotanda()));
+            GerenciadoEstaticoDeViewsModels.BinariosViewModel.VerificarListas();
             System.Windows.MessageBox.Show(NdsTool.Mensagem);
             DiretorioDaRom = "";
             DiretorioDestino = "";

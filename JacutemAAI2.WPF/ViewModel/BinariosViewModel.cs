@@ -14,11 +14,20 @@ namespace JacutemAAI2.WPF.ViewModel
     public class BinariosViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private List<ItemListasDeBinarios> _binarios { get; set; }
+        private List<ItemListasDeBinarios> _listasDeImportacao { get; set; }
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
         private bool _btnExportarEstaAtivo;
-        private bool _btnExportarTodosEstaAtivo = true;
+        private bool _btnImportarEstaAtivo;
+        private bool _btnExportarTodosEstaAtivo = false;
+        private bool _btnImportarTodosEstaAtivo = false;
         private bool _listaEstaAtiva = true;
         private bool _animacaoBotaoEstaAtiva = false;
+        private bool _animacaoBotaoImportarEstaAtiva = false;
+        private ItemListasDeBinarios _binarioSelecionado;
+        private ItemListasDeBinarios _listaImportcaoSelecionada;
+
+
         public bool BtnExportarEstaAtivo
         {
             get
@@ -31,7 +40,6 @@ namespace JacutemAAI2.WPF.ViewModel
                 NotifyPropertyChanged("BtnExportarEstaAtivo");
             }
         }
-
         public bool BtnExportarTodosEstaAtivo
         {
             get
@@ -42,6 +50,32 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 _btnExportarTodosEstaAtivo = value;
                 NotifyPropertyChanged("BtnExportarTodosEstaAtivo");
+            }
+        }
+
+        public bool BtnImportarEstaAtivo
+        {
+            get
+            {
+                return _btnImportarEstaAtivo;
+            }
+            set
+            {
+                _btnImportarEstaAtivo = value;
+                NotifyPropertyChanged("BtnImportarEstaAtivo");
+            }
+        }
+
+        public bool BtnImportarTodosEstaAtivo
+        {
+            get
+            {
+                return _btnImportarTodosEstaAtivo;
+            }
+            set
+            {
+                _btnImportarTodosEstaAtivo = value;
+                NotifyPropertyChanged("BtnImportarTodosEstaAtivo");
             }
         }
 
@@ -71,9 +105,20 @@ namespace JacutemAAI2.WPF.ViewModel
             }
         }
 
-        private Binario _binarioSelecionado;
+        public bool AnimacaoBotaoImportarEstaAtiva
+        {
+            get
+            {
+                return _animacaoBotaoImportarEstaAtiva;
+            }
+            set
+            {
+                _animacaoBotaoImportarEstaAtiva = value;
+                NotifyPropertyChanged("AnimacaoBotaoImportarEstaAtiva");
+            }
+        }
 
-        public Binario BinarioSelecionado 
+        public ItemListasDeBinarios BinarioSelecionado 
         { 
             get
             { 
@@ -83,22 +128,56 @@ namespace JacutemAAI2.WPF.ViewModel
             {               
                 _binarioSelecionado = value;
                 NotifyPropertyChanged("BinarioSelecionado");
-                BtnExportarEstaAtivo = PodeExportarBinario();
+                BtnExportarEstaAtivo = true;
             } 
         }
 
-        public List<Binario> Binarios { get; set; }
+        public ItemListasDeBinarios ListaImportacaoSelecionada
+        {
+            get
+            {
+                return _listaImportcaoSelecionada;
+            }
+            set
+            {
+                _listaImportcaoSelecionada = value;
+                NotifyPropertyChanged("BinarioSelecionado");
+                BtnImportarEstaAtivo = true;
+            }
+        }
+
+        public List<ItemListasDeBinarios> ListasDeImportacao 
+        { get {return _listasDeImportacao ; }
+          set 
+            {
+                _listasDeImportacao = value;
+                NotifyPropertyChanged("ListasDeImportacao");
+            } 
+        }
+
+        public List<ItemListasDeBinarios> Binarios
+        {
+            get { return _binarios; }
+            set
+            {
+                _binarios = value;
+                NotifyPropertyChanged("Binarios");
+            }
+        }
 
         public BinariosViewModel()
         {
             MyCommand = new Dictionary<string, DelegateCommand>()
             {
                 ["ExportarBin"] = new DelegateCommand(ExportarSelecionado).ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["ExportarTodos"] = new DelegateCommand(ExportarTodos)
-               
+                ["ExportarTodos"] = new DelegateCommand(ExportarTodos).ObservesCanExecute(() => BtnExportarTodosEstaAtivo),
+                ["ImportarSelecionado"] = new DelegateCommand(ImportarSelecionado).ObservesCanExecute(() => BtnImportarEstaAtivo),
+                ["ImportarTodos"] = new DelegateCommand(ImportarTodos).ObservesCanExecute(() => BtnImportarTodosEstaAtivo)
+
             };
 
-            ObtenhaArquivos();
+            VerificarListas();
+
         }
 
         private void NotifyPropertyChanged(string propertyName)
@@ -106,65 +185,96 @@ namespace JacutemAAI2.WPF.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void ObtenhaArquivos()
-        {
-            Binarios = new List<Binario>();
-            string[] bins = Directory.GetFiles($"{Properties.Settings.Default.DiretorioRomDesmonstada}\\data","*.bin",SearchOption.AllDirectories);
+       
 
-            foreach (var dirBin in bins)
-            {
-                if (dirBin.Contains("data\\data"))
-                    continue;
-
-                Binarios.Add(new Binario() { Nome = Path.GetFileName(dirBin), Diretorio = dirBin });
-            }
-        }
-
-        private bool PodeExportarBinario() 
-        {
-            if (_binarioSelecionado == null)
-                return false;
-            
-
-            return true;
-        
-        }
-
-        public async void ExportarSelecionado() 
+        public async void ExportarSelecionado()
         {
             AnimacaoBotaoEstaAtiva = true;
-            BtnExportarEstaAtivo = false;
-            BtnExportarTodosEstaAtivo = false;
-            ListaEstaAtiva = false;
-            await Task.Run(() => AaiBin.Exportar(_binarioSelecionado.Diretorio));          
-            BtnExportarEstaAtivo = true;
-            BtnExportarTodosEstaAtivo = true;
-            ListaEstaAtiva = true;
-            AnimacaoBotaoEstaAtiva = false;
+            DesativarComponentes();
+            await Task.Run(() => AaiBin.Exportar(_binarioSelecionado.Diretorio));
+            VerificarListas();
+            AtivarComponentes();
             MessageBox.Show(AaiBin.Mensagem);
+            AnimacaoBotaoEstaAtiva = false;
+            
+
         }
 
         public async void ExportarTodos()
         {
             AnimacaoBotaoEstaAtiva = true;
+            DesativarComponentes();
+            await Task.Run(() => AaiBin.ExportarTodos(Binarios));                     
+            VerificarListas();
+            AtivarComponentes();
+            MessageBox.Show(AaiBin.Mensagem);
+
+            AnimacaoBotaoEstaAtiva = false;
+        }
+
+        public async void ImportarSelecionado()
+        {
+            AnimacaoBotaoImportarEstaAtiva = true;
+            DesativarComponentes();
+            await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
+            AtivarComponentes();
+            AnimacaoBotaoImportarEstaAtiva = false;
+            MessageBox.Show(AaiBin.Mensagem);
+
+        }
+
+        public async void ImportarTodos()
+        {
+            AnimacaoBotaoImportarEstaAtiva = true;
+            DesativarComponentes();
+            await Task.Run(() => AaiBin.ImportarTodos(ListasDeImportacao));
+            AtivarComponentes();
+            AnimacaoBotaoImportarEstaAtiva = false;
+            MessageBox.Show(AaiBin.Mensagem);
+
+        }
+
+        private void DesativarComponentes() 
+        {
+                     
             BtnExportarEstaAtivo = false;
             BtnExportarTodosEstaAtivo = false;
             ListaEstaAtiva = false;
-            await Task.Run(() => AaiBin.ExportarTodos(Properties.Settings.Default.DiretorioRomDesmonstada));
-            ListaEstaAtiva = true;
+            BtnImportarEstaAtivo = false;
+            BtnImportarTodosEstaAtivo = false;
+           
+
+        }
+
+        private void AtivarComponentes()
+        {
+            
             BtnExportarEstaAtivo = true;
             BtnExportarTodosEstaAtivo = true;
-            AnimacaoBotaoEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
-           
+            BtnImportarEstaAtivo = true;
+            ListaEstaAtiva = true;
+            BtnImportarTodosEstaAtivo = true;
+          
             
+        }
+
+        public void VerificarListas() 
+        {
+            ListasDeImportacao = AaiBin.ObtenhaListasDEImportaco(Properties.Settings.Default.PastaInfoBinarios);
+            Binarios = AaiBin.ObtenhaBinariosDaRom(Properties.Settings.Default.DiretorioRomDesmonstada);
+           
+
+            if (Binarios.Count > 0)
+            {
+                BtnExportarTodosEstaAtivo = true;
+            }
+
+            if (ListasDeImportacao.Count > 0)
+            {
+                BtnImportarTodosEstaAtivo = true;
+            }
         }
     }
 
-    public class Binario
-    {
-        public string Nome { get; set; }
-        public string Diretorio { get; set; }
-
-    }
+    
 }

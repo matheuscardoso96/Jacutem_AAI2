@@ -6,12 +6,13 @@ using dsdecmp.Formats.Nitro;
 
 namespace JacutemAAI2.WPF.Ferramentas.Internas
 {
-    public static class AaiBin
+    public class AaiBin
     {
         public static string Mensagem;
 
+
         public static void Exportar(string dirBin)
-        {          
+        {
             string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
             if (!File.Exists(dirBin))
             {
@@ -24,13 +25,13 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
             if (!Directory.Exists(dirExt))
                 Directory.CreateDirectory(dirExt);
 
-            AbraArquivoEhExporte(dirBin, dirExt, subPasta);          
+            AbraArquivoEhExporte(dirBin, dirExt, subPasta);
 
-            Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin),"")}";
+            Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin), "")}";
 
         }
 
-        private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta) 
+        private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta)
         {
             LZ11 lZ11 = new LZ11();
             var listaDeArquivos = new List<string>();
@@ -56,7 +57,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
                     string extensao = ext == 0 ? ".bin" : ObtenhaExtensao(ext);
                     string prefixoCompressao = entrada.Comprimido ? "LZ11_" : "";
                     File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
-                    listaDeArquivos.Add($"{dirExt}\\{contador:0000}{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
+                    listaDeArquivos.Add($"{dirExt}\\{contador:0000}_{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
                     contador++;
                 }
 
@@ -65,16 +66,12 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
 
         }
 
-        public static void ExportarTodos(string diretorioRomDesmontada) 
+        public static void ExportarTodos(IEnumerable<ItemListasDeBinarios> Binarios)
         {
-            string[] listaDeArquivos = Directory.GetFiles($"{diretorioRomDesmontada}\\data", "*.bin", SearchOption.AllDirectories);
 
-            foreach (var dir in listaDeArquivos)
+            foreach (var bin in Binarios)
             {
-                if (dir.Contains("data\\data\\"))
-                    continue;
-             
-                Exportar(dir);
+                Exportar(bin.Diretorio);
 
             }
 
@@ -82,6 +79,31 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
 
         }
 
+        public static List<ItemListasDeBinarios> ObtenhaBinariosDaRom(string dirRomMesmontada)
+        {
+
+            List<ItemListasDeBinarios> Binarios = new List<ItemListasDeBinarios>();
+            if (Directory.Exists($"{dirRomMesmontada}\\data"))
+            {
+                string[] bins = Directory.GetFiles($"{dirRomMesmontada}\\data", "*.bin", SearchOption.AllDirectories);
+
+                foreach (var dirBin in bins)
+                {
+                    if (dirBin.Contains("data\\data")) { continue; }
+
+                    Binarios.Add(new ItemListasDeBinarios() { Nome = Path.GetFileName(dirBin), Diretorio = dirBin });
+                }
+            }
+           
+
+            return Binarios;
+        }
+
+        public static List<ItemListasDeBinarios> ObtenhaListasDEImportaco(string dirInfoBinario)
+        {
+            List<ItemListasDeBinarios> listas = Directory.GetFiles(dirInfoBinario, "*.txt", SearchOption.AllDirectories).Select(x => new ItemListasDeBinarios() { Nome = Path.GetFileName(x), Diretorio = x } ).ToList();
+            return listas;
+        }
 
 
         private static List<EntradaAAIBin> LerEntradas(BinaryReader br)
@@ -108,18 +130,18 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
         {
             switch (ext)
             {
-                case 0x4E434752:return ".ncgr";
-                case 0x4E434C52:return ".nclr";
-                case 0x4E534352:return ".nscr";
-                case 0x4E414E52:return ".nanr";
-                case 0x4E434552:return ".ncer"; 
-                case 0x53505420:return ".spt";
-                case 0x30444D42:return ".bmd";
-                case 0x30585442:return ".btx";
-                case 0x30414342:return ".bca";
-                case 0x5441444D:return ".mdat";
-                case 0x30414D42:return ".bma";  
-                case 0x30415642:return ".bva";
+                case 0x4E434752: return ".ncgr";
+                case 0x4E434C52: return ".nclr";
+                case 0x4E534352: return ".nscr";
+                case 0x4E414E52: return ".nanr";
+                case 0x4E434552: return ".ncer";
+                case 0x53505420: return ".spt";
+                case 0x30444D42: return ".bmd";
+                case 0x30585442: return ".btx";
+                case 0x30414342: return ".bca";
+                case 0x5441444D: return ".mdat";
+                case 0x30414D42: return ".bma";
+                case 0x30415642: return ".bva";
                 default: return ".bin";
             }
         }
@@ -133,43 +155,67 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
 
         #region importarAAIBin
 
-        public static string Importar(string dirTxt)
+        public static void Importar(string dirTxt)
         {
 
             string prefixo = Path.GetFileName(dirTxt.Replace(".txt", ".bin")).Contains("jpn") ? "jpn\\" : "com\\";
             string dirNovoArquivo = $"ROM_Desmontada\\data\\{prefixo}{Path.GetFileName(dirTxt.Replace(".txt", ".bin").Replace("com_", "").Replace("jpn_", ""))}";
             var listaDeArquivos = File.ReadAllLines(dirTxt).ToList();
-            string resultado = CriarNovoBinario(listaDeArquivos, dirNovoArquivo);
+            CriarNovoBinario(listaDeArquivos, dirNovoArquivo);
 
-            if (resultado.Length > 0)
-                return resultado;
-
-            return $"{Path.GetFileName(dirTxt.Replace(".txt", ".bin"))} criado e substituidona pasta Rom_Desmotada com sucesso.";
+            Mensagem = $"{Path.GetFileName(dirTxt.Replace(".txt", ".bin"))} criado e substituido na pasta Rom_Desmotada com sucesso.";
         }
 
-        private static string CriarNovoBinario(List<string> listaDeArquivos, string dirNovoArquivo)
+        public static void ImportarTodos(IEnumerable<ItemListasDeBinarios> listasDeInportacao)
+        {
+            List<string> Erros = new List<string>();
+
+            foreach (var bin in listasDeInportacao)
+            {
+                if (File.Exists(bin.Diretorio))
+                {
+                    Importar(bin.Diretorio);
+                }
+                else
+                {
+                    Erros.Add($"Não foi possível encontrar {Path.GetFileName(bin.Diretorio)}");
+                }
+                
+
+            }
+
+            if (Erros.Count > 0)
+            {
+                Mensagem = $"Arquivos importadors mas com alguns erros. {string.Join("\r\n", Erros)}";
+            }
+            else
+            {
+                Mensagem = "Arquivos importadors com sucesso.";
+            }
+
+            
+
+        }
+
+        private static void CriarNovoBinario(List<string> listaDeArquivos, string dirNovoArquivo)
         {
             var entradas = new List<EntradaAAIBin>();
             LZ11 LZ11 = new LZ11();
             uint tamanhoTabela = (uint)listaDeArquivos.Count * 8;
             uint endereco = tamanhoTabela;
+            File.Create("temp.bin").Close();
 
             using (BinaryWriter bw = new BinaryWriter(File.Open("temp.bin", FileMode.Append)))
             {
-
-                File.Create("temp.bin").Close();
-
+                
                 foreach (var caminho in listaDeArquivos)
                 {
-                    bool comprimido = caminho.Contains("LZ11_");
-                    FileInfo infoArquivo = new FileInfo(comprimido ? caminho.Replace("LZ11_", "") : caminho);
-               
-                    if (infoArquivo == null)
-                        return $"Arquivo não encontrado:\r\n {caminho}";
-
-                    byte[] arquivo = File.ReadAllBytes(infoArquivo.Directory.FullName);
-                    uint tamanhoArquivo  = (uint)arquivo.Length;
+                    bool comprimido = caminho.Contains("LZ11");
+ 
                     
+                    byte[] arquivo = File.ReadAllBytes(comprimido ? caminho.Replace("LZ11_", "") : caminho);
+                    uint tamanhoArquivo = (uint)arquivo.Length;
+
                     if (comprimido)
                         arquivo = ComprimirComLZ11(LZ11, arquivo);
 
@@ -186,7 +232,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
             tabelaNova = CrieUmaNovaTabela(tabelaNova, entradas);
             CrieNovoBinarioComTabela(dirNovoArquivo, tabelaNova);
 
-            return "";
+            
         }
 
         private static byte[] CrieUmaNovaTabela(byte[] tabelaNova, List<EntradaAAIBin> entradas)
@@ -314,6 +360,13 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
             File.WriteAllBytes(dirSalva, arquivoBinarioFinal);
 
         }
+
+    }
+
+    public class ItemListasDeBinarios
+    {
+        public string Nome { get; set; }
+        public string Diretorio { get; set; }
 
     }
 }

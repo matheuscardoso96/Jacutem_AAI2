@@ -104,6 +104,7 @@
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
+    <Compile Include="Views\GerenciadoEstaticoDeViewsModels.cs" />
     <Compile Include="Views\TelaPrincipalView.xaml.cs">
       <DependentUpon>TelaPrincipalView.xaml</DependentUpon>
     </Compile>
