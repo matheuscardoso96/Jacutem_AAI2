@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JacutemAAI2.WPF.FerramentasExternas
+namespace JacutemAAI2.WPF.Ferramentas.Externas
 {
     public static class NdsTool
     {

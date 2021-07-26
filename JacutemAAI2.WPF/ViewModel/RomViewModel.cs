@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using JacutemAAI2.WPF.FerramentasExternas;
+using JacutemAAI2.WPF.Ferramentas.Externas;
 using Prism.Commands;
 using System.Collections;
 using Microsoft.Win32;

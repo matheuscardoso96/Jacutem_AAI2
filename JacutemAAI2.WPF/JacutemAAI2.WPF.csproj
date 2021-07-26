@@ -43,6 +43,10 @@
     <Reference Include="Dragablz, Version=0.0.3.223, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dragablz.0.0.3.223\lib\net45\Dragablz.dll</HintPath>
     </Reference>
+    <Reference Include="dsdecmp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Bibliotecas\dsdecmp.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=2.0.1.2556, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.2.0.1\lib\net452\MaterialDesignColors.dll</HintPath>
     </Reference>
@@ -93,9 +97,12 @@
     <Compile Include="Controls\Rom.xaml.cs">
       <DependentUpon>Rom.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FerramentasExternas\NdsTool.cs" />
+    <Compile Include="Ferramentas\Externas\NdsTool.cs" />
+    <Compile Include="Ferramentas\Internas\Arquivos\AaiBin.cs" />
+    <Compile Include="Ferramentas\Internas\Arquivos\EntradaAAIBin.cs" />
     <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
+    <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
     <Compile Include="Views\TelaPrincipalView.xaml.cs">
       <DependentUpon>TelaPrincipalView.xaml</DependentUpon>
@@ -166,6 +173,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\sigla_js_pb_WmG_icon.ico" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Bibliotecas\dsdecmp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.4.1.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.1.0\build\MaterialDesignThemes.targets')" />

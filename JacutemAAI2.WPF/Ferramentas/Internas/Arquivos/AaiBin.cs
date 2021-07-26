@@ -4,30 +4,43 @@ using System.IO;
 using System.Linq;
 using dsdecmp.Formats.Nitro;
 
-namespace Jacutem_AAI2.Arquivos
+namespace JacutemAAI2.WPF.Ferramentas.Internas
 {
     public static class AaiBin
     {
+        public static string Mensagem;
+
         public static void Exportar(string dirBin)
-        {
-            string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";           
+        {          
+            string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
+            if (!File.Exists(dirBin))
+            {
+                Mensagem = $"Não foi possível encontrar o arquivo {Path.GetFileName(dirBin)}";
+                return;
+            }
 
             string dirExt = $"__Binarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
-            var listaDeArquivos = new List<string>();
-
 
             if (!Directory.Exists(dirExt))
                 Directory.CreateDirectory(dirExt);
-            
+
+            AbraArquivoEhExporte(dirBin, dirExt, subPasta);          
+
+            Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin),"")}";
+
+        }
+
+        private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta) 
+        {
             LZ11 lZ11 = new LZ11();
-       
+            var listaDeArquivos = new List<string>();
 
             using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
             {
 
                 List<EntradaAAIBin> entradas = LerEntradas(br);
                 int contador = 0;
-               
+
                 foreach (EntradaAAIBin entrada in entradas)
                 {
                     br.BaseStream.Position = entrada.Endereco;
@@ -42,10 +55,10 @@ namespace Jacutem_AAI2.Arquivos
 
                     string extensao = ext == 0 ? ".bin" : ObtenhaExtensao(ext);
                     string prefixoCompressao = entrada.Comprimido ? "LZ11_" : "";
-                    File.WriteAllBytes($"{dirExt}\\{contador.ToString("0000")}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
-                    listaDeArquivos.Add($"{dirExt}\\{contador.ToString("0000")}{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
+                    File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
+                    listaDeArquivos.Add($"{dirExt}\\{contador:0000}{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
                     contador++;
-                }        
+                }
 
                 File.WriteAllLines($"__Binarios\\_InfoBinarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", ".txt")}", listaDeArquivos);
             }
@@ -65,7 +78,11 @@ namespace Jacutem_AAI2.Arquivos
 
             }
 
+            Mensagem = $"Arquivos exportados com sucesso para a pasta __Binarios";
+
         }
+
+
 
         private static List<EntradaAAIBin> LerEntradas(BinaryReader br)
         {
@@ -144,7 +161,7 @@ namespace Jacutem_AAI2.Arquivos
 
                 foreach (var caminho in listaDeArquivos)
                 {
-                    bool comprimido = caminho.Contains("LZ11_") ? true : false;
+                    bool comprimido = caminho.Contains("LZ11_");
                     FileInfo infoArquivo = new FileInfo(comprimido ? caminho.Replace("LZ11_", "") : caminho);
                
                     if (infoArquivo == null)
