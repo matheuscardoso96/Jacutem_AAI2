@@ -20,7 +20,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <dragablz:TabablzControl Grid.Row="1" AllowDrop="False" >
+        <dragablz:TabablzControl TabStripPlacement="Left" Grid.Row="1" AllowDrop="False" >
             <dragablz:TabablzControl.InterTabController>
                 <dragablz:InterTabController />
             </dragablz:TabablzControl.InterTabController>
@@ -32,7 +32,7 @@
                 <controls:Binarios/>
             </TabItem>
             <TabItem Header="IMAGENS">
-                
+                <controls:Imagens/>
             </TabItem>
             <TabItem Header="TEXTOS">
        

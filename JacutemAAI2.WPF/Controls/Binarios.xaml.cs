@@ -1,5 +1,5 @@
 ﻿using JacutemAAI2.WPF.ViewModel;
-using JacutemAAI2.WPF.Views;
+using JacutemAAI2.WPF.Gerenciadores;
 using System;
 using System.Collections.Generic;
 using System.Linq;

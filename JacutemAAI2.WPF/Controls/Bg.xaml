@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="JacutemAAI2.WPF.Controls.Bg"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1200">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">BG</Label>
+
+        <Grid Grid.Row="1" Height="auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+           
+            <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
+            
+            <materialDesign:Card  UniformCornerRadius="10" Height="auto" Width="175" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
+               
+                <ListBox  BorderThickness="1" Margin="10,0,0,0" HorizontalAlignment="Left" Width="150">
+                    <ListBoxItem>ListBox Item #1</ListBoxItem>
+                    <ListBoxItem>ListBox Item #2</ListBoxItem>
+                    <ListBoxItem>ListBox Item #3</ListBoxItem>
+                    <ListBoxItem>ListBox Item #1</ListBoxItem>
+                    <ListBoxItem>ListBox Item #2</ListBoxItem>
+                    <ListBoxItem>ListBox Item #3</ListBoxItem>
+                    <ListBoxItem>ListBox Item #1</ListBoxItem>
+                    <ListBoxItem>ListBox Item #2</ListBoxItem>
+                    <ListBoxItem>ListBox Item #3</ListBoxItem>
+                    <ListBoxItem>ListBox Item #3</ListBoxItem>
+                </ListBox>
+            </materialDesign:Card>
+
+            <materialDesign:Card Height="auto" Width="auto" Margin="16" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
+                <Image  Name="ImageViewer1" Height="auto" Width="auto" />
+            </materialDesign:Card>
+
+           
+
+        </Grid>
+        
+       
+    </Grid>
+</UserControl>

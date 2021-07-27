@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="JacutemAAI2.WPF.Controls.Imagens"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             xmlns:controls="clr-namespace:JacutemAAI2.WPF.Controls"
+             >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <dragablz:TabablzControl  Grid.Row="1" AllowDrop="False" >
+            <dragablz:TabablzControl.InterTabController>
+                <dragablz:InterTabController />
+            </dragablz:TabablzControl.InterTabController>
+            <TabItem Header="BG">
+                <controls:Bg/>
+
+            </TabItem>
+            <TabItem Header="SPRITES">
+               
+            </TabItem>
+            <TabItem Header="TEXTURAS">
+               
+            </TabItem>
+
+        </dragablz:TabablzControl>
+
+    </Grid>
+</UserControl>

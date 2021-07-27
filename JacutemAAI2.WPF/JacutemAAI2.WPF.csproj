@@ -91,8 +91,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\Bg.xaml.cs">
+      <DependentUpon>Bg.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Binarios.xaml.cs">
       <DependentUpon>Binarios.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Imagens.xaml.cs">
+      <DependentUpon>Imagens.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Rom.xaml.cs">
       <DependentUpon>Rom.xaml</DependentUpon>
@@ -104,7 +110,7 @@
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
-    <Compile Include="Views\GerenciadoEstaticoDeViewsModels.cs" />
+    <Compile Include="Gerenciadores\GerenciadoEstaticoDeViewsModels.cs" />
     <Compile Include="Views\TelaPrincipalView.xaml.cs">
       <DependentUpon>TelaPrincipalView.xaml</DependentUpon>
     </Compile>
@@ -141,7 +147,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\Bg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Binarios.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Imagens.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

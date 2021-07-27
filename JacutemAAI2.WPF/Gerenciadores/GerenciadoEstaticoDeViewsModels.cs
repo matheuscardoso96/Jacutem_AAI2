@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JacutemAAI2.WPF.Views
+namespace JacutemAAI2.WPF.Gerenciadores
 {
     public static class GerenciadoEstaticoDeViewsModels
     {
