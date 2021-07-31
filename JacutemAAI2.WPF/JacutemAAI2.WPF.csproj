@@ -62,6 +62,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.5.0.2\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Primitives, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.Serialization.Primitives.4.3.0\lib\net46\System.Runtime.Serialization.Primitives.dll</HintPath>
@@ -108,6 +111,26 @@
     <Compile Include="Ferramentas\Internas\Arquivos\EntradaAAIBin.cs" />
     <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
+    <Compile Include="Imagens\Btx.cs" />
+    <Compile Include="Imagens\ConversorDeImagens.cs" />
+    <Compile Include="Imagens\Enums\Bpp.cs" />
+    <Compile Include="Imagens\Enums\OBJMode.cs" />
+    <Compile Include="Imagens\Enums\OBJShape.cs" />
+    <Compile Include="Imagens\GerenciadorConversaoImagens.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\MapaDeArquivos.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModo2D.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModoTile.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesModo2D.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\SpritesModoTile.cs" />
+    <Compile Include="Imagens\MapaDeArquivos\Texturas.cs" />
+    <Compile Include="Imagens\Ncer.cs" />
+    <Compile Include="Imagens\Ncgr.cs" />
+    <Compile Include="Imagens\Nclr.cs" />
+    <Compile Include="Imagens\Nscr.cs" />
+    <Compile Include="Imagens\Oam.cs" />
+    <Compile Include="ViewModel\BgViewModel.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
     <Compile Include="Gerenciadores\GerenciadoEstaticoDeViewsModels.cs" />
@@ -189,7 +212,12 @@
   <ItemGroup>
     <Resource Include="Resources\sigla_js_pb_WmG_icon.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\LibDeImagensGbaDs\LibDeImagensGbaDs.csproj">
+      <Project>{48030fa5-97c3-45c9-873d-269bd0d4ea4d}</Project>
+      <Name>LibDeImagensGbaDs</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Bibliotecas\dsdecmp.dll" />
   </ItemGroup>

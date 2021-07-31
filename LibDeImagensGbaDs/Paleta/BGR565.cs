@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.IO;
 
 namespace ImageLibGbaDS.Paleta
@@ -27,6 +28,34 @@ namespace ImageLibGbaDS.Paleta
             }
 
          
+        }
+
+
+        public byte ObtenhaIndexCorMaisProxima(Color c1)
+        {
+            int eOmenor = 10000;
+            int index = 0;
+
+            for (int x = 0; x < Cores.Length; x++)
+            {
+                Color c2 = Cores[x];
+
+                int vl = DiferencaDeCores(c1, c2);
+
+                if (eOmenor > vl)
+                {
+                    eOmenor = vl;
+                    index = x;
+                }
+
+            }
+
+            return (byte)index;
+        }
+
+        private int DiferencaDeCores(Color c1, Color c2)
+        {
+            return (int)Math.Sqrt((c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B) + (c1.A - c2.A) * (c1.A - c2.A));
         }
     }
 }

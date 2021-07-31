@@ -100,6 +100,7 @@
     <Compile Include="Arquivos\AaiBin.cs" />
     <Compile Include="Arquivos\EntradaAAIBin.cs" />
     <Compile Include="FerramentasExternas\NdsTool.cs" />
+    <Compile Include="Imagens\ConversorDeImagens.cs" />
     <Compile Include="JanelaPrincipal.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,12 +109,10 @@
     </Compile>
     <Compile Include="GerenciadorDeAcessoAsTabs.cs" />
     <Compile Include="Imagens\Btx.cs" />
-    <Compile Include="Imagens\ConversorDeImagens.cs" />
     <Compile Include="Imagens\Enums\Bpp.cs" />
     <Compile Include="Imagens\Enums\OBJMode.cs" />
     <Compile Include="Imagens\Enums\OBJShape.cs" />
     <Compile Include="Imagens\Extensoes\ImageSharpExtensions.cs" />
-    <Compile Include="Imagens\GerenciadorConversaoImagens.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
     <Compile Include="Imagens\MapaDeArquivos\MapaDeArquivos.cs" />

@@ -6,5 +6,6 @@ namespace ImageLibGbaDS.Paleta
     {
         bool TemAlpha { get; set; }
         Color[] Cores { get; set; }
+        byte ObtenhaIndexCorMaisProxima(Color c1);
     }
 }

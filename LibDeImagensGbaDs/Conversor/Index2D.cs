@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using LibDeImagensGbaDs.Formatos.Indexado;
 using System;
+using System.Collections.Generic;
 
 namespace LibDeImagensGbaDs.Conversor
 {
@@ -27,11 +28,24 @@ namespace LibDeImagensGbaDs.Conversor
                 Array.Copy(formatoIndexado.AlphaValues, 0, valoresAlpha, 0, valoresAlpha.Length);
             }
 
-            ManipuladorDeImagem.GerarBitmap(final, formatoIndexado.Indices, paleta.Cores,paleta.TemAlpha, valoresAlpha);
+            ManipuladorDeImagem.GerarBitmap(final, formatoIndexado.Indices, paleta.Cores, paleta.TemAlpha, valoresAlpha);
             return final;
 
         }
 
-        
+        public List<object> GerarIndeces(IFormatoIndexado formatoIndexado, IPaleta paleta, Bitmap imagem)
+        {
+            imagem = ManipuladorDeImagem.MudarPixelFormatPra32Bpp(imagem);
+
+            List<byte> indices = new List<byte>();
+            Color[] cores = ManipuladorDeImagem.ObtenhaCoresDeImagem(imagem);
+
+            foreach (var cor in cores)
+                indices.Add(paleta.ObtenhaIndexCorMaisProxima(cor));
+
+            List<object> final = new List<object>() { formatoIndexado.GereIndices(indices.ToArray()) };
+         
+            return final;
+        }
     }
 }

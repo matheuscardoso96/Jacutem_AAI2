@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1200">
+             d:DesignHeight="700" d:DesignWidth="1200">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -22,33 +22,113 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-           
+
             <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
-            
-            <materialDesign:Card  UniformCornerRadius="10" Height="auto" Width="175" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
-               
-                <ListBox  BorderThickness="1" Margin="10,0,0,0" HorizontalAlignment="Left" Width="150">
-                    <ListBoxItem>ListBox Item #1</ListBoxItem>
-                    <ListBoxItem>ListBox Item #2</ListBoxItem>
-                    <ListBoxItem>ListBox Item #3</ListBoxItem>
-                    <ListBoxItem>ListBox Item #1</ListBoxItem>
-                    <ListBoxItem>ListBox Item #2</ListBoxItem>
-                    <ListBoxItem>ListBox Item #3</ListBoxItem>
-                    <ListBoxItem>ListBox Item #1</ListBoxItem>
-                    <ListBoxItem>ListBox Item #2</ListBoxItem>
-                    <ListBoxItem>ListBox Item #3</ListBoxItem>
-                    <ListBoxItem>ListBox Item #3</ListBoxItem>
+
+            <materialDesign:Card Height="auto" Width="200" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
+
+                <ListBox SelectedItem="{Binding Path=CaminhoImagem, Mode=TwoWay}" BorderThickness="1" ItemsSource="{Binding BGTileSemMapsDi}" Margin="10,0,0,0" HorizontalAlignment="Left" Width="180">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Key}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
                 </ListBox>
             </materialDesign:Card>
 
             <materialDesign:Card Height="auto" Width="auto" Margin="16" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
-                <Image  Name="ImageViewer1" Height="auto" Width="auto" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <StackPanel.Background>
+                            <SolidColorBrush Color="LimeGreen"/>
+                        </StackPanel.Background>
+                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="832" Source="{Binding ImagemCarregada}" Stretch="None">
+                            <Image.ContextMenu>
+                                <ContextMenu>
+
+                                    <MenuItem  Name="mnuItem1" Header="Exportar" Command="{Binding MyCommand[SalvarImagemCarregada]}" CommandParameter="ParameterValue" />
+
+                                    <MenuItem Header="Importar">
+                                        <MenuItem  Header="Conservando paleta"></MenuItem>
+                                        <MenuItem  Header="Gerando nova paleta"></MenuItem>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Image.ContextMenu>
+                        </Image>
+                    </StackPanel>
+
+
+                    
+                    <StackPanel Width="832" Height="360" Grid.Row="1">
+                        <Grid>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="360"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <materialDesign:Card HorizontalAlignment="Right" Margin="10" Grid.Column="1" Grid.Row="0" Width="140" Height="140" VerticalAlignment="Top">
+                                <Image  Grid.Column="1" Grid.Row="0"  Name="Peleta" Height="140" Width="140" />
+                            </materialDesign:Card>
+
+                            <materialDesign:Card Width="auto" Height="150" DataContext="{Binding NgcrCarregado}" Margin="10" VerticalAlignment="Top">
+                                <Grid Grid.Row="0" Grid.Column="0">
+                                    <Grid.RowDefinitions >
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        
+                                    </StackPanel>
+                                    <Border HorizontalAlignment="Stretch" Background="Gray" Height="auto" Width="auto" Padding="0,0,0,0" Grid.Row="0"/>
+                                    <materialDesign:PackIcon Kind="FileImageOutline"  Grid.Row="0" Margin="2,4,0,0"/>
+                                    <Label HorizontalAlignment="Center" Foreground="Black" Grid.Row="0" Margin="15,0,0,0">
+                                        Propriedades da imagem
+                                    </Label>
+
+                                    <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Foreground="Black" Grid.Row="1">Largura</Label>
+                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="1" Text="{Binding Largura}"/>
+                                    <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Black" Grid.Row="2">Altura</Label>
+                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="2"  Text="{Binding Altura}"/>
+                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="3">Intensidade de bits</Label>
+                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="3" Text="{Binding BppString}"/>
+                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="4">Id da paleta</Label>
+                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="4">0</TextBlock>
+                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="5">Quantidade de cores</Label>
+                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="5" Text="{Binding QuatidadeCores}"/>
+                                </Grid>
+                            </materialDesign:Card>
+                          
+
+                        </Grid>
+                        
+                    </StackPanel>
+                </Grid>
+
+
             </materialDesign:Card>
 
-           
+
 
         </Grid>
-        
-       
+
+
     </Grid>
 </UserControl>

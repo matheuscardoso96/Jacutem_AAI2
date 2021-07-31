@@ -20,5 +20,10 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
             Array.Copy(arquivo, enderecoInicial, rawIndexes, 0, tamanho);
             Indices = rawIndexes;
         }
+
+        public byte[] GereIndices(byte[] indices)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

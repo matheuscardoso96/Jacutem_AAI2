@@ -1,4 +1,5 @@
 ﻿using LibDeImagensGbaDs.Formatos.Indexado;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -54,7 +55,16 @@ namespace LibDeImagensGbaDs.Util
                     byte* currentLine = ptrFirstPixel + (y * bitmapData.Stride);
                     for (int x = 0; x < widthInBytes; x += bytesPerPixel)
                     {
-                        cores[contadorIndices] = Color.FromArgb(currentLine[x + 3], currentLine[x + 2], currentLine[x + 1], currentLine[x]);
+                        if (bytesPerPixel == 4)
+                        {
+                            cores[contadorIndices] = Color.FromArgb(currentLine[x + 3], currentLine[x + 2], currentLine[x + 1], currentLine[x]);
+                        }
+                        else if (bytesPerPixel == 3)
+                        {
+                            cores[contadorIndices] = Color.FromArgb(currentLine[x + 2], currentLine[x + 1], currentLine[x]);
+                        }
+                        
+                        
                         contadorIndices++;
                     }
                 }
@@ -63,6 +73,38 @@ namespace LibDeImagensGbaDs.Util
             }
 
             return cores;
+        }
+
+        public static List<Bitmap> DividaImagemEmTiles(Bitmap img)
+        {
+            List<Bitmap> tiles = new List<Bitmap>();
+
+            for (int y = 0; y < img.Height; y += 8)
+            {
+                for (int x = 0; x < img.Width; x += 8)
+                {
+                    Rectangle rec = new Rectangle(x, y, 8, 8);
+                    tiles.Add(img.Clone(rec, img.PixelFormat));
+
+                }
+            }
+
+            img.Dispose();
+
+            return tiles;
+        }
+
+        public static Bitmap MudarPixelFormatPra32Bpp(Bitmap imagem)
+        {
+            Bitmap imagem32Bpp = new Bitmap(imagem.Width, imagem.Height, PixelFormat.Format32bppRgb);
+
+            using (Graphics graphics = Graphics.FromImage(imagem32Bpp))
+            {
+                graphics.DrawImage(imagem, new Point(0, 0));
+            }
+
+            return imagem32Bpp;
+
         }
     }
 }

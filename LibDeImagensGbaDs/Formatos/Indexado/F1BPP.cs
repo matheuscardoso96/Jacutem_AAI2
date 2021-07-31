@@ -30,5 +30,10 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
 
             Indices = final;
         }
+
+        public byte[] GereIndices(byte[] indices)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

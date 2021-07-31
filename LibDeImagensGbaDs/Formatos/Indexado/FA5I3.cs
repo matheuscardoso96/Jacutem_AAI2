@@ -27,7 +27,7 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
             {
                 int valorNaPaleta = rawIndexes[i] & 7;
                 int valorAlpha = rawIndexes[i] >> 3;
-                valorAlpha = (valorAlpha * 255) / 31;
+                valorAlpha = valorAlpha * 255 / 31;
 
                 AlphaValues[i] = (byte)valorAlpha;
                 final[i] = (byte)valorNaPaleta;
@@ -36,6 +36,11 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
 
 
             Indices = final;
+        }
+
+        public byte[] GereIndices(byte[] indices)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Jacutem_AAI2.Imagens.Enums;
+﻿using JacutemAAI2.WPF.Imagens.Enums;
 using LibDeImagensGbaDs.Conversor;
 using LibDeImagensGbaDs.Enums;
 using System;
@@ -16,6 +16,8 @@ namespace Jacutem_AAI2.Imagens
         public byte[] ImagemEmBytes { get; set; }
         public int Altura { get; set; }
         public int Largura { get; set; }
+        public string BppString { get; set; }
+        public int QuatidadeCores { get; set; }
         public EIndexFormat Bpp { get; set; }
         public int TamanhoGrafico { get; set; }
         public string DirNcgr { get; set; }
@@ -31,12 +33,12 @@ namespace Jacutem_AAI2.Imagens
 
         public Ncgr(string args, string tipo)
         {
-            string[] argumentos = args.Split(','); 
+            string[] argumentos = args.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries); 
             DirNcgr = argumentos[0];
             Tipo = tipo;
             LocalParaExportacao = argumentos[argumentos.Length - 1];
 
-            using (BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(argumentos[0]))))
+            using (BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(argumentos[0].Trim(' ')))))
             {
                 Cabecalho = br.ReadBytes(0x30);
                 br.BaseStream.Position = 0x18;
@@ -53,7 +55,9 @@ namespace Jacutem_AAI2.Imagens
                 br.BaseStream.Position = 0x30;
                 ImagemEmBytes = br.ReadBytes(TamanhoGrafico);
             }
-            
+
+            BppString = Bpp.ToString();
+
             ArquivoNclr = new Nclr(argumentos[1], Bpp);
 
             if (ArquivoNclr.Diretorio.Contains("0125_idcom.nclr"))
@@ -64,15 +68,7 @@ namespace Jacutem_AAI2.Imagens
 
             switch (tipo)
             {
-                case "BG Sem Tile Map":
-                   Imagem = ExportarNCGR();
-                    break;
-                case "BG Com Tile Map":
-                    ArquivoNscr = new Nscr(argumentos[2]);
-                    Largura = ArquivoNscr.Largura;
-                    Altura = ArquivoNscr.Altura;
-                    Imagem = ExportarNCGRTileMap();                
-                    break;
+                
                 case "Sprites Modo Tile":
                     ArquivoNcer = new Ncer(argumentos[2]);
                     EhSprite = true;
@@ -85,6 +81,32 @@ namespace Jacutem_AAI2.Imagens
             }
         }
 
+        public Ncgr(string dirNcgr)
+        {
+
+        }
+
+        public Ncgr(string dirNcgr, Nscr nscr, Nclr nclr)
+        {
+            ArquivoNscr = nscr;
+            ArquivoNclr = nclr;
+            //case "BG Sem Tile Map":
+            //       Imagem = ExportarNCGR();
+            //break;
+            //    case "BG Com Tile Map":
+            //        ArquivoNscr = new Nscr(argumentos[2]);
+            //Largura = ArquivoNscr.Largura;
+            //Altura = ArquivoNscr.Altura;
+            //Imagem = ExportarNCGRTileMap();
+            //break;
+        }
+
+        public Ncgr(string dirNcgr, Ncer ncer, Nclr nclr)
+        {
+            ArquivoNcer = ncer;
+            ArquivoNclr = nclr;
+        }
+
         public void Exportar() 
         {
             if (!Directory.Exists(LocalParaExportacao))
@@ -95,15 +117,18 @@ namespace Jacutem_AAI2.Imagens
 
         private Bitmap ExportarNCGR()
         {
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));                                          
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));
+            QuatidadeCores = ArquivoNclr.Pltt.Paleta.Length / 2;
             return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
+            
 
         }
 
         private Bitmap ExportarNCGRTileMap()
         {    
 
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D, ArquivoNscr.TileMap, true));
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D, ArquivoNscr.TileMap));
+            QuatidadeCores = ArquivoNclr.Pltt.Paleta.Length / 2;
             return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
 
         }
@@ -121,21 +146,21 @@ namespace Jacutem_AAI2.Imagens
 
             
 
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.Imagem = ImagemEmBytes;
+           //// ConversorDeImagens cv = new ConversorDeImagens();
+           // cv.Imagem = ImagemEmBytes;
            
 
-            foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
-            {
+           // foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
+           // {
                 
-                if (item.TabelaDeOams.Count > 0)
-                {
-                    cv.ExporteSprite1D(item.TabelaDeOams, fundoTransparente);
-                }
+           //     if (item.TabelaDeOams.Count > 0)
+           //     {
+           //         cv.ExporteSprite1D(item.TabelaDeOams, fundoTransparente);
+           //     }
 
                 
                           
-            }
+           // }
 
            
 
@@ -154,18 +179,18 @@ namespace Jacutem_AAI2.Imagens
                 Directory.CreateDirectory(dirSalvamento);
             }
 
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.Imagem = ImagemEmBytes;
+            //ConversorDeImagens cv = new ConversorDeImagens();
+            //cv.Imagem = ImagemEmBytes;
 
 
-            foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
-            {
-                if (item.TabelaDeOams.Count > 0)
-                {
-                    cv.ExporteSprite2D(item.TabelaDeOams, fundoTransparente);
-                }
+            //foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
+            //{
+            //    if (item.TabelaDeOams.Count > 0)
+            //    {
+            //        cv.ExporteSprite2D(item.TabelaDeOams, fundoTransparente);
+            //    }
                              
-            }
+            //}
 
         }
 
@@ -173,39 +198,29 @@ namespace Jacutem_AAI2.Imagens
         public void ImportaNCGRSemMap(string dirImg)
         {
 
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.CoresPaleta = ArquivoNclr.Paletas[0];
-
-            if (Bpp == EIndexFormat.F4BBP)
-            {
-                byte[] img = cv.Converta4bppRawNcgr(dirImg);
-                InsiranoNcgr(img);
-            }
-            else
-            {
-                byte[] img = cv.Converta8bppRawNcgr(dirImg);
-                InsiranoNcgr(img);
-            }
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));
+            QuatidadeCores = ArquivoNclr.Pltt.Paleta.Length / 2;
+            cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
         }
 
         public void ImportaNCGRComMap(string dirImg)
         {
 
 
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.CoresPaleta = ArquivoNclr.Paletas[0];
+            //ConversorDeImagens cv = new ConversorDeImagens();
+            //cv.CoresPaleta = ArquivoNclr.Paletas[0];
 
-            if (Bpp == EIndexFormat.F4BBP)
-            {
-                List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
-                InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
+            //if (Bpp == EIndexFormat.F4BBP)
+            //{
+            //    List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
+            //    InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
 
-            }
-            else
-            {
-                List<byte[]> imgEhTilemap = cv.Converta8bppNcgrTileMap(dirImg);
-                InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
-            }
+            //}
+            //else
+            //{
+            //    List<byte[]> imgEhTilemap = cv.Converta8bppNcgrTileMap(dirImg);
+            //    InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
+            //}
         }
 
         public void ImportaNCGRSprites(string dirImg, string dirNclr, List<Oam> oams)
@@ -214,11 +229,11 @@ namespace Jacutem_AAI2.Imagens
             // Ncgr ncgr = new Ncgr(dirNcgr);
            // Nclr nclr = new Nclr(dirNclr);
            // ArquivoNcer = new Ncer(dirNcer);
-            // ncer.Oams = ncer.Oams.Take(ncer.Oams.Count - menosElementos).ToList();            
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.Imagem = ImagemEmBytes;
-          //  cv.Paleta = nclr.PaletaEmBytes;            
-            InsiranoNcgr(cv.InsiraSpriteNgcr(dirImg, oams));
+          //  // ncer.Oams = ncer.Oams.Take(ncer.Oams.Count - menosElementos).ToList();            
+          //  ConversorDeImagens cv = new ConversorDeImagens();
+          //  cv.Imagem = ImagemEmBytes;
+          ////  cv.Paleta = nclr.PaletaEmBytes;            
+          //  InsiranoNcgr(cv.InsiraSpriteNgcr(dirImg, oams));
 
         }
 
@@ -229,10 +244,10 @@ namespace Jacutem_AAI2.Imagens
          //   Nclr nclr = new Nclr(dirNclr);
             // ArquivoNcer = new Ncer(dirNcer);
             // ncer.Oams = ncer.Oams.Take(ncer.Oams.Count - menosElementos).ToList();            
-            ConversorDeImagens cv = new ConversorDeImagens();
-            cv.Imagem = ImagemEmBytes;
-         //   cv.Paleta = nclr.PaletaEmBytes;
-            InsiranoNcgr(cv.InsiraSpriteNgcrModo2(dirImg, oams));
+         //   ConversorDeImagens cv = new ConversorDeImagens();
+         //   cv.Imagem = ImagemEmBytes;
+         ////   cv.Paleta = nclr.PaletaEmBytes;
+         //   InsiranoNcgr(cv.InsiraSpriteNgcrModo2(dirImg, oams));
 
         }
 

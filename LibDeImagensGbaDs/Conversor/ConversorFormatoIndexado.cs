@@ -13,8 +13,9 @@ namespace LibDeImagensGbaDs.Conversor
         public IConversorIndex IndexConverter { get; set; }
         public int Altura { get; set; }
         public int Largura { get; set; }
+        public bool TemTilemap { get; set; }
 
-        public ConversorFormatoIndexado(byte[] paleta, EFormatoPaleta formatoPaleta , int altura, int largura, EIndexFormat eIndexFormat, EModoDimensional modoDimensional, List<ushort> tilemap = null, bool temAlpha = false)
+        public ConversorFormatoIndexado(byte[] paleta, EFormatoPaleta formatoPaleta , int altura, int largura, EIndexFormat eIndexFormat, EModoDimensional modoDimensional, List<ushort> tilemap = null, bool temTimap = false, bool temAlpha = false)
         {
             Altura = altura;
             Largura = largura;
@@ -22,7 +23,7 @@ namespace LibDeImagensGbaDs.Conversor
             switch (modoDimensional)
             {
                 case EModoDimensional.M1D:
-                    IndexConverter = new Index1D(altura, largura, tilemap);
+                    IndexConverter = new Index1D(altura, largura, tilemap, temTimap);
                     break;
                 case EModoDimensional.M2D:
                     IndexConverter = new Index2D(altura, largura);
@@ -70,6 +71,10 @@ namespace LibDeImagensGbaDs.Conversor
             return imagemFinal;
         }
 
-        
+        public List<object> ConvertaParaBin(Bitmap imagem)
+        {
+            List<object> resultado = IndexConverter.GerarIndeces(BitsPorPixel, Paleta,imagem);        
+            return resultado;
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
             for (int i = 0; i < rawIndexes.Length; i++)
             {
                 int nibbleAlto = (rawIndexes[i] & 0xF0) >> 4;
-                int nibbleBaixo = (rawIndexes[i] & 0x0F);
+                int nibbleBaixo = rawIndexes[i] & 0x0F;
                 final[contador] = (byte)nibbleBaixo;
                 final[contador + 1] = (byte)nibbleAlto;
                 contador+=2;
@@ -36,6 +36,24 @@ namespace LibDeImagensGbaDs.Formatos.Indexado
 
 
            Indices = final;
+        }
+
+        public byte[] GereIndices(byte[] indices)
+        {
+
+            byte[] listaDeIndicesFinal = new byte[indices.Length / 2];
+
+            int contador = 0;
+
+            for (int i = 0; i < indices.Length; i+=2)
+            {
+                byte indice =(byte)((indices[i + 1] << 4)  + indices[i]);
+                listaDeIndicesFinal[contador] = indice;
+                contador++;
+            }
+
+            return listaDeIndicesFinal;
+
         }
 
     }
