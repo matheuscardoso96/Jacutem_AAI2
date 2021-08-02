@@ -14,6 +14,8 @@ namespace FormatosNitro.Imagens
         public ushort EnderecoProximaSecao { get; protected set; }
         public ushort QuantidadeDeSecoes { get; protected set; }
 
+        public const int TamanhoCabecalho = 16;
+
         public NitroBase(BinaryReader br)
         {
             Id = Encoding.ASCII.GetString(br.ReadBytes(4));

@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Sprites\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="nQuant.Core">
       <HintPath>Bibliotecas\nQuant.Core.dll</HintPath>
     </Reference>

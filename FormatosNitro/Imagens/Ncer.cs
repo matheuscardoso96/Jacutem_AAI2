@@ -1,194 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using LibDeImagensGbaDs.Sprites;
+using System.Collections.Generic;
 using System.IO;
-
+using System.Text;
 
 namespace FormatosNitro.Imagens
 {
-    public class Ncer
+    public class Ncer : NitroBase
     {
-        public List<Oams> GrupoDeTabelasOam = new List<Oams>();
-        public byte[] Cabecalho { get; set; }
-        public byte[] Lbal { get; set; }
-        public byte[] Txeu { get; set; }
+        Cebk Cebk { get; set; }
+        Labl Labl { get; set; }
+        public string DirNcer { get; set; }
 
-        public Ncer(string dir)
+        public Ncer(BinaryReader br,string dir) : base(br)
         {
-            using (BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(dir))))
-            {
-                Cabecalho = br.ReadBytes(0x30);
-                br.BaseStream.Position = 0x14;
-                int offsetLbal = br.ReadInt32() + 0x10;
-                br.BaseStream.Position = offsetLbal;
-                byte v = br.ReadByte();
-                int contador = 0;
-                if (v != 0x4C)
-                {
-                    contador++;
-                    while (true)
-                    {
-                        v = br.ReadByte();
-                        if (v == 0x4C)
-                        {
-                            break;
-                        }
-                        contador++;
-                    }
+            DirNcer = dir;
+            Cebk = new Cebk(br);
+            Labl = new Labl();
 
-                    offsetLbal += contador;
-                    br.BaseStream.Position = offsetLbal;
-
-                }
-                else
-                {
-                    br.BaseStream.Position -= 1;
-                }
-                br.BaseStream.Seek(4,SeekOrigin.Current);
-                int tamanhoSecaoLb = br.ReadInt32();
-                br.BaseStream.Position = offsetLbal;              
-                Lbal = br.ReadBytes(tamanhoSecaoLb);
-                br.BaseStream.Seek(4, SeekOrigin.Current);
-                int tamanhoSecaoTx = br.ReadInt32();
-                br.BaseStream.Position = offsetLbal + tamanhoSecaoLb;
-                Txeu = br.ReadBytes(tamanhoSecaoTx);
-                
-                br.BaseStream.Position = 0x18;
-                int numeroDeTabelasOam = br.ReadInt32();
-                int posTabela = 0x30;
-                int posicaoEntradas = (numeroDeTabelasOam * 8) + 0x30;
-
-                for (int i = 0; i < numeroDeTabelasOam; i++)
-                {
-                    br.BaseStream.Position = posTabela;
-                    int qtdEntradas = br.ReadInt16();
-                    int id = br.ReadInt16();
-                    int offsetEntrada = br.ReadInt32();
-                    br.BaseStream.Position = offsetEntrada + posicaoEntradas;
-
-                    Oams listaDeoams = new Oams(posTabela, (ushort)qtdEntradas, (ushort)id);
-
-
-                    for (int y = 0; y < qtdEntradas; y++)
-                    {
-                        ushort atb0 = br.ReadUInt16();
-                        ushort atb1 = br.ReadUInt16();
-                        ushort atb2 = br.ReadUInt16();
-
-                        Oam oam = new Oam(atb0, atb1, atb2);
-                        listaDeoams.AdicionarOam(oam);
-                    }
-
-                   // listaDeoams.VariosOam.Reverse();
-
-                    GrupoDeTabelasOam.Add(listaDeoams);
-
-
-
-                    posTabela += 8;
-
-                }
-
-                
-
-
-            }
+            
         }
 
         public void SalvarNcer(string diretorio)
         {
-            AtualizarPosicoesXYdeValoresOam();
-            int tamanhoDaTabelaDeOams = GrupoDeTabelasOam.Count * 8;
-            int tQtdEntras = TamanhoQtdDeEntradas();
-            int tamanhoDoNovoNcer = tamanhoDaTabelaDeOams + tQtdEntras + Cabecalho.Length + Txeu.Length + Lbal.Length;
-            if (tamanhoDoNovoNcer % 4 != 0)
-            {
-                while (tamanhoDoNovoNcer % 4 != 0)
-                {
-                    tamanhoDoNovoNcer++;
-                }
-            }
-            byte[] tabelasOam = new byte[tamanhoDoNovoNcer];
-            MemoryStream ms = new MemoryStream(tabelasOam);
-            using (BinaryWriter bw = new BinaryWriter(ms))
-            {
-               
-                bw.Write(Cabecalho);
-
-                foreach (var item in GrupoDeTabelasOam)
-                {
-                    bw.Write(item.QtdEntradas);
-                    bw.Write(item.Id);
-                    bw.Write(0);
-                }
-
-                int offsetCont = 0;
-                Dictionary<int,short> ponteirosEhQtdEntradas = new Dictionary<int, short>();
-                
-                foreach (var item in GrupoDeTabelasOam)
-                {
-                    ponteirosEhQtdEntradas.Add(offsetCont, (short)item.TabelaDeOams.Count);
-                    item.TabelaDeOams.Reverse();
-                    foreach (var oamm in item.TabelaDeOams)
-                    {
-                        bw.Write(oamm._atributosOBJ0);
-                        bw.Write(oamm._atributosOBJ1);
-                        bw.Write(oamm._atributosOBJ2);
-
-                    }
-
-                    offsetCont = (int)bw.BaseStream.Position;
-                }
-
-                bw.Write(Lbal);
-                bw.Write(Txeu);
-                int Tamanhocebk = 0x20 + tQtdEntras + tamanhoDaTabelaDeOams;
-                int TamanhoNcer = 0x20 + tQtdEntras + tamanhoDaTabelaDeOams + Txeu.Length + Lbal.Length + 0x10;
-
-                bw.BaseStream.Position = 0x8;
-                bw.Write(TamanhoNcer);
-                bw.BaseStream.Position = 0x14;
-                bw.Write(Tamanhocebk);
-
-                bw.BaseStream.Position = 0x30;
-                foreach (var item in ponteirosEhQtdEntradas)
-                {
-                    bw.Write(item.Value);
-                    bw.BaseStream.Seek(2,SeekOrigin.Current);
-                    bw.Write(item.Key);
-                }
-
-                tabelasOam = ms.ToArray();
-            }
-
-            File.WriteAllBytes(diretorio,tabelasOam);
+           
 
            
         }
 
         private void AtualizarPosicoesXYdeValoresOam()
         {
-            foreach (var tabelaOam in GrupoDeTabelasOam)
-            {
-                foreach (var entrada in tabelaOam.TabelaDeOams)
-                {
-                   int atb0SemValorY = entrada._atributosOBJ0 - (entrada._atributosOBJ0 & 0XFF);
-                   int atb1SemValorX = entrada._atributosOBJ1 -(entrada._atributosOBJ1 & 0X1FF);
-                    int y =(int)entrada.Y;
-                    int x = (int)entrada.X;
-                    if (y >= 128)
-                        y -= 128;
-                    else
-                        y += 128;
-
-                    if (x >= 256)
-                        x -= 256;
-                    else
-                        x += 256;
-
-                    entrada._atributosOBJ0 = (ushort)(atb0SemValorY + y);
-                    entrada._atributosOBJ1 = (ushort)(atb1SemValorX + x);
-
-                }
-            }
+           
         }
 
         public void SalvarNcerdicionando(string diretorio)
@@ -198,42 +39,100 @@ namespace FormatosNitro.Imagens
 
         private int TamanhoQtdDeEntradas()
         {
-            int total = 0;
+            
 
-            foreach (var item in GrupoDeTabelasOam)
+            return 0;
+        }
+    }
+
+    public class Cebk 
+    {
+        public string Id { get; set; }
+        public uint TamanhoCebk { get; set; }
+        public ushort QuatidadeEntradasDeBeks{ get; set; }
+        public ushort TamanhoEntradaBek{ get; set; }
+        public uint EnderecoBenks { get; set; }
+        public uint LimiteAreaBek { get; set; }
+        public uint EnderecoDeParitcaoDeDados { get; set; }
+        public ulong Padding { get; set; }
+
+        public List<Ebk> Ebks { get; set; }
+        
+
+        public Cebk(BinaryReader br)
+        {
+            Id = Encoding.ASCII.GetString(br.ReadBytes(4));
+            TamanhoCebk = br.ReadUInt32();
+            QuatidadeEntradasDeBeks = br.ReadUInt16();
+            TamanhoEntradaBek = br.ReadUInt16();
+            EnderecoBenks = br.ReadUInt32();
+            LimiteAreaBek = br.ReadUInt32();
+            EnderecoDeParitcaoDeDados = br.ReadUInt32();
+            Padding = br.ReadUInt64();
+            br.BaseStream.Position = EnderecoBenks + 8 + 16; //16 tamanho do cabeçalho + 8 padding
+            LerEbks(br);
+      
+
+        }
+
+        private void LerEbks(BinaryReader br) 
+        {
+            Ebks = new List<Ebk>();
+            for (int i = 0; i < QuatidadeEntradasDeBeks; i++)
             {
-                foreach (var v in item.TabelaDeOams)
+                Ebk ebk = new Ebk();
+                ebk.QuantidadeDeCelulas = br.ReadUInt16();
+                ebk.InfoSomenteLeituraCelula = br.ReadUInt16();
+                ebk.EnderecoCelula = br.ReadUInt32();
+
+                if (TamanhoEntradaBek == 1)
                 {
-                    total += 6;
+                    ebk.XMax = br.ReadInt16();
+                    ebk.YMax = br.ReadInt16();
+                    ebk.XMin = br.ReadInt16();
+                    ebk.YMin = br.ReadInt16();
+
+                }
+
+                Ebks.Add(ebk);
+               
+            }
+
+            long enderecoBase = br.BaseStream.Position;
+
+            foreach (Ebk ebk  in Ebks)
+            {
+                ebk.Oams = new List<Oam>();
+
+                for (int i = 0; i < ebk.QuantidadeDeCelulas; i++)
+                {
+                    ebk.Oams.Add(new Oam(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
                 }
             }
 
-            return total;
         }
+
     }
 
-
-    public class Oams
+    public class Ebk 
     {
-
-        public List<Oam> TabelaDeOams;
-        public int Posicao { get; set; }
-        public int PosicaoEntradas { get; set; }
-        public ushort QtdEntradas { get; set; }
-        public ushort Id { get; set; }
-        
-
-        public Oams(int posicao, ushort qtdEntradas, ushort id)
-        {
-            TabelaDeOams = new List<Oam>();
-            Posicao = posicao;
-            Id = id;
-            QtdEntradas = qtdEntradas;
-        }
-
-        public void AdicionarOam(Oam oam)
-        {
-            TabelaDeOams.Add(oam);
-        }
+        public ushort QuantidadeDeCelulas { get; set; }
+        public ushort InfoSomenteLeituraCelula { get; set; }
+        public uint EnderecoCelula { get; set; }
+        public uint EnderecoParticao { get; set; }
+        public uint TamanhoParticao { get; set; }
+        public short XMax { get; set; }
+        public short YMax { get; set; }
+        public short XMin { get; set; }
+        public short YMin { get; set; }
+        public List<Oam> Oams { get; set; }
     }
+
+    public class Labl 
+    {
+        public string Id { get; set; }
+        public uint TamanhoLabl { get; set; }
+    }
+
+   
 }
