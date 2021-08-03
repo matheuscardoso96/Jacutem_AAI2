@@ -10,12 +10,10 @@ namespace FormatosNitro.Imagens
         public Pltt Pltt { get; set; }
         public Pcmp Pcmp { get; set; }
         public List<byte[]> Paletas { get; set; }
-        public string Diretorio { get; set; }
 
 
-        public Nclr(string dir, BinaryReader br) : base(br)
+        public Nclr(BinaryReader br) : base(br)
         {
-            Diretorio = dir;
             Pltt = new Pltt(br);
             if (QuantidadeDeSecoes > 1)
                 Pcmp = new Pcmp(br);

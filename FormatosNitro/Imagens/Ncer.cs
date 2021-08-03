@@ -1,4 +1,5 @@
 ﻿using LibDeImagensGbaDs.Sprites;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,13 +10,18 @@ namespace FormatosNitro.Imagens
     {
         Cebk Cebk { get; set; }
         Labl Labl { get; set; }
-        public string DirNcer { get; set; }
+        public Uext Uext { get; set; }
 
-        public Ncer(BinaryReader br,string dir) : base(br)
+        public Ncer(BinaryReader br) : base(br)
         {
-            DirNcer = dir;
             Cebk = new Cebk(br);
-            Labl = new Labl();
+            if (base.QuantidadeDeSecoes > 1)
+            {
+                Labl = new Labl(br, Cebk.QuatidadeEntradasDeBeks);
+                Uext = new Uext(br);
+            }
+           
+            
 
             
         }
@@ -71,7 +77,7 @@ namespace FormatosNitro.Imagens
             Padding = br.ReadUInt64();
             br.BaseStream.Position = EnderecoBenks + 8 + 16; //16 tamanho do cabeçalho + 8 padding
             LerEbks(br);
-      
+            
 
         }
 
@@ -87,10 +93,10 @@ namespace FormatosNitro.Imagens
 
                 if (TamanhoEntradaBek == 1)
                 {
-                    ebk.XMax = br.ReadInt16();
-                    ebk.YMax = br.ReadInt16();
-                    ebk.XMin = br.ReadInt16();
-                    ebk.YMin = br.ReadInt16();
+                    ebk.LarguraMaxima = br.ReadInt16();
+                    ebk.AlturaMaxima = br.ReadInt16();
+                    ebk.LarguraMinima = br.ReadInt16();
+                    ebk.AlturaMinima = br.ReadInt16();
 
                 }
 
@@ -121,10 +127,10 @@ namespace FormatosNitro.Imagens
         public uint EnderecoCelula { get; set; }
         public uint EnderecoParticao { get; set; }
         public uint TamanhoParticao { get; set; }
-        public short XMax { get; set; }
-        public short YMax { get; set; }
-        public short XMin { get; set; }
-        public short YMin { get; set; }
+        public short LarguraMaxima { get; set; }
+        public short AlturaMaxima { get; set; }
+        public short LarguraMinima { get; set; }
+        public short AlturaMinima { get; set; }
         public List<Oam> Oams { get; set; }
     }
 
@@ -132,6 +138,61 @@ namespace FormatosNitro.Imagens
     {
         public string Id { get; set; }
         public uint TamanhoLabl { get; set; }
+        public List<uint> Enderecos { get; set; }
+        public List<string> Labls { get; set; }
+
+        public Labl(BinaryReader br, int quantidadeDeBanks)
+        {
+            
+            Id = Encoding.ASCII.GetString(br.ReadBytes(4));
+            if (Id != "LABL")
+            {
+                throw new Exception("Cade o LABL?");
+            }
+            
+            TamanhoLabl = br.ReadUInt32();
+
+            Enderecos = new List<uint>();
+
+            for (int i = 0; i < quantidadeDeBanks; i++)
+            {
+                Enderecos.Add(br.ReadUInt32());
+            }
+
+            Labls = new List<string>();
+
+            long enderecoBase = br.BaseStream.Position;
+
+            for (int i = 0; i < quantidadeDeBanks; i++)
+            {
+                br.BaseStream.Position = enderecoBase + Enderecos[i];
+                StringBuilder label = new StringBuilder();
+                while (true)
+                {
+                    char[] letra = Encoding.ASCII.GetChars(br.ReadBytes(1));
+                    if (letra[0] == '0')
+                        break;
+                    
+                    label.Append(letra);
+                }
+
+                Labls.Add(label.ToString());
+            }
+
+        }
+    }
+
+    public class Uext 
+    {
+        public string Id { get; set; }
+        public uint TamanhoUext { get; set; }
+        public uint Padding { get; set; }
+        public Uext(BinaryReader br)
+        {
+            Id = Encoding.ASCII.GetString(br.ReadBytes(4));
+            TamanhoUext = br.ReadUInt32();
+            Padding = br.ReadUInt32();
+        }
     }
 
    

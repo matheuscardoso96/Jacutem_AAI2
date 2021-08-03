@@ -25,17 +25,19 @@
 
             <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
 
-            <materialDesign:Card Height="auto" Width="200" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Width="240" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
 
-                <ListBox SelectedItem="{Binding Path=CaminhoImagem, Mode=TwoWay}" BorderThickness="1" ItemsSource="{Binding BGTileSemMapsDi}" Margin="10,0,0,0" HorizontalAlignment="Left" Width="180">
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Key}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
+                <ListView ItemsSource="{Binding BGTileSemMapsDi}" SelectedItem="{Binding CaminhoImagem}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Ncgrs"
+                            DisplayMemberBinding="{Binding Key}" Width="200"/>
+                         
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
-                </ListBox>
             </materialDesign:Card>
 
             <materialDesign:Card Height="auto" Width="auto" Margin="16" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
@@ -80,7 +82,7 @@
                                 <Image  Grid.Column="1" Grid.Row="0"  Name="Peleta" Height="140" Width="140" />
                             </materialDesign:Card>
 
-                            <materialDesign:Card Width="auto" Height="150" DataContext="{Binding NgcrCarregado}" Margin="10" VerticalAlignment="Top">
+                            <materialDesign:Card Width="auto" Height="150" DataContext="{Binding InformacoesImagem}" Margin="10" VerticalAlignment="Top">
                                 <Grid Grid.Row="0" Grid.Column="0">
                                     <Grid.RowDefinitions >
                                         <RowDefinition Height="auto"/>

@@ -1,6 +1,6 @@
 ﻿
 
-namespace JacutemAAI2.WPF.Imagens.Enums
+namespace LibDeImagensGbaDs.Enums
 {
     public enum OBJShape
     {

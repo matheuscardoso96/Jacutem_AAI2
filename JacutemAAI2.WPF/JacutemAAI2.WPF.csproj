@@ -111,12 +111,8 @@
     <Compile Include="Ferramentas\Internas\Arquivos\EntradaAAIBin.cs" />
     <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
-    <Compile Include="Imagens\Btx.cs" />
-    <Compile Include="Imagens\ConversorDeImagens.cs" />
-    <Compile Include="Imagens\Enums\Bpp.cs" />
-    <Compile Include="Imagens\Enums\OBJMode.cs" />
-    <Compile Include="Imagens\Enums\OBJShape.cs" />
     <Compile Include="Imagens\GerenciadorConversaoImagens.cs" />
+    <Compile Include="Imagens\InfomacoesImagem.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
     <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
     <Compile Include="Imagens\MapaDeArquivos\MapaDeArquivos.cs" />
@@ -125,11 +121,6 @@
     <Compile Include="Imagens\MapaDeArquivos\SpritesModo2D.cs" />
     <Compile Include="Imagens\MapaDeArquivos\SpritesModoTile.cs" />
     <Compile Include="Imagens\MapaDeArquivos\Texturas.cs" />
-    <Compile Include="Imagens\Ncer.cs" />
-    <Compile Include="Imagens\Ncgr.cs" />
-    <Compile Include="Imagens\Nclr.cs" />
-    <Compile Include="Imagens\Nscr.cs" />
-    <Compile Include="Imagens\Oam.cs" />
     <Compile Include="ViewModel\BgViewModel.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
@@ -213,6 +204,10 @@
     <Resource Include="Resources\sigla_js_pb_WmG_icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FormatosNitro\FormatosNitro.csproj">
+      <Project>{f7bcf75b-acfa-42ce-b2aa-28a577a05ca5}</Project>
+      <Name>FormatosNitro</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LibDeImagensGbaDs\LibDeImagensGbaDs.csproj">
       <Project>{48030fa5-97c3-45c9-873d-269bd0d4ea4d}</Project>
       <Name>LibDeImagensGbaDs</Name>

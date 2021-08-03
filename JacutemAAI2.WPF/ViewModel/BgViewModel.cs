@@ -1,4 +1,5 @@
 ﻿using Jacutem_AAI2.Imagens;
+using FormatosNitro.Imagens;
 using JacutemAAI2.WPF.Ferramentas.Internas;
 using JacutemAAI2.WPF.Imagens.MapaDeArquivos;
 using Prism.Commands;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using JacutemAAI2.WPF.Imagens;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -21,7 +23,7 @@ namespace JacutemAAI2.WPF.ViewModel
         private Dictionary<string, string> _bGTileSemMapsDi;
         private BGTileSemMap _bGTileSemMap = new BGTileSemMap();
         private BGTileComMap _bGTileComMap = new BGTileComMap();
-        string _chaveSelecionada;
+        KeyValuePair<string, string> _chaveSelecionada;
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
         private bool _btnExportarEstaAtivo;
         private bool _btnImportarEstaAtivo;
@@ -32,6 +34,7 @@ namespace JacutemAAI2.WPF.ViewModel
         private bool _animacaoBotaoImportarEstaAtiva = false;
         private Ncgr _ngcrCarregado;
         private BitmapImage _imagemCarregada;
+        private InformacoesImagem _informacoesImagem;
 
 
         public BitmapImage ImagemCarregada
@@ -154,7 +157,7 @@ namespace JacutemAAI2.WPF.ViewModel
 
 
 
-        public string CaminhoImagem
+        public KeyValuePair<string,string> CaminhoImagem
         {
             get { return _chaveSelecionada; }
             set
@@ -172,6 +175,15 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 _ngcrCarregado = value;
                 NotifyPropertyChanged("NgcrCarregado");
+            }
+        }
+        public InformacoesImagem InformacoesImagem
+        {
+            get { return _informacoesImagem; }
+            set
+            {
+                _informacoesImagem = value;
+                NotifyPropertyChanged("InformacoesImagem");
             }
         }
 
@@ -192,12 +204,12 @@ namespace JacutemAAI2.WPF.ViewModel
             BGTileSemMapsDi = new Dictionary<string, string>();
             foreach (var item in _bGTileComMap.Lista)
             {
-                BGTileSemMapsDi.Add(item.Key, $"{item.Value},{_bGTileComMap.Tipo}");
+                BGTileSemMapsDi.Add(item.Key, item.Value);
             }
 
             foreach (var item in _bGTileSemMap.Lista)
             {
-                BGTileSemMapsDi.Add(item.Key, $"{item.Value},{_bGTileSemMap.Tipo}");
+                BGTileSemMapsDi.Add(item.Key,item.Value);
             }
 
 
@@ -213,10 +225,19 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void CarregarNcgr()
         {
-            string[] args = CaminhoImagem.Trim(' ').Replace("[","").Replace("]", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            Ncgr ncgr = await Task.Run(()=> new  Ncgr(string.Join(",",args,1, args.Length -2), args[args.Length - 1]));
-            NgcrCarregado = ncgr;
-            ImagemCarregada = BitmapToImageSource(ncgr.Imagem);  
+            string args = CaminhoImagem.Value;
+            NgcrCarregado = await Task.Run(() =>GerenciadorConversaoImagens.CarregarNcgr(args));
+            ImagemCarregada = BitmapToImageSource(NgcrCarregado.Imagens[0]);
+            InformacoesImagem = new InformacoesImagem
+            {
+                Altura = NgcrCarregado.Imagens[0].Height,
+                Largura = NgcrCarregado.Imagens[0].Width,
+                BppString = NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
+                QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
+            };
+
+
+
 
         }
 
@@ -318,5 +339,5 @@ namespace JacutemAAI2.WPF.ViewModel
         }
     }
 
-
+   
 }

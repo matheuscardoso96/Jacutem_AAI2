@@ -9,7 +9,7 @@ namespace FormatosNitro.Imagens
     {
         public Scrn Scrn { get; set; }
        
-        public Nscr(string dir, BinaryReader br) : base(br)
+        public Nscr(BinaryReader br) : base(br)
         {
             Scrn = new Scrn(br);
             br.Close();

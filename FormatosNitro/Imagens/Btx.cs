@@ -1,5 +1,4 @@
-﻿using JacutemAAI2.WPF.Imagens.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -131,7 +130,7 @@ namespace Jacutem_AAI2.Imagens
                         byte[] paleta = br.ReadBytes(0x200);
                       //  ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA3I5, EModoDimensional.M2D,null, true));
                        // textura.Textura = cdi.BinParaBmp(img,img.Length, 0);
-                        textura.Bpp = Bpp.bpp8;
+                        //textura.Bpp = Bpp.bpp8;
                     }
 
                     else  if (textura.Formato == 3)
@@ -166,7 +165,7 @@ namespace Jacutem_AAI2.Imagens
                         byte[] paleta = br.ReadBytes(0x200);
                       //  ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F8BBP, EModoDimensional.M2D));
                       //  textura.Textura = cdi.BinParaBmp(img, img.Length, 0);
-                        textura.Bpp = Bpp.bpp8;
+                       // textura.Bpp = Bpp.bpp8;
                     }
 
 
@@ -399,7 +398,7 @@ namespace Jacutem_AAI2.Imagens
         public int Altura { get; set; }
         public int Largura { get; set; }
         public int Formato { get; set; }
-        public Bpp Bpp { get; set; }
+      //  public Bpp Bpp { get; set; }
         public int PaleteId { get; set; }
         public string NomeTextura { get; set; }
         public Bitmap Textura { get; set; }

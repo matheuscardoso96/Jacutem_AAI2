@@ -1,6 +1,6 @@
 ﻿
 
-namespace LibDeImagensGbaDs.Sprites.Enums
+namespace LibDeImagensGbaDs.Enums
 {
     public enum OBJMode
     {

@@ -1,4 +1,4 @@
-﻿using LibDeImagensGbaDs.Sprites.Enums;
+﻿using LibDeImagensGbaDs.Enums;
 using System.Collections.Generic;
 using System.Drawing;
 
