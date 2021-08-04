@@ -3,27 +3,20 @@ using System.Collections;
 
 namespace LibDeImagensGbaDs.Formatos.Indexado
 {
-    public class F2BPP : IFormatoIndexado
+    public class F2BPP : IConversorDeProfundidadeDeCor
     {
         public const int Bpp = 2;
         public byte[] AlphaValues { get; set; }
-        public int Largura { get; set; }
-        public int Altura { get; set; }
         public byte[] Indices { get; set; }
-        public F2BPP(int largura, int altura)
-        {
-            Largura = largura;
-            Altura = altura;
-        }
 
-        public void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho, int enderecoInicial = 0)
+        public void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho, int largura, int altura, int enderecoInicial = 0)
         {
            // int totalBytes = ((Largura * Altura) * Bpp) / 8;
             byte[] rawIndexes = new byte[tamanho];
             Array.Copy(arquivo, enderecoInicial, rawIndexes, 0, tamanho);
 
             BitArray bitArray = new BitArray(rawIndexes);
-            byte[] final = new byte[Largura * Altura];
+            byte[] final = new byte[largura * altura];
             
             int contador = 0;
             for (int i = 0; i < bitArray.Length; i += 2) 

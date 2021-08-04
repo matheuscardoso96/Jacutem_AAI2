@@ -9,11 +9,24 @@ namespace FormatosNitro.Imagens
     {
         public Scrn Scrn { get; set; }
        
-        public Nscr(BinaryReader br) : base(br)
+        public Nscr(BinaryReader br, string diretorio) : base(br, diretorio)
         {
             Scrn = new Scrn(br);
             br.Close();
 
+        }
+
+        public void SalvarNscr() 
+        {
+            MemoryStream novoNscr = new MemoryStream();
+            using (BinaryWriter bw = new BinaryWriter(novoNscr))
+            {
+                base.EscreverPropiedades(bw);
+                Scrn.EscreverPropiedades(bw);
+               
+            }
+
+            File.WriteAllBytes(base.Diretorio, novoNscr.ToArray());
         }
     }
 
@@ -45,6 +58,20 @@ namespace FormatosNitro.Imagens
             
             
         }
-       
+
+        public void EscreverPropiedades(BinaryWriter bw)
+        {
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(Id.Length + InfoTela.Length * 2 + 16 );
+            bw.Write(Largura);
+            bw.Write(Altura);
+            bw.Write(Padding);
+            bw.Write(InfoTela.Length * 2);
+            foreach (var info in InfoTela)
+                bw.Write(info);
+                   
+           
+        }
+
     }
 }

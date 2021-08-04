@@ -12,19 +12,20 @@ namespace FormatosNitro.Imagens
 {
     public class Ncgr : NitroBase
     {
-        public Char Char { get; set; }
-        public Cpos Cpos { get; set; }
-        public Ncer ArquivoNcer { get; set; }
-        public Nscr ArquivoNscr { get; set; }
-        public Nclr ArquivoNclr { get; set; }
-        public string DirNcgr { get; set; }
-        public List<Bitmap> Imagens { get; set; }
-        public string LocalParaExportacao { get; set; }
+        public Char Char { get; private set; }
+        public Cpos Cpos { get; private set; }
+        public Ncer ArquivoNcer { get; private set; }
+        public Nscr ArquivoNscr { get; private set; }
+        public Nclr ArquivoNclr { get; private set; }
+        public List<Bitmap> Imagens { get; private set; }
 
         public delegate void Importar(string dirImg);
-        public Importar TipoDeimportacao { get; set; }
+        public delegate void Salvar(string dir, bool paletaFoiModificada);
+        public delegate void Exportar(string dir);
+        public Importar ImportarNgcr { get; set; }
+        public Exportar ExportarImagem { get; set; }
 
-        public Ncgr(BinaryReader br, Nclr nclr) : base(br)
+        public Ncgr(BinaryReader br, Nclr nclr,string diretorio) : base(br, diretorio)
         {
             ArquivoNclr = nclr;
             Char = new Char(br);
@@ -32,11 +33,13 @@ namespace FormatosNitro.Imagens
                 Cpos = new Cpos(br);
             br.Close();
             CarregarImagens();
+            ImportarNgcr = new Importar(ImportaNCGR);
+            ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
 
 
         }
 
-        public Ncgr(BinaryReader br,Nclr nclr, Nscr nscr) :base(br)
+        public Ncgr(BinaryReader br,Nclr nclr, Nscr nscr, string diretorio) : base(br, diretorio)
         {
             ArquivoNscr = nscr;
             ArquivoNclr = nclr;
@@ -45,9 +48,11 @@ namespace FormatosNitro.Imagens
                 Cpos = new Cpos(br);        
             br.Close();
             CarregarImagemNCGRComNSCR();
+            ImportarNgcr = new Importar(ImportaNCGRComNscr);
+            ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
         }
 
-        public Ncgr(BinaryReader br, Nclr nclr, Ncer ncer) :base(br)
+        public Ncgr(BinaryReader br, Nclr nclr, Ncer ncer, string diretorio) : base(br, diretorio)
         {
             ArquivoNcer = ncer;
             ArquivoNclr = nclr;
@@ -57,198 +62,113 @@ namespace FormatosNitro.Imagens
             br.Close();
         }
 
-        public void Exportar() 
+        public void ExportarNcgrComOuSemNscr(string dir) 
         {
-            if (!Directory.Exists(LocalParaExportacao))
-                Directory.CreateDirectory(LocalParaExportacao);
-
-           // Imagem.Save($"{LocalParaExportacao}\\{Path.GetFileName(DirNcgr).Replace("ncgr","png")}" );
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+           Imagens.First().Save($"{dir}{Path.GetFileName(Diretorio).Replace("ncgr","png")}");
         }
 
         private void CarregarImagens()
         {
             
-            EIndexFormat eIndexFormat = Char.IntensidadeDeBits == 3 ? EIndexFormat.F4BBP : EIndexFormat.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, Char.QuatidadeDeTilesY * 8, Char.QuatidadeDeTilesX * 8, eIndexFormat, EModoDimensional.M1D));                    
+            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
+                ArquivoNclr.Pltt.Paleta, 
+                EFormatoPaleta.NintendoDS, 
+                Char.QuatidadeDeTilesY * 8, 
+                Char.QuatidadeDeTilesX * 8, 
+                eIndexFormat, EModoDimensional.M1D));                    
             Imagens = new List<Bitmap>() { cdi.BinParaBmp(Char.Tiles, Char.Tiles.Length, 0) };
-            Importar tipoDeimportacao = new Importar(ImportaNCGR);
+            
 
         }
 
         private void CarregarImagemNCGRComNSCR()
         {
-            EIndexFormat eIndexFormat = Char.IntensidadeDeBits == 3 ? EIndexFormat.F4BBP : EIndexFormat.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, ArquivoNscr.Scrn.Altura, ArquivoNscr.Scrn.Largura, eIndexFormat, EModoDimensional.M1D , ArquivoNscr.Scrn.InfoTela.ToList(), true));
+            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
+                ArquivoNclr.Pltt.Paleta, 
+                EFormatoPaleta.NintendoDS, 
+                ArquivoNscr.Scrn.Altura,
+                ArquivoNscr.Scrn.Largura, 
+                eIndexFormat, EModoDimensional.M1D ,
+                ArquivoNscr.Scrn.InfoTela.ToList()
+                ));
+            
             Imagens = new List<Bitmap>() { cdi.BinParaBmp(Char.Tiles, Char.Tiles.Length, 0) };
-            Importar tipoDeimportacao = new Importar(ImportaNCGRComNscr);
+           
 
         }
 
-        public void ExportarNCGRSprite1D(string dirNclr, string dirNcer, string dirSalvamento, bool fundoTransparente)
-        {
-          //  ArquivoNcer = new Ncer(dirNcer);
 
-           
-
-            if (!Directory.Exists(dirSalvamento))
-            {
-                Directory.CreateDirectory(dirSalvamento);
-            }
-
-            
-
-           //// ConversorDeImagens cv = new ConversorDeImagens();
-           // cv.Imagem = ImagemEmBytes;
-           
-
-           // foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
-           // {
-                
-           //     if (item.TabelaDeOams.Count > 0)
-           //     {
-           //         cv.ExporteSprite1D(item.TabelaDeOams, fundoTransparente);
-           //     }
-
-                
-                          
-           // }
-
-           
-
-            
-        }
-
-        public void ExportarNCGRSprite2D(string dirNclr, string dirNcer, string dirSalvamento, bool fundoTransparente)
-        {
-
-          //  Ncer ncer = new Ncer(dirNcer);
-
-          //  ArquivoNcer = new Ncer(dirNcer);
-
-            if (!Directory.Exists(dirSalvamento))
-            {
-                Directory.CreateDirectory(dirSalvamento);
-            }
-
-            //ConversorDeImagens cv = new ConversorDeImagens();
-            //cv.Imagem = ImagemEmBytes;
-
-
-            //foreach (var item in ArquivoNcer.GrupoDeTabelasOam)
-            //{
-            //    if (item.TabelaDeOams.Count > 0)
-            //    {
-            //        cv.ExporteSprite2D(item.TabelaDeOams, fundoTransparente);
-            //    }
-                             
-            //}
-
-        }
 
 
         public void ImportaNCGR(string dirImg)
         {
 
-           // ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.BGR565, Altura, Largura, Bpp, EModoDimensional.M1D));
-          //  QuatidadeCores = ArquivoNclr.Pltt.Paleta.Length / 2;
-           // cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
+            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.NintendoDS, Char.QuatidadeDeTilesY * 8, Char.QuatidadeDeTilesX * 8, eIndexFormat, EModoDimensional.M1D));
+            byte[] imagem = (byte[])cdi.BmpParaBin(new Bitmap(dirImg))[0];
+            Char.Tiles = imagem;
+            CarregarImagens();
         }
 
         public void ImportaNCGRComNscr(string dirImg)
         {
+            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
+            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
+                ArquivoNclr.Pltt.Paleta,
+                EFormatoPaleta.NintendoDS,
+                ArquivoNscr.Scrn.Altura,
+                ArquivoNscr.Scrn.Largura,
+                eIndexFormat, EModoDimensional.M1D,
+                ArquivoNscr.Scrn.InfoTela.ToList()
+                ));
 
+            byte[] imagem = (byte[])cdi.BmpParaBin(new Bitmap(dirImg))[0];
+            Char.Tiles = imagem;
+            CarregarImagens();
 
-            //ConversorDeImagens cv = new ConversorDeImagens();
-            //cv.CoresPaleta = ArquivoNclr.Paletas[0];
-
-            //if (Bpp == EIndexFormat.F4BBP)
-            //{
-            //    List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
-            //    InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
-
-            //}
-            //else
-            //{
-            //    List<byte[]> imgEhTilemap = cv.Converta8bppNcgrTileMap(dirImg);
-            //    InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);
-            //}
         }
 
-        //public void ImportaNCGRSprites(string dirImg, string dirNclr, List<Oam> oams)
-        //{
+      
 
-        //    // Ncgr ncgr = new Ncgr(dirNcgr);
-        //   // Nclr nclr = new Nclr(dirNclr);
-        //   // ArquivoNcer = new Ncer(dirNcer);
-        //  //  // ncer.Oams = ncer.Oams.Take(ncer.Oams.Count - menosElementos).ToList();            
-        //  //  ConversorDeImagens cv = new ConversorDeImagens();
-        //  //  cv.Imagem = ImagemEmBytes;
-        //  ////  cv.Paleta = nclr.PaletaEmBytes;            
-        //  //  InsiranoNcgr(cv.InsiraSpriteNgcr(dirImg, oams));
-
-        //}
-
-        //public void ImportaNCGRSpritesModo2(string dirImg, string dirNclr, List<Oam> oams)
-        //{
-
-        //    // Ncgr ncgr = new Ncgr(dirNcgr);
-        // //   Nclr nclr = new Nclr(dirNclr);
-        //    // ArquivoNcer = new Ncer(dirNcer);
-        //    // ncer.Oams = ncer.Oams.Take(ncer.Oams.Count - menosElementos).ToList();            
-        // //   ConversorDeImagens cv = new ConversorDeImagens();
-        // //   cv.Imagem = ImagemEmBytes;
-        // ////   cv.Paleta = nclr.PaletaEmBytes;
-        // //   InsiranoNcgr(cv.InsiraSpriteNgcrModo2(dirImg, oams));
-
-        //}
-
-        private void InsiranoNcgr(byte[] imgConv)
+        public void SalvarNCGR(bool paletaFoiModificada) 
         {
-            byte[] imgOg = File.ReadAllBytes(DirNcgr);
-            MemoryStream ms = new MemoryStream(imgOg);
-            using (BinaryWriter bw = new BinaryWriter(ms))
+            MemoryStream novoNgcr = new MemoryStream();
+            using (BinaryWriter bw = new BinaryWriter(novoNgcr))
             {
-                bw.BaseStream.Position = 0x30;
-                bw.Write(imgConv);
-                imgOg = ms.ToArray();
+                base.EscreverPropiedades(bw);
+                Char.EscreverPropiedades(bw);
+                if (Cpos != null)
+                {
+                    Cpos.EscreverPropiedades(bw);
+                }
+                
             }
 
-            File.WriteAllBytes(DirNcgr, imgOg);
-        }
+            File.WriteAllBytes(base.Diretorio, novoNgcr.ToArray());
 
-        private void InsiranoNcgrEhNcsr(List<byte[]> imgEhTilemap, string dirNcsr)
-        {
-            byte[] imgOg = File.ReadAllBytes(DirNcgr);
-            MemoryStream ms = new MemoryStream(imgOg);
-            GerarNovoNgcrParaOamAdicionado(DirNcgr, imgEhTilemap[1]);
-          
-
-            MemoryStream nscr = new MemoryStream(File.ReadAllBytes(dirNcsr));
-
-            using (BinaryWriter bw = new BinaryWriter(nscr))
+            if (paletaFoiModificada)
             {
-                bw.BaseStream.Position = 0x24;
-                bw.Write(imgEhTilemap[0]);
-                File.WriteAllBytes(dirNcsr, nscr.ToArray());
-               
+                ArquivoNclr.SalvarNclr();
             }
 
-            
+            if (ArquivoNscr != null)
+            {
+                ArquivoNscr.SalvarNscr();
+            }
+
+            if (ArquivoNcer != null)
+            {
+                ArquivoNcer.SalvarNcer();
+            }
+
         }
 
-        public void GerarNovoNgcrParaOamAdicionado(string dirSalvar, byte[] bytesSalvar)
-        {
-            byte[] novoNcgr = new byte[bytesSalvar.Length + 0x30];
-           // Array.Copy(Cabecalho, novoNcgr,Cabecalho.Length);
-            Array.Copy(bytesSalvar,0, novoNcgr, 0x30,bytesSalvar.Length);
-            BitArray myBA = new BitArray(BitConverter.GetBytes((int)bytesSalvar.Length));
-            myBA.CopyTo(novoNcgr, 0x28);
-            myBA = new BitArray(BitConverter.GetBytes((int)bytesSalvar.Length + 0x20));
-            myBA.CopyTo(novoNcgr, 0x14);
-            myBA = new BitArray(BitConverter.GetBytes((int)bytesSalvar.Length + 0x30));
-            myBA.CopyTo(novoNcgr, 0x8);
-            File.WriteAllBytes(dirSalvar, novoNcgr);
-        }
+      
+
     }
 
     public class Char 
@@ -261,7 +181,7 @@ namespace FormatosNitro.Imagens
         public ushort Desconhecido0 { get; set; }
         public ushort Desconhecido1 { get; set; }
         public uint FlagDeDimensao { get; set; }
-        public uint TamanhoTiles { get; set; }
+        public uint TamanhoTilesEmBytes { get; set; }
         public uint Desconhecido2 { get; set; }
         public byte[] Tiles { get; set; }
 
@@ -275,10 +195,25 @@ namespace FormatosNitro.Imagens
             Desconhecido0 = br.ReadUInt16();
             Desconhecido1 = br.ReadUInt16();
             FlagDeDimensao = br.ReadUInt32();
-            TamanhoTiles = br.ReadUInt32();
+            TamanhoTilesEmBytes = br.ReadUInt32();
             Desconhecido2 = br.ReadUInt32();
-            Tiles = br.ReadBytes((int)TamanhoTiles);
+            Tiles = br.ReadBytes((int)TamanhoTilesEmBytes);
 
+        }
+
+        public void EscreverPropiedades(BinaryWriter bw)
+        {
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(32 + TamanhoTilesEmBytes);
+            bw.Write(QuatidadeDeTilesY);
+            bw.Write(QuatidadeDeTilesX);
+            bw.Write(IntensidadeDeBits);
+            bw.Write(Desconhecido0);
+            bw.Write(Desconhecido1);
+            bw.Write(FlagDeDimensao);
+            bw.Write(TamanhoTilesEmBytes);
+            bw.Write(Desconhecido2);
+            bw.Write(Tiles);
         }
 
     }
@@ -300,5 +235,14 @@ namespace FormatosNitro.Imagens
             QuatidadeDeTiles = br.ReadUInt16();
         }
 
+        public void EscreverPropiedades(BinaryWriter bw)
+        {
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(TamanhoCpos);
+            bw.Write(Padding);
+            bw.Write(TamanhoDeTile);
+            bw.Write(QuatidadeDeTiles);
+           
+        }
     }
 }

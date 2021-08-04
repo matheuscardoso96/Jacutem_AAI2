@@ -2,6 +2,7 @@
 {
     public enum EFormatoPaleta : int
     {
-        BGR565
+        NintendoDS,
+        GBA
     }
 }

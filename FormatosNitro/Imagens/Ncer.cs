@@ -12,7 +12,7 @@ namespace FormatosNitro.Imagens
         Labl Labl { get; set; }
         public Uext Uext { get; set; }
 
-        public Ncer(BinaryReader br) : base(br)
+        public Ncer(BinaryReader br, string diretorio) : base(br, diretorio)
         {
             Cebk = new Cebk(br);
             if (base.QuantidadeDeSecoes > 1)
@@ -49,6 +49,23 @@ namespace FormatosNitro.Imagens
 
             return 0;
         }
+
+        public void SalvarNcer()
+        {
+            MemoryStream novoNcer = new MemoryStream();
+            using (BinaryWriter bw = new BinaryWriter(novoNcer))
+            {
+                base.EscreverPropiedades(bw);
+                Cebk.EscreverPropiedades(bw);
+                Labl.EscreverPropiedades(bw);
+                Uext.EscreverPropiedades(bw);
+
+            }
+
+
+
+            File.WriteAllBytes(base.Diretorio, novoNcer.ToArray());
+        }
     }
 
     public class Cebk 
@@ -57,9 +74,9 @@ namespace FormatosNitro.Imagens
         public uint TamanhoCebk { get; set; }
         public ushort QuatidadeEntradasDeBeks{ get; set; }
         public ushort TamanhoEntradaBek{ get; set; }
-        public uint EnderecoBenks { get; set; }
+        public uint EnderecoBeks { get; set; }
         public uint LimiteAreaBek { get; set; }
-        public uint EnderecoDeParitcaoDeDados { get; set; }
+        public uint EnderecoDeParticaoDeDados { get; set; }
         public ulong Padding { get; set; }
 
         public List<Ebk> Ebks { get; set; }
@@ -71,11 +88,11 @@ namespace FormatosNitro.Imagens
             TamanhoCebk = br.ReadUInt32();
             QuatidadeEntradasDeBeks = br.ReadUInt16();
             TamanhoEntradaBek = br.ReadUInt16();
-            EnderecoBenks = br.ReadUInt32();
+            EnderecoBeks = br.ReadUInt32();
             LimiteAreaBek = br.ReadUInt32();
-            EnderecoDeParitcaoDeDados = br.ReadUInt32();
+            EnderecoDeParticaoDeDados = br.ReadUInt32();
             Padding = br.ReadUInt64();
-            br.BaseStream.Position = EnderecoBenks + 8 + 16; //16 tamanho do cabeçalho + 8 padding
+            br.BaseStream.Position = EnderecoBeks + 8 + 16; //16 tamanho do cabeçalho + 8 padding
             LerEbks(br);
             
 
@@ -118,6 +135,45 @@ namespace FormatosNitro.Imagens
 
         }
 
+        public void EscreverPropiedades(BinaryWriter bw)
+        {
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(TamanhoCebk);
+            bw.Write(QuatidadeEntradasDeBeks);
+            bw.Write(TamanhoEntradaBek);
+            bw.Write(EnderecoBeks);
+            bw.Write(LimiteAreaBek);
+            bw.Write(EnderecoDeParticaoDeDados);
+            bw.Write(Padding);
+            foreach (var ebk in Ebks)
+            {
+               bw.Write(ebk.QuantidadeDeCelulas);
+                bw.Write(ebk.InfoSomenteLeituraCelula);
+                bw.Write(ebk.EnderecoCelula);
+                bw.Write(ebk.TamanhoParticao);
+
+                if (TamanhoEntradaBek == 1)
+                {
+                    bw.Write(ebk.LarguraMaxima);
+                    bw.Write(ebk.AlturaMaxima);
+                    bw.Write(ebk.LarguraMinima);
+                    bw.Write(ebk.AlturaMinima);
+                }
+               
+            }
+
+            foreach (var ebk in Ebks)
+            {
+                foreach (var item in ebk.Oams)
+                {
+                    bw.Write(item._atributosOBJ0);
+                    bw.Write(item._atributosOBJ1);
+                    bw.Write(item._atributosOBJ2);
+                }
+
+            }
+
+        }
     }
 
     public class Ebk 
@@ -180,6 +236,11 @@ namespace FormatosNitro.Imagens
             }
 
         }
+
+        public void EscreverPropiedades(BinaryWriter bw)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Uext 
@@ -192,6 +253,11 @@ namespace FormatosNitro.Imagens
             Id = Encoding.ASCII.GetString(br.ReadBytes(4));
             TamanhoUext = br.ReadUInt32();
             Padding = br.ReadUInt32();
+        }
+
+        internal void EscreverPropiedades(BinaryWriter bw)
+        {
+            throw new NotImplementedException();
         }
     }
 

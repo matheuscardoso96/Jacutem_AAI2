@@ -66,17 +66,11 @@ namespace LibDeImagensGbaDs.Sprites
         private void ObtenhaAtribuosObj0(ushort atb0)
         {
             Y = (uint)(atb0 & 0XFF);
-           // Y += 128;
 
               if (Y >= 128)
                 Y -= 128;
               else
                  Y += 128;
-
-          //  if (Y >= 256)
-           // {
-             //   Y = Y - 256;
-            //}
 
             atb0 = (ushort)(atb0 >> 8);
             RotateOrScaling = ((atb0 & 1) == 0) ? false : true;
@@ -102,12 +96,7 @@ namespace LibDeImagensGbaDs.Sprites
         private void ObtenhaAtribuosObj1(ushort atb1)
         {
             X = (uint)(atb1 & 0X1FF);
-           // X += 256;
 
-         //   if (X >= 512)
-          // {
-            //    X = X - 512;
-            //}
             if (X >= 256)
             {
                 X -= 256;

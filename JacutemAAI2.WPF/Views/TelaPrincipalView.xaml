@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JacutemAAI2.WPF.Views"
         mc:Ignorable="d"
-        Title="Jacutem AAI2 Edição WPF" Height="720" Width="1280"
+        Title="Jacutem AAI2 Edição WPF" Height="768" Width="1366"
         xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"

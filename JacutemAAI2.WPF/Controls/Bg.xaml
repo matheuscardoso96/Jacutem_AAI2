@@ -5,13 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="1200">
+             d:DesignHeight="720" d:DesignWidth="1280">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">BG</Label>
+        
 
         <Grid Grid.Row="1" Height="auto">
             <Grid.RowDefinitions>
@@ -24,8 +24,9 @@
             </Grid.ColumnDefinitions>
 
             <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
+            <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontSize="20">BG</Label>
 
-            <materialDesign:Card Height="auto" Width="240" Grid.Row="1" Grid.Column="0" Margin="16" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="5,16,10,0" HorizontalAlignment="Center" >
 
 
                 <ListView ItemsSource="{Binding BGTileSemMapsDi}" SelectedItem="{Binding CaminhoImagem}">
@@ -40,12 +41,52 @@
 
             </materialDesign:Card>
 
-            <materialDesign:Card Height="auto" Width="auto" Margin="16" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
+            <materialDesign:Card Height="auto" Width="auto" Margin="0,16,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="auto" Height="150" DataContext="{Binding InformacoesImagem}"  VerticalAlignment="Top">
+                        <Grid Grid.Row="0" Grid.Column="0">
+                            <Grid.RowDefinitions >
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+
+
+                            <Border HorizontalAlignment="Stretch" Background="Gray" Height="auto" Width="auto" Padding="0,0,0,0" Grid.Row="0"/>
+                            <materialDesign:PackIcon Kind="FileImageOutline"  Grid.Row="0" Margin="2,4,0,0"/>
+                            <Label HorizontalAlignment="Center" Foreground="Black" Grid.Row="0" Margin="15,0,0,0">
+                                Propriedades da imagem
+                            </Label>
+
+                            <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Foreground="Black" Grid.Row="1">Largura</Label>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="1" Text="{Binding Largura}"/>
+                            <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Black" Grid.Row="2">Altura</Label>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="2"  Text="{Binding Altura}"/>
+                            <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="3">Intensidade de bits</Label>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="3" Text="{Binding BppString}"/>
+                            <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="4">Id da paleta</Label>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="4">0</TextBlock>
+                            <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="5">Quantidade de cores</Label>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="5" Text="{Binding QuatidadeCores}"/>
+                        </Grid>
+                    </materialDesign:Card>
+
                     <StackPanel>
                         <StackPanel.Background>
                             <SolidColorBrush Color="LimeGreen"/>
@@ -54,10 +95,10 @@
                             <Image.ContextMenu>
                                 <ContextMenu>
 
-                                    <MenuItem  Name="mnuItem1" Header="Exportar" Command="{Binding MyCommand[SalvarImagemCarregada]}" CommandParameter="ParameterValue" />
+                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding MyCommand[ExportarImagemCarregada]}" CommandParameter="ParameterValue"/>
 
                                     <MenuItem Header="Importar">
-                                        <MenuItem  Header="Conservando paleta"></MenuItem>
+                                        <MenuItem Command="{Binding MyCommand[ImportarSelecionado]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
                                         <MenuItem  Header="Gerando nova paleta"></MenuItem>
                                     </MenuItem>
                                 </ContextMenu>
@@ -67,56 +108,50 @@
 
 
                     
-                    <StackPanel Width="832" Height="360" Grid.Row="1">
+                    <StackPanel Width="832" Height="200" Grid.Row="1">
+                        
                         <Grid>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="360"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <materialDesign:Card HorizontalAlignment="Right" Margin="10" Grid.Column="1" Grid.Row="0" Width="140" Height="140" VerticalAlignment="Top">
-                                <Image  Grid.Column="1" Grid.Row="0"  Name="Peleta" Height="140" Width="140" />
-                            </materialDesign:Card>
 
-                            <materialDesign:Card Width="auto" Height="150" DataContext="{Binding InformacoesImagem}" Margin="10" VerticalAlignment="Top">
-                                <Grid Grid.Row="0" Grid.Column="0">
-                                    <Grid.RowDefinitions >
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                            <Grid Grid.Row="0" Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                    <StackPanel>
+
+
+                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnSalvarEstaAtivo}"  Command="{Binding MyCommand[SalvarImagemCarregada]}" CommandParameter="ParameterValue">
+                                    Salvar
+                                </Button>
+
+                                <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnCancelarEstaAtivo}"  Command="{Binding MyCommand[CancelarSalvamento]}" CommandParameter="ParameterValue">
+                                    Cancelar
+                                </Button>
+                                <materialDesign:Card Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
+                                    <DockPanel>
                                         
-                                    </StackPanel>
-                                    <Border HorizontalAlignment="Stretch" Background="Gray" Height="auto" Width="auto" Padding="0,0,0,0" Grid.Row="0"/>
-                                    <materialDesign:PackIcon Kind="FileImageOutline"  Grid.Row="0" Margin="2,4,0,0"/>
-                                    <Label HorizontalAlignment="Center" Foreground="Black" Grid.Row="0" Margin="15,0,0,0">
-                                        Propriedades da imagem
-                                    </Label>
+                                    </DockPanel>
+                                </materialDesign:Card>
+                                
+                            </Grid>
+                            
+                            
 
-                                    <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Foreground="Black" Grid.Row="1">Largura</Label>
-                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="1" Text="{Binding Largura}"/>
-                                    <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Black" Grid.Row="2">Altura</Label>
-                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="2"  Text="{Binding Altura}"/>
-                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="3">Intensidade de bits</Label>
-                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="3" Text="{Binding BppString}"/>
-                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="4">Id da paleta</Label>
-                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="4">0</TextBlock>
-                                    <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="5">Quantidade de cores</Label>
-                                    <TextBlock HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="5" Text="{Binding QuatidadeCores}"/>
-                                </Grid>
-                            </materialDesign:Card>
+                           
+
+                            
                           
 
                         </Grid>

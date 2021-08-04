@@ -37,7 +37,7 @@ namespace LibDeImagensGbaDs.Util
         }
 
 
-        public static Color[] ObtenhaCoresDeImagem(Bitmap processedBitmap)
+        public static Color[] ObtenhaCoresDeImagem(Bitmap processedBitmap, bool temAplha = false)
         {
             Color[] cores = new Color[processedBitmap.Width * processedBitmap.Height];
             
@@ -55,14 +55,17 @@ namespace LibDeImagensGbaDs.Util
                     byte* currentLine = ptrFirstPixel + (y * bitmapData.Stride);
                     for (int x = 0; x < widthInBytes; x += bytesPerPixel)
                     {
-                        if (bytesPerPixel == 4)
+
+                        if (temAplha)
                         {
                             cores[contadorIndices] = Color.FromArgb(currentLine[x + 3], currentLine[x + 2], currentLine[x + 1], currentLine[x]);
                         }
-                        else if (bytesPerPixel == 3)
+                        else
                         {
                             cores[contadorIndices] = Color.FromArgb(currentLine[x + 2], currentLine[x + 1], currentLine[x]);
                         }
+                            
+                       
                         
                         
                         contadorIndices++;

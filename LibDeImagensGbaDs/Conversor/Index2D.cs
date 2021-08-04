@@ -5,10 +5,11 @@ using System.Drawing.Imaging;
 using LibDeImagensGbaDs.Formatos.Indexado;
 using System;
 using System.Collections.Generic;
+using LibDeImagensGbaDs.Sprites;
 
 namespace LibDeImagensGbaDs.Conversor
 {
-    public class Index2D : IConversorIndex
+    public class Index2D
     {
         public int Largura { get; set; }
         public int Altura { get; set; }
@@ -18,7 +19,12 @@ namespace LibDeImagensGbaDs.Conversor
             Altura = altura;
         }
 
-        public Bitmap ConvertaIndexado(IFormatoIndexado formatoIndexado, IPaleta paleta)
+        public Index2D(List<Oam> valoresOam)
+        {
+
+        }
+
+        public Bitmap ConvertaIndexado(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta)
         {
             Bitmap final = new Bitmap(Largura, Altura, PixelFormat.Format32bppArgb);
             byte[] valoresAlpha = null;
@@ -33,18 +39,15 @@ namespace LibDeImagensGbaDs.Conversor
 
         }
 
-        public List<object> GerarIndeces(IFormatoIndexado formatoIndexado, IPaleta paleta, Bitmap imagem)
+        public List<object> GerarIndeces(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta, Bitmap imagem)
         {
-            imagem = ManipuladorDeImagem.MudarPixelFormatPra32Bpp(imagem);
-
             List<byte> indices = new List<byte>();
             Color[] cores = ManipuladorDeImagem.ObtenhaCoresDeImagem(imagem);
 
             foreach (var cor in cores)
                 indices.Add(paleta.ObtenhaIndexCorMaisProxima(cor));
 
-            List<object> final = new List<object>() { formatoIndexado.GereIndices(indices.ToArray()) };
-         
+            List<object> final = new List<object>() { formatoIndexado.GereIndices(indices.ToArray()) };         
             return final;
         }
     }

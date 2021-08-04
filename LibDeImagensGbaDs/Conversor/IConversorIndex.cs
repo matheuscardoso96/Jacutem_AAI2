@@ -7,7 +7,7 @@ namespace LibDeImagensGbaDs.Conversor
 {
     public interface IConversorIndex
     {
-        Bitmap ConvertaIndexado(IFormatoIndexado formatoIndexado, IPaleta paleta);
-        List<object> GerarIndeces(IFormatoIndexado formatoIndexado, IPaleta paleta, Bitmap imagem);
+        Bitmap ConvertaIndexado(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta);
+        List<object> GerarIndeces(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta, Bitmap imagem);
     }
 }

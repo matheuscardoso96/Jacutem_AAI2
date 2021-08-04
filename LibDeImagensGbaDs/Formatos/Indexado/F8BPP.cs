@@ -2,28 +2,22 @@
 
 namespace LibDeImagensGbaDs.Formatos.Indexado
 {
-    public class F8BPP: IFormatoIndexado
+    public class F8BPP: IConversorDeProfundidadeDeCor
     {
         public const int Bpp = 8;
         public byte[] Indices { get; set; }
         public byte[] AlphaValues { get; set; }
-        public int Largura { get; set; }
-        public int Altura { get; set; }
-        public F8BPP(int largura, int altura)
+
+        public void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho, int largura, int altura, int enderecoInicial = 0)
         {
-            Largura = largura;
-            Altura = altura;
-        }
-        public void ObtenhaIndicesPorPixel(byte[] arquivo, int tamanho,  int enderecoInicial = 0)
-        {
-            byte[] rawIndexes = new byte[tamanho];
+            byte[] rawIndexes = new byte[largura * altura];
             Array.Copy(arquivo, enderecoInicial, rawIndexes, 0, tamanho);
             Indices = rawIndexes;
         }
 
         public byte[] GereIndices(byte[] indices)
         {
-            throw new NotImplementedException();
+            return indices;
         }
     }
 }

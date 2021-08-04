@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using JacutemAAI2.WPF.Imagens;
+using Microsoft.Win32;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -25,6 +26,8 @@ namespace JacutemAAI2.WPF.ViewModel
         private BGTileComMap _bGTileComMap = new BGTileComMap();
         KeyValuePair<string, string> _chaveSelecionada;
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
+        private bool _btnSalvarEstaAtivo = false;
+        private bool _btnCancelarEstaAtivo = false;
         private bool _btnExportarEstaAtivo;
         private bool _btnImportarEstaAtivo;
         private bool _btnExportarTodosEstaAtivo = false;
@@ -35,7 +38,33 @@ namespace JacutemAAI2.WPF.ViewModel
         private Ncgr _ngcrCarregado;
         private BitmapImage _imagemCarregada;
         private InformacoesImagem _informacoesImagem;
+        private bool paletaFoiAlterada = false;
 
+        public bool BtnSalvarEstaAtivo
+        {
+            get
+            {
+                return _btnSalvarEstaAtivo;
+            }
+            set
+            {
+                _btnSalvarEstaAtivo = value;
+                NotifyPropertyChanged("BtnSalvarEstaAtivo");
+            }
+        }
+
+        public bool BtnCancelarEstaAtivo
+        {
+            get
+            {
+                return _btnCancelarEstaAtivo;
+            }
+            set
+            {
+                _btnCancelarEstaAtivo = value;
+                NotifyPropertyChanged("BtnCancelarEstaAtivo");
+            }
+        }
 
         public BitmapImage ImagemCarregada
         {
@@ -175,6 +204,8 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 _ngcrCarregado = value;
                 NotifyPropertyChanged("NgcrCarregado");
+                BtnImportarEstaAtivo = true;
+                BtnExportarEstaAtivo = true;
             }
         }
         public InformacoesImagem InformacoesImagem
@@ -193,10 +224,10 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             MyCommand = new Dictionary<string, DelegateCommand>()
             {
-                ["SalvarImagemCarregada"] = new DelegateCommand(SalvarImagemCarregada)//.ObservesCanExecute(() => BtnExportarEstaAtivo),
-              //  ["ExportarTodos"] = new DelegateCommand(ExportarTodos).ObservesCanExecute(() => BtnExportarTodosEstaAtivo),
-              //  ["ImportarSelecionado"] = new DelegateCommand(ImportarSelecionado).ObservesCanExecute(() => BtnImportarEstaAtivo),
-               // ["ImportarTodos"] = new DelegateCommand(ImportarTodos).ObservesCanExecute(() => BtnImportarTodosEstaAtivo)
+                ["SalvarImagemCarregada"] = new DelegateCommand(SalvarImagemCarregada).ObservesCanExecute(() => BtnSalvarEstaAtivo),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["CancelarSalvamento"] = new DelegateCommand(CancelarSalvamento).ObservesCanExecute(() => BtnCancelarEstaAtivo),
+                ["ImportarSelecionado"] = new DelegateCommand(ImportarSelecionado).ObservesCanExecute(() => BtnImportarEstaAtivo),
+                ["ExportarImagemCarregada"] = new DelegateCommand(ExportarImagemCarregada).ObservesCanExecute(() => BtnExportarEstaAtivo)
 
             };
 
@@ -236,15 +267,34 @@ namespace JacutemAAI2.WPF.ViewModel
                 QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
             };
 
-
+            
 
 
         }
 
-        public void SalvarImagemCarregada() 
+        public async void ExportarImagemCarregada()
         {
-            NgcrCarregado.Exportar();
+            string args = CaminhoImagem.Value;
+            NgcrCarregado.ExportarImagem.Invoke(CaminhoImagem.Value.Split(',').ToList().Last());
+            ImagemCarregada = BitmapToImageSource(NgcrCarregado.Imagens[0]);           
+
+        }
+
+        public async void SalvarImagemCarregada() 
+        {
+            await Task.Run(() => GerenciadorConversaoImagens.SalvarNcgr(NgcrCarregado, paletaFoiAlterada));
+            BtnCancelarEstaAtivo = false;
+            BtnSalvarEstaAtivo = false;
+            BtnImportarEstaAtivo = true;
+            BtnExportarEstaAtivo = true;
             MessageBox.Show("Imagem salva na pasta imagens.");
+        }
+
+        public void CancelarSalvamento()
+        {
+            BtnCancelarEstaAtivo = false;
+            BtnSalvarEstaAtivo = false;
+            CarregarNcgr();
         }
 
         BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -277,12 +327,32 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void ImportarSelecionado()
         {
-            AnimacaoBotaoImportarEstaAtiva = true;
-            DesativarComponentes();
-          //  await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
-            AtivarComponentes();
-            AnimacaoBotaoImportarEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
+            //  AnimacaoBotaoImportarEstaAtiva = true;
+            // DesativarComponentes();
+            //  await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
+            OpenFileDialog dlg = new OpenFileDialog();
+           // Default file name
+           dlg.DefaultExt = ".png"; // Default file extension
+            dlg.Filter = "Imagens (.png)|*.png"; // Filter files by extension
+
+            // Show open file dialog box
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Process open file dialog box results
+            if (result == true)
+            {
+                // Open document
+                NgcrCarregado.ImportarNgcr.Invoke(dlg.FileName);
+                ImagemCarregada = BitmapToImageSource(NgcrCarregado.Imagens[0]);
+                BtnImportarEstaAtivo = false;
+                BtnExportarEstaAtivo = false;
+                BtnCancelarEstaAtivo = true;
+                BtnSalvarEstaAtivo = true;
+                // AtivarComponentes();
+            }
+           
+           // AnimacaoBotaoImportarEstaAtiva = false;
+           // MessageBox.Show(AaiBin.Mensagem);
 
         }
 

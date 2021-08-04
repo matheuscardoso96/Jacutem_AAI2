@@ -1,5 +1,6 @@
 ﻿using ImageLibGbaDS.Paleta;
 using LibDeImagensGbaDs.Formatos.Indexado;
+using LibDeImagensGbaDs.Sprites;
 using LibDeImagensGbaDs.TileMap;
 using LibDeImagensGbaDs.Util;
 using nQuant;
@@ -10,26 +11,26 @@ using System.Drawing.Imaging;
 
 namespace LibDeImagensGbaDs.Conversor
 {
-    public class Index1D : IConversorIndex
+    public class ConversorDeTiposDeGraficos
     {
         public int Largura { get; set; }
         public int Altura { get; set; }
-        public bool TemTileMap { get; set; }
         public List<ushort> TileMap { get; set; }
-        public Index1D(int altura, int largura, List<ushort> tileMap, bool temTilemap)
+        public List<Oam> Oams { get; set; }
+        public ConversorDeTiposDeGraficos(int altura, int largura, List<ushort> tileMap)
         {
             Largura = largura;
             Altura = altura;
             TileMap = tileMap;
-            TemTileMap = temTilemap;
         }
 
-        public Index1D(bool temTilemap)
+        public ConversorDeTiposDeGraficos(List<Oam> valoresOam)
         {
-            TemTileMap = temTilemap;
+
         }
 
-        public Bitmap ConvertaIndexado(IFormatoIndexado formatoIndexado, IPaleta paleta)
+
+        public Bitmap Converta1DComOuSemTileMap(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta)
         {
 
             List<Bitmap> tiles = new List<Bitmap>();
@@ -52,7 +53,7 @@ namespace LibDeImagensGbaDs.Conversor
 
             }
 
-            if (TemTileMap)
+            if (TileMap != null)
                 FerramentaDeTileMap.MontarImagemComTileMap(TileMap, tiles, imagemFinal);
             else
                 FerramentaDeTileMap.MontarImagemComTileMapGerado(tiles, imagemFinal);
@@ -62,13 +63,30 @@ namespace LibDeImagensGbaDs.Conversor
 
         }
 
-
-        public List<object> GerarIndeces(IFormatoIndexado formatoIndexado, IPaleta paleta, Bitmap imagem)
+        public Bitmap Converta2D(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta)
         {
-            imagem = ManipuladorDeImagem.MudarPixelFormatPra32Bpp(imagem);
+            Bitmap final = new Bitmap(Largura, Altura, PixelFormat.Format32bppArgb);
+            byte[] valoresAlpha = null;
+            if (paleta.TemAlpha)
+            {
+                valoresAlpha = new byte[formatoIndexado.Indices.Length];
+                Array.Copy(formatoIndexado.AlphaValues, 0, valoresAlpha, 0, valoresAlpha.Length);
+            }
+
+            ManipuladorDeImagem.GerarBitmap(final, formatoIndexado.Indices, paleta.Cores, paleta.TemAlpha, valoresAlpha);
+            return final;
+
+        }
+
+
+        public List<object> Gerar1DComOuSemTileMap(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta, Bitmap imagem)
+        {
+           
+
             List<Bitmap> tiles = ManipuladorDeImagem.DividaImagemEmTiles(imagem);
 
-            if (TemTileMap)
+
+            if (TileMap != null)
                 TileMap = FerramentaDeTileMap.GerarTileMap(tiles);
 
             List<byte> indices = new List<byte>();
@@ -82,9 +100,21 @@ namespace LibDeImagensGbaDs.Conversor
 
             List<object> final = new List<object>() { formatoIndexado.GereIndices(indices.ToArray()) };
 
-            if (TemTileMap)
+            if (TileMap != null)
                 final.Add(TileMap);
 
+            return final;
+        }
+
+        public List<object> Gerar2D(IConversorDeProfundidadeDeCor formatoIndexado, IPaleta paleta, Bitmap imagem)
+        {
+            List<byte> indices = new List<byte>();
+            Color[] cores = ManipuladorDeImagem.ObtenhaCoresDeImagem(imagem);
+
+            foreach (var cor in cores)
+                indices.Add(paleta.ObtenhaIndexCorMaisProxima(cor));
+
+            List<object> final = new List<object>() { formatoIndexado.GereIndices(indices.ToArray()) };
             return final;
         }
 

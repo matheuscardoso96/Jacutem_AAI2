@@ -1,6 +1,6 @@
 ﻿namespace LibDeImagensGbaDs.Enums
 {
-    public enum EIndexFormat : int
+    public enum ProfundidaDeCor : int
     {
         F1BBP,
         F2BBP,
