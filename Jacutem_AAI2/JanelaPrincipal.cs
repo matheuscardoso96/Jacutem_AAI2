@@ -2758,7 +2758,7 @@ namespace Jacutem_AAI2
             {
 
 
-                if (_ncgrSpriteCarregado.Bpp == ProfundidaDeCor.F4BBP)
+                if (_ncgrSpriteCarregado.Bpp == LibDeImagensGbaDs.Enums.ColorDepth.F4BBP)
                 {
                     tmp = new byte[_imagemNovaTemporaria.Length + (resX * resY / 2)];
 
@@ -2776,7 +2776,7 @@ namespace Jacutem_AAI2
             }
             else
             {
-                if (_ncgrSpriteCarregado.Bpp == ProfundidaDeCor.F4BBP)
+                if (_ncgrSpriteCarregado.Bpp == LibDeImagensGbaDs.Enums.ColorDepth.F4BBP)
                 {
                     _imagemNovaTemporaria = new byte[_ncgrSpriteCarregado.ImagemEmBytes.Length + (resX * resY / 2)];
 
@@ -2793,7 +2793,7 @@ namespace Jacutem_AAI2
 
             int valorParaCalcularTiuleId = 0;
 
-            if (_ncgrSpriteCarregado.Bpp == ProfundidaDeCor.F4BBP)
+            if (_ncgrSpriteCarregado.Bpp == LibDeImagensGbaDs.Enums.ColorDepth.F4BBP)
             {
                 valorParaCalcularTiuleId = _imagemNovaTemporaria.Length - (resX * resY / 2);
             }

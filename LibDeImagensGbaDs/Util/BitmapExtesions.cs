@@ -1,15 +1,15 @@
-﻿using LibDeImagensGbaDs.Formatos.Indexado;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace LibDeImagensGbaDs.Util
 {
-    public static class ManipuladorDeImagem
+    public static class BitmapExtesions
     {
 
-        public static void GerarBitmap(Bitmap processedBitmap, byte[] indices, Color[] paleta, bool temAlpha = false, byte[] valoresAlpha = null)
+        public static void PoulateBitmap(this Bitmap processedBitmap, byte[] indexes, Color[] paleta, byte[] alphaValues = null)
         {
+            bool temAlpha = alphaValues != null;
             unsafe
             {
                 BitmapData bitmapData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height), ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
@@ -24,10 +24,10 @@ namespace LibDeImagensGbaDs.Util
                     byte* currentLine = ptrFirstPixel + (y * bitmapData.Stride);
                     for (int x = 0; x < widthInBytes; x += bytesPerPixel)
                     {
-                        currentLine[x] = paleta[indices[contadorIndices]].B;
-                        currentLine[x + 1] = paleta[indices[contadorIndices]].G;
-                        currentLine[x + 2] = paleta[indices[contadorIndices]].R;
-                        currentLine[x + 3] = temAlpha? valoresAlpha[contadorIndices]: paleta[indices[contadorIndices]].A;
+                        currentLine[x] = paleta[indexes[contadorIndices]].B;
+                        currentLine[x + 1] = paleta[indexes[contadorIndices]].G;
+                        currentLine[x + 2] = paleta[indexes[contadorIndices]].R;
+                        currentLine[x + 3] = temAlpha? alphaValues[contadorIndices]: paleta[indexes[contadorIndices]].A;
                         contadorIndices++;
                     }
                 }
@@ -37,7 +37,7 @@ namespace LibDeImagensGbaDs.Util
         }
 
 
-        public static Color[] ObtenhaCoresDeImagem(Bitmap processedBitmap, bool temAplha = false)
+        public static Color[] GetColors(this Bitmap processedBitmap, bool hasAlpha = false)
         {
             Color[] cores = new Color[processedBitmap.Width * processedBitmap.Height];
             
@@ -56,7 +56,7 @@ namespace LibDeImagensGbaDs.Util
                     for (int x = 0; x < widthInBytes; x += bytesPerPixel)
                     {
 
-                        if (temAplha)
+                        if (hasAlpha)
                         {
                             cores[contadorIndices] = Color.FromArgb(currentLine[x + 3], currentLine[x + 2], currentLine[x + 1], currentLine[x]);
                         }
@@ -78,32 +78,31 @@ namespace LibDeImagensGbaDs.Util
             return cores;
         }
 
-        public static List<Bitmap> DividaImagemEmTiles(Bitmap img)
+        public static List<Bitmap> SlitIntoTiles(this Bitmap image)
         {
             List<Bitmap> tiles = new List<Bitmap>();
 
-            for (int y = 0; y < img.Height; y += 8)
+            for (int y = 0; y < image.Height; y += 8)
             {
-                for (int x = 0; x < img.Width; x += 8)
+                for (int x = 0; x < image.Width; x += 8)
                 {
                     Rectangle rec = new Rectangle(x, y, 8, 8);
-                    tiles.Add(img.Clone(rec, img.PixelFormat));
+                    tiles.Add(image.Clone(rec, image.PixelFormat));
 
                 }
             }
 
-            img.Dispose();
 
             return tiles;
         }
 
-        public static Bitmap MudarPixelFormatPra32Bpp(Bitmap imagem)
+        public static Bitmap ConvertTo32Bpp(this Bitmap image)
         {
-            Bitmap imagem32Bpp = new Bitmap(imagem.Width, imagem.Height, PixelFormat.Format32bppRgb);
+            Bitmap imagem32Bpp = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppRgb);
 
             using (Graphics graphics = Graphics.FromImage(imagem32Bpp))
             {
-                graphics.DrawImage(imagem, new Point(0, 0));
+                graphics.DrawImage(image, new Point(0, 0));
             }
 
             return imagem32Bpp;

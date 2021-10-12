@@ -16,7 +16,7 @@ namespace Jacutem_AAI2.Imagens
         public byte[] ImagemEmBytes { get; set; }
         public int Altura { get; set; }
         public int Largura { get; set; }
-        public ProfundidaDeCor Bpp { get; set; }
+        public ColorDepth Bpp { get; set; }
         public int TamanhoGrafico { get; set; }
         public string DirNcgr { get; set; }
         public List<Color> CoresConvertidas { get; set; }
@@ -44,9 +44,9 @@ namespace Jacutem_AAI2.Imagens
                 Largura = br.ReadInt16() * 8;
                 int bpp = br.ReadByte();
                 if (bpp == 0x3)
-                    Bpp = ProfundidaDeCor.F4BBP;
+                    Bpp = ColorDepth.F4BBP;
                 else
-                    Bpp = ProfundidaDeCor.F8BBP;
+                    Bpp = ColorDepth.F8BBP;
 
                 br.BaseStream.Position = 0x28;
                 TamanhoGrafico = br.ReadInt32();
@@ -95,15 +95,15 @@ namespace Jacutem_AAI2.Imagens
 
         private Bitmap ExportarNCGR()
         {
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.NintendoDS, Altura, Largura, Bpp, EModoDimensional.M1D));                                          
+            LibDeImagensGbaDs.Conversor.ImageConverter cdi = new LibDeImagensGbaDs.Conversor.ImageConverter(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.NintendoDS, Altura, Largura, Bpp, TileMode.Tiled));                                          
             return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
 
         }
 
         private Bitmap ExportarNCGRTileMap()
-        {    
+        {
 
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.NintendoDS, Altura, Largura, Bpp, EModoDimensional.M1D, ArquivoNscr.TileMap, true));
+            LibDeImagensGbaDs.Conversor.ImageConverter cdi = new LibDeImagensGbaDs.Conversor.ImageConverter(new ConversorFormatoIndexado(ArquivoNclr.PaletasByte, EFormatoPaleta.NintendoDS, Altura, Largura, Bpp, TileMode.Tiled, ArquivoNscr.TileMap, true));
             return cdi.BinParaBmp(ImagemEmBytes, ImagemEmBytes.Length, 0);
 
         }
@@ -176,7 +176,7 @@ namespace Jacutem_AAI2.Imagens
             ConversorDeImagens cv = new ConversorDeImagens();
             cv.CoresPaleta = ArquivoNclr.Paletas[0];
 
-            if (Bpp == ProfundidaDeCor.F4BBP)
+            if (Bpp == ColorDepth.F4BBP)
             {
                 byte[] img = cv.Converta4bppRawNcgr(dirImg);
                 InsiranoNcgr(img);
@@ -195,7 +195,7 @@ namespace Jacutem_AAI2.Imagens
             ConversorDeImagens cv = new ConversorDeImagens();
             cv.CoresPaleta = ArquivoNclr.Paletas[0];
 
-            if (Bpp == ProfundidaDeCor.F4BBP)
+            if (Bpp == ColorDepth.F4BBP)
             {
                 List<byte[]> imgEhTilemap = cv.Converta4bppNcgrTileMap(dirImg);
                 InsiranoNcgrEhNcsr(imgEhTilemap, ArquivoNscr.Diretorio);

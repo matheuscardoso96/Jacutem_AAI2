@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jacutem_AAI2", "Jacutem_AAI2\Jacutem_AAI2.csproj", "{1DEDB309-792F-4813-A0D1-7EAA6F16F722}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibDeImagensGbaDs", "LibDeImagensGbaDs\LibDeImagensGbaDs.csproj", "{48030FA5-97C3-45C9-873D-269BD0D4EA4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JacutemAAI2.WPF", "JacutemAAI2.WPF\JacutemAAI2.WPF.csproj", "{96062A53-2258-4996-8182-4A646D694CD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatosNitro", "FormatosNitro\FormatosNitro.csproj", "{F7BCF75B-ACFA-42CE-B2AA-28A577A05CA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormatosNitro", "FormatosNitro\FormatosNitro.csproj", "{F7BCF75B-ACFA-42CE-B2AA-28A577A05CA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1DEDB309-792F-4813-A0D1-7EAA6F16F722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1DEDB309-792F-4813-A0D1-7EAA6F16F722}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1DEDB309-792F-4813-A0D1-7EAA6F16F722}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1DEDB309-792F-4813-A0D1-7EAA6F16F722}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48030FA5-97C3-45C9-873D-269BD0D4EA4D}.Release|Any CPU.ActiveCfg = Release|Any CPU

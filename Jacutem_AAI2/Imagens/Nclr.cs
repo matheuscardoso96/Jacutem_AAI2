@@ -13,9 +13,9 @@ namespace Jacutem_AAI2.Imagens
         public List<List<Color>> Paletas { get; set; }
         public byte[] PaletasByte { get; set; }
         public string Diretorio { get; set; }
-        public ProfundidaDeCor BppPaleta { get; set; }
+        public ColorDepth BppPaleta { get; set; }
 
-        public Nclr(string dir, ProfundidaDeCor bpp)
+        public Nclr(string dir, ColorDepth bpp)
         {
             BppPaleta = bpp;
             Diretorio = dir; 
@@ -48,7 +48,7 @@ namespace Jacutem_AAI2.Imagens
                     int b = (bgr >> 10 & 31) * 255 / 31;
                     paletaa.Add(Color.FromArgb(r, g, b));
                     contador += 2;
-                    if (BppPaleta == ProfundidaDeCor.F4BBP && contador == 32 || BppPaleta == ProfundidaDeCor.F8BBP && contador == 512)
+                    if (BppPaleta == ColorDepth.F4BBP && contador == 32 || BppPaleta == ColorDepth.F8BBP && contador == 512)
                     {
      
                         Paletas.Add(paletaa);

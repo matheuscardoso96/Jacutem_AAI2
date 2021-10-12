@@ -72,32 +72,19 @@ namespace FormatosNitro.Imagens
         private void CarregarImagens()
         {
             
-            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
-                ArquivoNclr.Pltt.Paleta, 
-                EFormatoPaleta.NintendoDS, 
-                Char.QuatidadeDeTilesY * 8, 
-                Char.QuatidadeDeTilesX * 8, 
-                eIndexFormat, EModoDimensional.M1D));                    
-            Imagens = new List<Bitmap>() { cdi.BinParaBmp(Char.Tiles, Char.Tiles.Length, 0) };
-            
-
+            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;                    
+            Imagens = new List<Bitmap>() { 
+                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, ArquivoNclr.Pltt.Paleta, TileMode.Tiled, eIndexFormat)
+            };
         }
+          
 
         private void CarregarImagemNCGRComNSCR()
         {
-            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
-                ArquivoNclr.Pltt.Paleta, 
-                EFormatoPaleta.NintendoDS, 
-                ArquivoNscr.Scrn.Altura,
-                ArquivoNscr.Scrn.Largura, 
-                eIndexFormat, EModoDimensional.M1D ,
-                ArquivoNscr.Scrn.InfoTela.ToList()
-                ));
-            
-            Imagens = new List<Bitmap>() { cdi.BinParaBmp(Char.Tiles, Char.Tiles.Length, 0) };
-           
+            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            Imagens = new List<Bitmap>() {
+                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, ArquivoNclr.Pltt.Paleta, eIndexFormat)
+            };
 
         }
 
@@ -107,33 +94,20 @@ namespace FormatosNitro.Imagens
         public void ImportaNCGR(string dirImg)
         {
 
-            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(ArquivoNclr.Pltt.Paleta, EFormatoPaleta.NintendoDS, Char.QuatidadeDeTilesY * 8, Char.QuatidadeDeTilesX * 8, eIndexFormat, EModoDimensional.M1D));
-            byte[] imagem = (byte[])cdi.BmpParaBin(new Bitmap(dirImg))[0];
-            Char.Tiles = imagem;
+            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            byte[] palette = ArquivoNclr.Pltt.Paleta;
+            Char.Tiles = ImageConverter.BitmapToRawIndexed(new Bitmap(dirImg), ref palette, TileMode.Tiled, eIndexFormat);
             CarregarImagens();
         }
 
         public void ImportaNCGRComNscr(string dirImg)
         {
-            ProfundidaDeCor eIndexFormat = Char.IntensidadeDeBits == 3 ? ProfundidaDeCor.F4BBP : ProfundidaDeCor.F8BBP;
-            ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(
-                ArquivoNclr.Pltt.Paleta,
-                EFormatoPaleta.NintendoDS,
-                ArquivoNscr.Scrn.Altura,
-                ArquivoNscr.Scrn.Largura,
-                eIndexFormat, EModoDimensional.M1D,
-                ArquivoNscr.Scrn.InfoTela.ToList()
-                ));
-
-            byte[] imagem = (byte[])cdi.BmpParaBin(new Bitmap(dirImg))[0];
-            Char.Tiles = imagem;
-            CarregarImagens();
-
+            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            byte[] palette = ArquivoNclr.Pltt.Paleta;
+            Char.Tiles = ImageConverter.BitmapToTileMapped(new Bitmap(dirImg), ref palette, eIndexFormat);
+            CarregarImagemNCGRComNSCR();
         }
-
-      
-
+ 
         public void SalvarNCGR(bool paletaFoiModificada) 
         {
             MemoryStream novoNgcr = new MemoryStream();

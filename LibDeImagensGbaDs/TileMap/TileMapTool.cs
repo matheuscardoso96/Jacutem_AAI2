@@ -7,15 +7,15 @@ using System.Linq;
 
 namespace LibDeImagensGbaDs.TileMap
 {
-    public static class FerramentaDeTileMap
+    public static class TileMapTool
     {
-        public static Bitmap MontarImagemComTileMapGerado(List<Bitmap> tiles, Bitmap imagemFinal)
+        public static Bitmap CreateWithGenericTilemap(List<Bitmap> tiles, Bitmap imagemFinal)
         {
             List<ushort> tileMap = Enumerable.Range(0, tiles.Count).Select(x => (ushort)x).ToList();
-            return MontarImagemComTileMap(tileMap, tiles, imagemFinal, true);
+            return CreateWithTilemap(tileMap, tiles, imagemFinal, true);
         }
 
-        public static Bitmap MontarImagemComTileMap(List<ushort> tileMap, List<Bitmap> tiles, Bitmap imagemFinal, bool foiGerado = false)
+        public static Bitmap CreateWithTilemap(List<ushort> tileMap, List<Bitmap> tiles, Bitmap imagemFinal, bool foiGerado = false)
         {
             using (Graphics g = Graphics.FromImage(imagemFinal))
             {
@@ -64,7 +64,7 @@ namespace LibDeImagensGbaDs.TileMap
 
 
 
-        public static List<ushort> GerarTileMap(List<Bitmap> tiles)
+        public static List<ushort> GenerateTileMap(List<Bitmap> tiles)
         {
             List<ushort> tilemap = new List<ushort>();
             List<Bitmap> unicas = ObtenhaTilesUnicas(tiles);
@@ -122,8 +122,8 @@ namespace LibDeImagensGbaDs.TileMap
 
         private static bool CompareTiles(Bitmap bmp1, Bitmap bmp2)
         {           
-            Color[] cores1 = ManipuladorDeImagem.ObtenhaCoresDeImagem(bmp1);
-            Color[] cores2 = ManipuladorDeImagem.ObtenhaCoresDeImagem(bmp2);          
+            Color[] cores1 = BitmapExtesions.GetColors(bmp1);
+            Color[] cores2 = BitmapExtesions.GetColors(bmp2);          
           
             int contador = 0;
 

@@ -2,28 +2,26 @@
 using System.Drawing;
 using System.IO;
 
-namespace ImageLibGbaDS.Paleta
+namespace LibDeImagensGbaDs.Paleta
 {
-    public class BGR565 : IPaleta
+    public class BGR565 : IPalette
     {
-        public Color[] Cores { get; set; }
-        public bool TemAlpha { get; set; }
-        public BGR565(byte[] bytesDaPaleta, bool temAlpha)
+        public Color[] Colors { get; set; }
+        public BGR565(byte[] palette)
         {
-            TemAlpha = temAlpha;
-            Cores = new Color[bytesDaPaleta.Length / 2];
+            Colors = new Color[palette.Length / 2];
             
-            using (BinaryReader br = new BinaryReader(new MemoryStream(bytesDaPaleta)))
+            using (BinaryReader br = new BinaryReader(new MemoryStream(palette)))
             {
-                int contador = 0;
+                int counter = 0;
                 while (br.BaseStream.Position < br.BaseStream.Length)
                 {
                     int bgr = br.ReadInt16();
                     int r = (bgr & 31) * 255 / 31;
                     int g = (bgr >> 5 & 31) * 255 / 31;
                     int b = (bgr >> 10 & 31) * 255 / 31;
-                    Cores[contador] = Color.FromArgb(r, g, b);
-                    contador++;
+                    Colors[counter] = Color.FromArgb(r, g, b);
+                    counter++;
                 }
             }
 
@@ -31,20 +29,20 @@ namespace ImageLibGbaDS.Paleta
         }
 
 
-        public byte ObtenhaIndexCorMaisProxima(Color c1)
+        public byte GetNearColorIndex(Color c1)
         {
-            int eOmenor = 10000;
+            int tolerance  = 10000;
             int index = 0;
 
-            for (int x = 0; x < Cores.Length; x++)
+            for (int x = 0; x < Colors.Length; x++)
             {
-                Color c2 = Cores[x];
+                Color c2 = Colors[x];
 
-                int vl = DiferencaDeCores(c1, c2);
+                int vl = ColorDiff(c1, c2);
 
-                if (eOmenor > vl)
+                if (tolerance  > vl)
                 {
-                    eOmenor = vl;
+                    tolerance  = vl;
                     index = x;
                 }
 
@@ -53,7 +51,7 @@ namespace ImageLibGbaDS.Paleta
             return (byte)index;
         }
 
-        private int DiferencaDeCores(Color c1, Color c2)
+        private int ColorDiff(Color c1, Color c2)
         {
             return (int)Math.Sqrt((c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B) + (c1.A - c2.A) * (c1.A - c2.A));
         }
