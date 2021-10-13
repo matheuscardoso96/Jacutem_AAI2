@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using LibDeImagensGbaDs.Conversor;
 using LibDeImagensGbaDs.Enums;
+using LibDeImagensGbaDs.Paleta;
 
-namespace Jacutem_AAI2.Imagens
+namespace FormatosNitro.Imagens
 {
     public class Btx
     {
@@ -118,58 +119,53 @@ namespace Jacutem_AAI2.Imagens
                 {
 
                   //  ConversorDeImagens ci = new ConversorDeImagens();
-                    Bitmap imagemFinal = new Bitmap(1,1);
+                   // Bitmap imagemFinal = new Bitmap(1,1);
 
                     if (textura.Formato == 1)
                     {
 
-                        int tamanhoGrafico = (textura.Altura * textura.Largura);
+                        int tamanhoGrafico = textura.Altura * textura.Largura;
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
-                      //  ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA3I5, EModoDimensional.M2D,null, true));
-                       // textura.Textura = cdi.BinParaBmp(img,img.Length, 0);
+                        BGR565 bGR565 = new BGR565(paleta);
+                        textura.Textura = ImageConverter.RawIndexedToBitmap(img, textura.Largura, textura.Altura, bGR565 , TileMode.NotTiled, ColorDepth.FA5I3);
                         //textura.Bpp = Bpp.bpp8;
                     }
 
                     else  if (textura.Formato == 3)
                     {
-                        int tamanhoGrafico = (textura.Altura * textura.Largura) / 2;
+                        int tamanhoGrafico = textura.Altura * textura.Largura / 2;
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.FirstOrDefault(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x20);
-                      //  ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F4BBP, EModoDimensional.M2D));
-                     //   textura.Textura = cdi.BinParaBmp(img, img.Length, 0);
+                        BGR565 bGR565 = new BGR565(paleta);
+                        textura.Textura = ImageConverter.RawIndexedToBitmap(img, textura.Largura, textura.Altura, bGR565, TileMode.NotTiled, ColorDepth.F4BBP);
 
                     }
-                    //else if (textura.Formato == 666666)
-                    //{
-                    //    int tamanhoGrafico = (textura.Altura * textura.Largura);
-                    //    br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
-                    //    byte[] img = br.ReadBytes(tamanhoGrafico);                  
-                    //    br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
-                    //    byte[] paleta = br.ReadBytes(0x200);
-                    //    ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.FA5I3, EModoDimensional.M2D, null, true));
-                    //    textura.Textura = cdi.BinParaBmp(img, 0);
-                    //    textura.Bpp = Bpp.bpp8;
-
-                    //}
-                    else if (textura.Formato == 6 || textura.Formato == 4)
+                    else if (textura.Formato == 6)
                     {
                         int tamanhoGrafico = (textura.Altura * textura.Largura);
                         br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
                         byte[] img = br.ReadBytes(tamanhoGrafico);
                         br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
                         byte[] paleta = br.ReadBytes(0x200);
-                      //  ConversorDeImagem cdi = new ConversorDeImagem(new ConversorFormatoIndexado(paleta, EFormatoPaleta.BGR565, textura.Altura, textura.Largura, EIndexFormat.F8BBP, EModoDimensional.M2D));
-                      //  textura.Textura = cdi.BinParaBmp(img, img.Length, 0);
-                       // textura.Bpp = Bpp.bpp8;
+                        BGR565 bGR565 = new BGR565(paleta);
+                        textura.Textura = ImageConverter.RawIndexedToBitmap(img, textura.Largura, textura.Altura, bGR565, TileMode.NotTiled, ColorDepth.FA5I3);
+
                     }
-
-
-                   
+                    else if (textura.Formato == 6 || textura.Formato == 4)
+                    {
+                        int tamanhoGrafico = textura.Altura * textura.Largura;
+                        br.BaseStream.Position = textura.Offset + OffsetBaseTextura + idxTex;
+                        byte[] img = br.ReadBytes(tamanhoGrafico);
+                        br.BaseStream.Position = PaleteOffeset + idxTex + paleteInfos.First(x => x.NomePaleta.Contains(textura.NomeTextura + "_pl")).Offset;
+                        byte[] paleta = br.ReadBytes(0x200);
+                        BGR565 bGR565 = new BGR565(paleta);
+                        textura.Textura = ImageConverter.RawIndexedToBitmap(img, textura.Largura, textura.Altura, bGR565, TileMode.NotTiled, ColorDepth.F8BBP);
+                    }        
 
                     contador++;
                 }
@@ -180,6 +176,7 @@ namespace Jacutem_AAI2.Imagens
 
 
         }
+
 
         public void Exportar() 
         {
@@ -406,7 +403,7 @@ namespace Jacutem_AAI2.Imagens
 
         public override string ToString()
         {
-            return Indice.ToString();
+            return NomeTextura;
         }
 
     }

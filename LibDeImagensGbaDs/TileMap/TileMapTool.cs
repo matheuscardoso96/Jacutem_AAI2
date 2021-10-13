@@ -64,19 +64,20 @@ namespace LibDeImagensGbaDs.TileMap
 
 
 
-        public static List<ushort> GenerateTileMap(List<Bitmap> tiles)
+        public static List<ushort> GenerateTileMap(TileMapType tileMapType)
         {
             List<ushort> tilemap = new List<ushort>();
-            List<Bitmap> unicas = ObtenhaTilesUnicas(tiles);
+            List<Color[]> allTilesColors = GetAllTileColors(tileMapType.Tiles);
+            List<Color[]> unicas = GetUniqueTilesAndColors(allTilesColors, tileMapType);
 
-            foreach (Bitmap tile in tiles)
+            foreach (var tile in allTilesColors)
             {
                 int contador = 0;
 
-                foreach (Bitmap tileEscolhida in unicas)
+                foreach (var tileEscolhida in unicas)
                 {
 
-                    if (CompareTiles(tile, tileEscolhida))
+                    if (CompareTilesColors(tile, tileEscolhida))
                     {
                         break;
                     }
@@ -87,22 +88,23 @@ namespace LibDeImagensGbaDs.TileMap
                 tilemap.Add((ushort)contador);
             }
 
-            tiles = unicas;
+           // tiles = unicas;
 
             return tilemap;
         }
 
-        private static List<Bitmap> ObtenhaTilesUnicas(List<Bitmap> tilesImg)
+        private static List<Color[]> GetUniqueTilesAndColors(List<Color[]> AllTileColors, TileMapType tileMapType)
         {
-            List<Bitmap> tiles = new List<Bitmap>();
-
-            foreach (var item in tilesImg)
+            List<Color[]> tilesColors = new List<Color[]>();
+            List<Bitmap> unique = new List<Bitmap>();
+            int counter = 0;
+            foreach (var item in AllTileColors)
             {
                 bool existe = false;
 
-                foreach (var tl in tiles)
+                foreach (var tl in tilesColors)
                 {
-                    if (CompareTiles(item, tl))
+                    if (CompareTilesColors(item, tl))
                     {
                         existe = true;
                         break;
@@ -111,30 +113,45 @@ namespace LibDeImagensGbaDs.TileMap
 
                 if (!existe)
                 {
-                    tiles.Add(item);
+                    tilesColors.Add(item);
+                    unique.Add(tileMapType.Tiles[counter]);
                 }
 
+                counter++;
+
 
             }
-
-            return tiles;
+            tileMapType.Tiles = unique;
+            return tilesColors;
         }
 
-        private static bool CompareTiles(Bitmap bmp1, Bitmap bmp2)
-        {           
-            Color[] cores1 = BitmapExtesions.GetColors(bmp1);
-            Color[] cores2 = BitmapExtesions.GetColors(bmp2);          
-          
-            int contador = 0;
-
-            for (int i = 0; i < cores1.Length; i++)
+        private static List<Color[]> GetAllTileColors(List<Bitmap> tilesImg)
+        {
+            List<Color[]> tilesColors = new List<Color[]>();
+            foreach (var tile in tilesImg)
             {
-                if (CoresSaoIguais(cores1[i], cores2[i]))
-                    contador++;
+                tilesColors.Add(tile.GetColors());
+            }
+            return tilesColors;
+        }
+
+        private static bool CompareTilesColors(Color[] tileColors1, Color[] tileColors2)
+        {           
+
+            bool areEqual = true;
+
+            for (int i = 0; i < tileColors1.Length; i++)
+            {
+                if (!CoresSaoIguais(tileColors1[i], tileColors2[i]))
+                {
+                    areEqual = false;
+                    break;
+                }
+                
+
             }
 
-
-            return contador == 63;
+            return areEqual;
         }
 
         private static bool CoresSaoIguais(Color color1, Color color2)
@@ -142,7 +159,5 @@ namespace LibDeImagensGbaDs.TileMap
             return color1.R == color2.R && color1.G == color2.G && color1.B == color2.B;
         }
     }
-   
-    
 }
 

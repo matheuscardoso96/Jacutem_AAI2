@@ -40,9 +40,9 @@ namespace LibDeImagensGbaDs.Paleta
 
                 int vl = ColorDiff(c1, c2);
 
-                if (tolerance  > vl)
+                if (tolerance > vl)
                 {
-                    tolerance  = vl;
+                    tolerance = vl;
                     index = x;
                 }
 
@@ -55,5 +55,6 @@ namespace LibDeImagensGbaDs.Paleta
         {
             return (int)Math.Sqrt((c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B) + (c1.A - c2.A) * (c1.A - c2.A));
         }
+
     }
 }

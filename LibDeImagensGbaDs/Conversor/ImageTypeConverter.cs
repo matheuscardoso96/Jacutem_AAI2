@@ -55,17 +55,21 @@ namespace LibDeImagensGbaDs.Conversor
         }
 
 
-        public static byte[] GenerateTiledIndices(Bitmap imagem, IPalette paleta, List<ushort> tileMap, bool hasTileMap)
+        public static byte[] GenerateTiledIndices(Bitmap imagem, IPalette paleta, TileMapType tileMap, bool hasTileMap)
         {
-            List<Bitmap> tiles = BitmapExtesions.SlitIntoTiles(imagem);
+            List<Bitmap> tiles = BitmapExtesions.SlitIntoTiles(imagem,8,8);
 
              if (hasTileMap)
-                tileMap = TileMapTool.GenerateTileMap(tiles);
+            {
+                tileMap.Tiles = tiles;
+                tileMap.Tilemap = TileMapTool.GenerateTileMap(tileMap);
+                tiles = tileMap.Tiles;
+            }       
 
             List<byte> indexes = new List<byte>();
             foreach (var tile in tiles)
             {
-                Color[] colors = BitmapExtesions.GetColors(tile);
+                Color[] colors = tile.GetColors();
                 foreach (var cor in colors)
                     indexes.Add(paleta.GetNearColorIndex(cor));
 
@@ -77,7 +81,7 @@ namespace LibDeImagensGbaDs.Conversor
         public static byte[] GenerateNotTiledToBmp(Bitmap imagem, IPalette paleta)
         {
             List<byte> indexes = new List<byte>();
-            Color[] cores = BitmapExtesions.GetColors(imagem);
+            Color[] cores = imagem.GetColors();
 
             foreach (var cor in cores)
                 indexes.Add(paleta.GetNearColorIndex(cor));

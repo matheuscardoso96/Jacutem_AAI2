@@ -1,5 +1,7 @@
 ﻿using LibDeImagensGbaDs.Conversor;
 using LibDeImagensGbaDs.Enums;
+using LibDeImagensGbaDs.Paleta;
+using LibDeImagensGbaDs.TileMap;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,20 +74,25 @@ namespace FormatosNitro.Imagens
         private void CarregarImagens()
         {
             
-            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;                    
+            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
+            
             Imagens = new List<Bitmap>() { 
-                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, ArquivoNclr.Pltt.Paleta, TileMode.Tiled, eIndexFormat)
+                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, palette , TileMode.Tiled, eIndexFormat)
             };
+
+            ArquivoNclr.Colors = palette.Colors;
         }
           
 
         private void CarregarImagemNCGRComNSCR()
         {
             ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
             Imagens = new List<Bitmap>() {
-                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, ArquivoNclr.Pltt.Paleta, eIndexFormat)
+                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, palette, eIndexFormat)
             };
-
+            ArquivoNclr.Colors = palette.Colors;
         }
 
 
@@ -95,16 +102,19 @@ namespace FormatosNitro.Imagens
         {
 
             ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
-            byte[] palette = ArquivoNclr.Pltt.Paleta;
-            Char.Tiles = ImageConverter.BitmapToRawIndexed(new Bitmap(dirImg), ref palette, TileMode.Tiled, eIndexFormat);
+            BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
+            Char.Tiles = ImageConverter.BitmapToRawIndexed(new Bitmap(dirImg), palette, TileMode.Tiled, eIndexFormat);
             CarregarImagens();
+            ArquivoNclr.Colors = palette.Colors;
         }
 
         public void ImportaNCGRComNscr(string dirImg)
         {
             ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             byte[] palette = ArquivoNclr.Pltt.Paleta;
-            Char.Tiles = ImageConverter.BitmapToTileMapped(new Bitmap(dirImg), ref palette, eIndexFormat);
+            TileMapType tilemap = new TileMapType();
+            Char.Tiles = ImageConverter.BitmapToTileMapped(new Bitmap(dirImg), ref palette, tilemap, eIndexFormat);
+            ArquivoNscr.Scrn.InfoTela = tilemap.Tilemap.ToArray();
             CarregarImagemNCGRComNSCR();
         }
  

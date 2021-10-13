@@ -13,7 +13,8 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}" WindowStartupLocation="CenterScreen"
-        xmlns:controls="clr-namespace:JacutemAAI2.WPF.Controls" Icon="/JacutemAAI2.WPF;component/Resources/sigla_js_pb_WmG_icon.ico"
+        xmlns:Uc="clr-namespace:JacutemAAI2.WPF.Controls"
+        Icon="/JacutemAAI2.WPF;component/Resources/sigla_js_pb_WmG_icon.ico"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -25,14 +26,14 @@
                 <dragablz:InterTabController />
             </dragablz:TabablzControl.InterTabController>
             <TabItem Header="ROM">
-                <controls:Rom/>
+                <Uc:Rom/>
             
             </TabItem>
             <TabItem Header="BINÁRIOS">
-                <controls:Binarios/>
+                <Uc:Binarios/>
             </TabItem>
             <TabItem Header="IMAGENS">
-                <controls:Imagens/>
+                <Uc:Imagens/>
             </TabItem>
             <TabItem Header="TEXTOS">
        

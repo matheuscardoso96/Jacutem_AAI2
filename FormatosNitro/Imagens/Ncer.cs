@@ -68,7 +68,7 @@ namespace FormatosNitro.Imagens
         }
     }
 
-    public class Cebk 
+    public class Cebk
     {
         public string Id { get; set; }
         public uint TamanhoCebk { get; set; }
@@ -118,7 +118,6 @@ namespace FormatosNitro.Imagens
                 }
 
                 Ebks.Add(ebk);
-               
             }
 
             long enderecoBase = br.BaseStream.Position;
@@ -176,7 +175,7 @@ namespace FormatosNitro.Imagens
         }
     }
 
-    public class Ebk 
+    public class Ebk
     {
         public ushort QuantidadeDeCelulas { get; set; }
         public ushort InfoSomenteLeituraCelula { get; set; }
@@ -190,7 +189,7 @@ namespace FormatosNitro.Imagens
         public List<Oam> Oams { get; set; }
     }
 
-    public class Labl 
+    public class Labl
     {
         public string Id { get; set; }
         public uint TamanhoLabl { get; set; }

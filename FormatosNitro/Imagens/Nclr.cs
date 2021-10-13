@@ -9,6 +9,8 @@ namespace FormatosNitro.Imagens
     {
         public Pltt Pltt { get; set; }
         public Pcmp Pcmp { get; set; }
+        public Color[] Colors { get; set; }
+
 
         public Nclr(BinaryReader br, string diretorio) : base(br, diretorio)
         {
@@ -16,7 +18,7 @@ namespace FormatosNitro.Imagens
             if (QuantidadeDeSecoes > 1)
                 Pcmp = new Pcmp(br);
             
-            br.Close();
+            br.Close();         
 
         }
 
@@ -33,8 +35,6 @@ namespace FormatosNitro.Imagens
                 }
                 
             }
-
-
 
             File.WriteAllBytes(base.Diretorio, novoNclr.ToArray());
         }

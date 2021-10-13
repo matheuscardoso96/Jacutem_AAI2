@@ -1,6 +1,7 @@
 ﻿using LibDeImagensGbaDs.Enums;
 using LibDeImagensGbaDs.Formats.Indexed;
 using LibDeImagensGbaDs.Paleta;
+using LibDeImagensGbaDs.TileMap;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -11,9 +12,8 @@ namespace LibDeImagensGbaDs.Conversor
         private static Dictionary<ColorDepth,IIndexedFormat> _indexedFormatConverters;
         private static bool _isConvertersInitialized;
 
-        public static Bitmap RawIndexedToBitmap(byte[] file, int width, int height, byte[] palette, TileMode tileMode, ColorDepth colorDepth)
+        public static Bitmap RawIndexedToBitmap(byte[] file, int width, int height, BGR565 pal, TileMode tileMode, ColorDepth colorDepth)
         {
-            BGR565 pal = new BGR565(palette);
             if (!_isConvertersInitialized)
             {
                 InitilizeConverters();
@@ -31,9 +31,8 @@ namespace LibDeImagensGbaDs.Conversor
             
         }
 
-        public static Bitmap TileMappedToBitmap(byte[] file, List<ushort> tilemap, int width, int height, byte[] palette, ColorDepth colorDepth)
+        public static Bitmap TileMappedToBitmap(byte[] file, List<ushort> tilemap, int width, int height, BGR565 pal, ColorDepth colorDepth)
         {
-            BGR565 pal = new BGR565(palette);
             if (!_isConvertersInitialized)
             {
                 InitilizeConverters();
@@ -43,9 +42,9 @@ namespace LibDeImagensGbaDs.Conversor
             return ImageTypeConverter.TiledToBmp(indexes, width, height, pal, tilemap, alphaValues);
         }
 
-        public static byte[] BitmapToRawIndexed(Bitmap image, ref byte[] palette, TileMode tileMode, ColorDepth colorDepth)
+        public static byte[] BitmapToRawIndexed(Bitmap image, BGR565 pal, TileMode tileMode, ColorDepth colorDepth)
         {
-            BGR565 pal = new BGR565(palette);
+
             if (!_isConvertersInitialized)
             {
                 InitilizeConverters();
@@ -68,7 +67,7 @@ namespace LibDeImagensGbaDs.Conversor
 
         
 
-        public static byte[] BitmapToTileMapped(Bitmap image, ref byte[] palette, ColorDepth colorDepth)
+        public static byte[] BitmapToTileMapped(Bitmap image, ref byte[] palette, TileMapType tileMap, ColorDepth colorDepth)
         {
             BGR565 pal = new BGR565(palette);
             if (!_isConvertersInitialized)
@@ -76,7 +75,6 @@ namespace LibDeImagensGbaDs.Conversor
                 InitilizeConverters();
             }
             byte[] alphaValues = null;
-            List<ushort> tileMap = new List<ushort>();
             byte[] uncompressedIndexes = ImageTypeConverter.GenerateTiledIndices(image, pal, tileMap, true);
             return _indexedFormatConverters[colorDepth].CompressIndexes(uncompressedIndexes);
         }

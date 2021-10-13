@@ -17,13 +17,12 @@ using Microsoft.Win32;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
-    public class BgViewModel : INotifyPropertyChanged
+    public class TexturesViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private Dictionary<string, string> _bGTileSemMapsDi;
-        private BGTileSemMap _bGTileSemMap = new BGTileSemMap();
-        private BGTileComMap _bGTileComMap = new BGTileComMap();
-        KeyValuePair<string, string> _chaveSelecionada;
+        private Dictionary<string, string> _texturesPath;
+        private TexturesMap _texturesMap = new TexturesMap();
+        KeyValuePair<string, string> _texturePath;
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
         private bool _btnSalvarEstaAtivo = false;
         private bool _btnCancelarEstaAtivo = false;
@@ -34,7 +33,8 @@ namespace JacutemAAI2.WPF.ViewModel
         private bool _listaEstaAtiva = true;
         private bool _animacaoBotaoEstaAtiva = false;
         private bool _animacaoBotaoImportarEstaAtiva = false;
-        private Ncgr _ngcrCarregado;
+        private Btx _btx;
+        private TextureInfo _textureInfo;
         private BitmapImage _imagemCarregada;
         private BitmapImage _palette;
         private InformacoesImagem _informacoesImagem;
@@ -66,7 +66,25 @@ namespace JacutemAAI2.WPF.ViewModel
             }
         }
 
-        public BitmapImage ImagemCarregada
+
+
+        public TextureInfo SelectedTextureInfo
+        {
+            get
+            {
+                return _textureInfo;
+            }
+            set
+            {
+                _textureInfo = value;
+                NotifyPropertyChanged("SelectedTextureInfo");
+                if (SelectedTextureInfo != null)
+                {
+                    ImagemCarregada = SelectedTextureInfo.Textura.ToImageSource();
+                }
+                
+            }
+        }public BitmapImage ImagemCarregada
         {
             get
             {
@@ -182,43 +200,43 @@ namespace JacutemAAI2.WPF.ViewModel
             }
         }
 
-        public Dictionary<string, string> BGTileSemMapsDi
+        public Dictionary<string, string> TexturesPaths
         {
             get
             {
-                return _bGTileSemMapsDi;
+                return _texturesPath;
             }
             set
             {
-                _bGTileSemMapsDi = value;
-                NotifyPropertyChanged("BGTileSemMapsDi");
+                _texturesPath = value;
+                NotifyPropertyChanged("TexturesPaths");
 
-            }
-        }
-
-
-
-
-        public KeyValuePair<string,string> CaminhoImagem
-        {
-            get { return _chaveSelecionada; }
-            set
-            {
-                _chaveSelecionada = value;             
-                NotifyPropertyChanged("ChaveSelecionada");
-                CarregarNcgr();
             }
         }
 
-        public Ncgr NgcrCarregado
+
+
+
+        public KeyValuePair<string,string> TexturePath
         {
-            get { return _ngcrCarregado; }
+            get { return _texturePath; }
             set
             {
-                _ngcrCarregado = value;
-                NotifyPropertyChanged("NgcrCarregado");
-                BtnImportarEstaAtivo = true;
-                BtnExportarEstaAtivo = true;
+                _texturePath = value;             
+                NotifyPropertyChanged("TexturePath");
+                LoadBtx();
+            }
+        }
+
+        public Btx Btx
+        {
+            get { return _btx; }
+            set
+            {
+                _btx = value;
+                NotifyPropertyChanged("Btx");
+               // BtnImportarEstaAtivo = true;
+                //BtnExportarEstaAtivo = true;
             }
         }
         public InformacoesImagem InformacoesImagem
@@ -233,7 +251,7 @@ namespace JacutemAAI2.WPF.ViewModel
 
 
 
-        public BgViewModel()
+        public TexturesViewModel()
         {
             MyCommand = new Dictionary<string, DelegateCommand>()
             {
@@ -245,18 +263,11 @@ namespace JacutemAAI2.WPF.ViewModel
             };
 
 
-            BGTileSemMapsDi = new Dictionary<string, string>();
-            foreach (var item in _bGTileComMap.Lista)
+            TexturesPaths = new Dictionary<string, string>();
+            foreach (var item in _texturesMap.Lista)
             {
-                BGTileSemMapsDi.Add(item.Key, item.Value);
+                TexturesPaths.Add(item.Key, item.Value);
             }
-
-            foreach (var item in _bGTileSemMap.Lista)
-            {
-                BGTileSemMapsDi.Add(item.Key,item.Value);
-            }
-
-
 
         }
 
@@ -267,47 +278,47 @@ namespace JacutemAAI2.WPF.ViewModel
 
 
 
-        public async void CarregarNcgr()
+        public async void LoadBtx()
         {
-            string args = CaminhoImagem.Value;
-            NgcrCarregado = await Task.Run(() =>GerenciadorConversaoImagens.CarregarNcgr(args));
-            ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-            InformacoesImagem = new InformacoesImagem
-            {
-                Altura = NgcrCarregado.Imagens[0].Height,
-                Largura = NgcrCarregado.Imagens[0].Width,
-                BppString = NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
-                QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
-            };
+            string args = _texturePath.Value;
+            Btx = await Task.Run(() =>GerenciadorConversaoImagens.LoadBtx(args));
+            //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
+            //InformacoesImagem = new InformacoesImagem
+            //{
+            //    Altura = NgcrCarregado.Imagens[0].Height,
+            //    Largura = NgcrCarregado.Imagens[0].Width,
+            //    BppString = NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
+            //    QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
+            //};
 
-            Palette = PaletteVisualGenerator.CreateImage(NgcrCarregado.ArquivoNclr.Colors);
+            //Palette = PaletteVisualGenerator.CreateImage(NgcrCarregado.ArquivoNclr.Colors);
 
 
         }
 
         public async void ExportarImagemCarregada()
         {
-            string args = CaminhoImagem.Value;
-            NgcrCarregado.ExportarImagem.Invoke(CaminhoImagem.Value.Split(',').ToList().Last());
-            ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();           
+            //string args = _texturePath.Value;
+            //NgcrCarregado.ExportarImagem.Invoke(_texturePath.Value.Split(',').ToList().Last());
+            //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();           
 
         }
 
         public async void SalvarImagemCarregada() 
         {
-            await Task.Run(() => GerenciadorConversaoImagens.SalvarNcgr(NgcrCarregado, paletaFoiAlterada));
-            BtnCancelarEstaAtivo = false;
-            BtnSalvarEstaAtivo = false;
-            BtnImportarEstaAtivo = true;
-            BtnExportarEstaAtivo = true;
-            MessageBox.Show("Imagem salva na pasta imagens.");
+            //await Task.Run(() => GerenciadorConversaoImagens.SalvarNcgr(NgcrCarregado, paletaFoiAlterada));
+            //BtnCancelarEstaAtivo = false;
+            //BtnSalvarEstaAtivo = false;
+            //BtnImportarEstaAtivo = true;
+            //BtnExportarEstaAtivo = true;
+            //MessageBox.Show("Imagem salva na pasta imagens.");
         }
 
         public void CancelarSalvamento()
         {
             BtnCancelarEstaAtivo = false;
             BtnSalvarEstaAtivo = false;
-            CarregarNcgr();
+            LoadBtx();
         }
 
        
@@ -326,32 +337,28 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void ImportarSelecionado()
         {
-            //  AnimacaoBotaoImportarEstaAtiva = true;
-            // DesativarComponentes();
-            //  await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
+        
             OpenFileDialog dlg = new OpenFileDialog();
-           // Default file name
-           dlg.DefaultExt = ".png"; // Default file extension
-            dlg.Filter = "Imagens (.png)|*.png"; // Filter files by extension
+            dlg.DefaultExt = ".png";
+            dlg.Filter = "Imagens (.png)|*.png";
 
-            // Show open file dialog box
+           
             Nullable<bool> result = dlg.ShowDialog();
 
-            // Process open file dialog box results
+     
             if (result == true)
             {
-                // Open document
-                NgcrCarregado.ImportarNgcr.Invoke(dlg.FileName);
-                ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-                BtnImportarEstaAtivo = false;
-                BtnExportarEstaAtivo = false;
-                BtnCancelarEstaAtivo = true;
-                BtnSalvarEstaAtivo = true;
-                // AtivarComponentes();
+      
+                //NgcrCarregado.ImportarNgcr.Invoke(dlg.FileName);
+                //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
+                //BtnImportarEstaAtivo = false;
+                //BtnExportarEstaAtivo = false;
+                //BtnCancelarEstaAtivo = true;
+                //BtnSalvarEstaAtivo = true;
+               
             }
            
-           // AnimacaoBotaoImportarEstaAtiva = false;
-           // MessageBox.Show(AaiBin.Mensagem);
+    
 
         }
 

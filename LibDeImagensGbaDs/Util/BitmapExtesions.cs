@@ -78,19 +78,24 @@ namespace LibDeImagensGbaDs.Util
             return cores;
         }
 
-        public static List<Bitmap> SlitIntoTiles(this Bitmap image)
+        public static List<Bitmap> SlitIntoTiles(this Bitmap image, int tileWi, int tileHe)
         {
             List<Bitmap> tiles = new List<Bitmap>();
 
-            for (int y = 0; y < image.Height; y += 8)
+            for (int y = 0; y < image.Height; y += tileHe)
             {
-                for (int x = 0; x < image.Width; x += 8)
+                for (int x = 0; x < image.Width; x += tileWi)
                 {
-                    Rectangle rec = new Rectangle(x, y, 8, 8);
+                    Rectangle rec = new Rectangle(x, y, tileWi, tileHe);
                     tiles.Add(image.Clone(rec, image.PixelFormat));
 
                 }
             }
+
+            //using (Graphics g = Graphics.FromImage(image))
+            //{
+
+            //}
 
 
             return tiles;

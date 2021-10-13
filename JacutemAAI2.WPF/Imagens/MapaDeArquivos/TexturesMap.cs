@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace JacutemAAI2.WPF.Imagens.MapaDeArquivos
 {
-    public class Texturas : MapaDeArquivos
+    public class TexturesMap : MapaDeArquivos
     {
-        public Texturas()
+        public TexturesMap()
         {
             Tipo = "Texturas";
             Lista = new Dictionary<string, string>()

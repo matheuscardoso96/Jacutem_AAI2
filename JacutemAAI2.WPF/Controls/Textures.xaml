@@ -1,17 +1,18 @@
-﻿<UserControl x:Class="JacutemAAI2.WPF.Controls.Bg"
+﻿<UserControl x:Class="JacutemAAI2.WPF.Controls.Textures"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:JacutemAAI2.WPF.Controls"
              mc:Ignorable="d" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DesignHeight="720" d:DesignWidth="1280">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
 
         <Grid Grid.Row="1" Height="auto">
             <Grid.RowDefinitions>
@@ -21,38 +22,54 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
-            <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontSize="20">BG</Label>
+            <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Texturas</Label>
+            <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontSize="20">
+                <TextBlock>Texturas de modelos 3D</TextBlock> </Label>
 
-            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="10,15" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Margin="10,15"  Width="210" Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" >
 
 
-                <ListView ItemsSource="{Binding BGTileSemMapsDi}" SelectedItem="{Binding CaminhoImagem}">
+                <ListView ItemsSource="{Binding TexturesPaths}" SelectedItem="{Binding TexturePath}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Ncgrs"
+                            <GridViewColumn Header="Btx"
                             DisplayMemberBinding="{Binding Key}" Width="200"/>
-                         
+
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+            </materialDesign:Card>
+            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="1" Margin="10,15" HorizontalAlignment="Center" >
+
+
+                <ListView  ItemsSource="{Binding Btx.Texturas}" SelectedItem="{Binding SelectedTextureInfo}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Texturas"
+                             Width="200"/>
+
                         </GridView>
                     </ListView.View>
                 </ListView>
 
             </materialDesign:Card>
 
-            <materialDesign:Card Height="auto" Width="auto" Margin="0,16,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
+            <materialDesign:Card Height="auto" Width="auto" Grid.Column="2" Margin="10,15,-10,0" Grid.Row="1" VerticalAlignment="Top" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="600"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="auto" Height="150" DataContext="{Binding InformacoesImagem}"  VerticalAlignment="Top">
+                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="160" Height="150" DataContext="{Binding InformacoesImagem}"  VerticalAlignment="Top">
                         <Grid Grid.Row="0" Grid.Column="0">
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="auto"/>
@@ -87,11 +104,11 @@
                         </Grid>
                     </materialDesign:Card>
 
-                    <StackPanel>
+                    <StackPanel Width="256">
                         <StackPanel.Background>
                             <SolidColorBrush Color="LimeGreen"/>
                         </StackPanel.Background>
-                        <Image Grid.Row="0"  Name="ImageViewer1" Height="480" Width="832" Source="{Binding ImagemCarregada}" Stretch="None">
+                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="256" Source="{Binding ImagemCarregada}" Stretch="None">
                             <Image.ContextMenu>
                                 <ContextMenu>
 
@@ -107,9 +124,9 @@
                     </StackPanel>
 
 
-                    
-                    <StackPanel Width="832" Height="200" Grid.Row="1">
-                        
+
+                    <StackPanel Width="770" Height="200" Grid.Row="1">
+
                         <Grid>
 
                             <Grid.RowDefinitions>
@@ -127,7 +144,7 @@
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
 
 
@@ -139,23 +156,23 @@
                                 <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnCancelarEstaAtivo}"  Command="{Binding MyCommand[CancelarSalvamento]}" CommandParameter="ParameterValue">
                                     Cancelar
                                 </Button>
-                                <materialDesign:Card Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
+                                <materialDesign:Card Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="450,0,150,10" Width="140" Height="140" >
                                     <DockPanel>
                                         <Image Source="{Binding Palette}" Stretch="None"/>
                                     </DockPanel>
                                 </materialDesign:Card>
-                                
+
                             </Grid>
-                            
-                            
 
-                           
 
-                            
-                          
+
+
+
+
+
 
                         </Grid>
-                        
+
                     </StackPanel>
                 </Grid>
 

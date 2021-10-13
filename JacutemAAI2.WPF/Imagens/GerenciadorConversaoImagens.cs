@@ -21,8 +21,8 @@ namespace JacutemAAI2.WPF.Imagens
             
             BinaryReader leitorNgcr = new BinaryReader(File.OpenRead(argSplit[0]));         
             Ncgr ncgr;
+          
 
-         
             if (argumentosImg.Contains(".nscr"))
             {
                 BinaryReader leitorNscr = new BinaryReader(File.OpenRead(argSplit[2]));
@@ -35,7 +35,7 @@ namespace JacutemAAI2.WPF.Imagens
                 BinaryReader leitorNscer = new BinaryReader(File.OpenRead(argSplit[2]));
                 Ncer ncer = new Ncer(leitorNscer, argSplit[2]);
                 ncgr = new Ncgr(leitorNgcr, nclr, ncer, argSplit[0]);
-            }
+            }          
             else
             {
                 ncgr = new Ncgr(leitorNgcr, nclr, argSplit[0]);
@@ -51,6 +51,11 @@ namespace JacutemAAI2.WPF.Imagens
           ncgr.SalvarNCGR(paletaFoiModifacada);
          
 
+        }
+
+        public static Btx LoadBtx(string argumentosImg)
+        {        
+            return new Btx(argumentosImg);
         }
     }
 }

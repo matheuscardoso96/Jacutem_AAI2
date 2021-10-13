@@ -12,5 +12,6 @@ namespace JacutemAAI2.WPF.Gerenciadores
         public static RomViewModel RomViewModel = new RomViewModel();
         public static BinariosViewModel BinariosViewModel = new BinariosViewModel();
         public static BgViewModel BgViewModel = new BgViewModel();
+        public static TexturesViewModel TexturesViewModel = new TexturesViewModel();
     }
 }
