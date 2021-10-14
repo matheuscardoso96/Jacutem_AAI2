@@ -24,8 +24,8 @@ namespace JacutemAAI2.WPF.ViewModel
         private TexturesMap _texturesMap = new TexturesMap();
         KeyValuePair<string, string> _texturePath;
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
-        private bool _btnSalvarEstaAtivo = false;
-        private bool _btnCancelarEstaAtivo = false;
+        private bool _isSaveButtonEnabled = false;
+        private bool _isCancelButtonEnabled = false;
         private bool _btnExportarEstaAtivo;
         private bool _btnImportarEstaAtivo;
         private bool _btnExportarTodosEstaAtivo = false;
@@ -40,29 +40,29 @@ namespace JacutemAAI2.WPF.ViewModel
         private InformacoesImagem _informacoesImagem;
         private bool paletaFoiAlterada = false;
 
-        public bool BtnSalvarEstaAtivo
+        public bool IsSaveButtonEnabled
         {
             get
             {
-                return _btnSalvarEstaAtivo;
+                return _isSaveButtonEnabled;
             }
             set
             {
-                _btnSalvarEstaAtivo = value;
-                NotifyPropertyChanged("BtnSalvarEstaAtivo");
+                _isSaveButtonEnabled = value;
+                NotifyPropertyChanged("IsSaveButtonEnabled");
             }
         }
 
-        public bool BtnCancelarEstaAtivo
+        public bool IsCancelButtonEnabled
         {
             get
             {
-                return _btnCancelarEstaAtivo;
+                return _isCancelButtonEnabled;
             }
             set
             {
-                _btnCancelarEstaAtivo = value;
-                NotifyPropertyChanged("BtnCancelarEstaAtivo");
+                _isCancelButtonEnabled = value;
+                NotifyPropertyChanged("IsCancelButtonEnabled");
             }
         }
 
@@ -80,11 +80,16 @@ namespace JacutemAAI2.WPF.ViewModel
                 NotifyPropertyChanged("SelectedTextureInfo");
                 if (SelectedTextureInfo != null)
                 {
-                    ImagemCarregada = SelectedTextureInfo.Textura.ToImageSource();
+                    ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
+                    SetPropertiesInformation(SelectedTextureInfo);
+                    BtnExportarEstaAtivo = true;
+                    BtnImportarEstaAtivo = true;
                 }
-                
+
             }
-        }public BitmapImage ImagemCarregada
+        }   
+
+        public BitmapImage ImagemCarregada
         {
             get
             {
@@ -235,6 +240,7 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 _btx = value;
                 NotifyPropertyChanged("Btx");
+                ImagemCarregada = null;
                // BtnImportarEstaAtivo = true;
                 //BtnExportarEstaAtivo = true;
             }
@@ -255,10 +261,13 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             MyCommand = new Dictionary<string, DelegateCommand>()
             {
-                ["SalvarImagemCarregada"] = new DelegateCommand(SalvarImagemCarregada).ObservesCanExecute(() => BtnSalvarEstaAtivo),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["CancelarSalvamento"] = new DelegateCommand(CancelarSalvamento).ObservesCanExecute(() => BtnCancelarEstaAtivo),
-                ["ImportarSelecionado"] = new DelegateCommand(ImportarSelecionado).ObservesCanExecute(() => BtnImportarEstaAtivo),
-                ["ExportarImagemCarregada"] = new DelegateCommand(ExportarImagemCarregada).ObservesCanExecute(() => BtnExportarEstaAtivo)
+                ["SaveBtxToFile"] = new DelegateCommand(SaveBtxToFile).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["CancelChanges"] = new DelegateCommand(CancelChanges).ObservesCanExecute(() => IsCancelButtonEnabled),
+                ["ExportSelectedTexture"] = new DelegateCommand(ExportSelectedTexture).ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["ImportSelectedTexture"] = new DelegateCommand(ImportSelectedTexture).ObservesCanExecute(() => BtnImportarEstaAtivo),
+                ["ExportAllTexturesFromBtx"] = new DelegateCommand(ExportAllTexturesFromBtx).ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["ImportAllTexturesToBtx"] = new DelegateCommand(ImportAllTexturesToBtx).ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["ExportarAllBtx"] = new DelegateCommand(ExportarAllBtx)
 
             };
 
@@ -276,101 +285,96 @@ namespace JacutemAAI2.WPF.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
-
         public async void LoadBtx()
         {
             string args = _texturePath.Value;
             Btx = await Task.Run(() =>GerenciadorConversaoImagens.LoadBtx(args));
-            //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-            //InformacoesImagem = new InformacoesImagem
-            //{
-            //    Altura = NgcrCarregado.Imagens[0].Height,
-            //    Largura = NgcrCarregado.Imagens[0].Width,
-            //    BppString = NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
-            //    QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
-            //};
+        }
 
-            //Palette = PaletteVisualGenerator.CreateImage(NgcrCarregado.ArquivoNclr.Colors);
-
+        public async void ExportSelectedTexture()
+        {
+            await Task.Run(() => Btx.ExportOneTexture(SelectedTextureInfo));
+            MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} {SelectedTextureInfo.TextureName} exportado com sucesso.");     
 
         }
 
-        public async void ExportarImagemCarregada()
+        public async void ExportAllTexturesFromBtx()
         {
-            //string args = _texturePath.Value;
-            //NgcrCarregado.ExportarImagem.Invoke(_texturePath.Value.Split(',').ToList().Last());
-            //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();           
-
+            await Task.Run(() => Btx.ExportAllTextures());
+            MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} exportado com sucesso.");
         }
 
-        public async void SalvarImagemCarregada() 
+        public void SaveBtxToFile()
         {
-            //await Task.Run(() => GerenciadorConversaoImagens.SalvarNcgr(NgcrCarregado, paletaFoiAlterada));
-            //BtnCancelarEstaAtivo = false;
-            //BtnSalvarEstaAtivo = false;
-            //BtnImportarEstaAtivo = true;
-            //BtnExportarEstaAtivo = true;
-            //MessageBox.Show("Imagem salva na pasta imagens.");
+            Btx.SaveToFile();
+            MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} salvo com sucesso.");
+            DisableCancelAndSave();
         }
 
-        public void CancelarSalvamento()
+        public async void ExportarAllBtx()
         {
-            BtnCancelarEstaAtivo = false;
-            BtnSalvarEstaAtivo = false;
-            LoadBtx();
-        }
-
-       
-
-        public async void ExportarTodos()
-        {
-            AnimacaoBotaoEstaAtiva = true;
-            DesativarComponentes();
-           // await Task.Run(() => AaiBin.ExportarTodos(Binarios));
-            VerificarListas();
-            AtivarComponentes();
-            MessageBox.Show(AaiBin.Mensagem);
+            await Task.Run(() => _texturesMap.Lista.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
+            MessageBox.Show("Texutras exportadas com sucesso.");
 
             AnimacaoBotaoEstaAtiva = false;
         }
 
-        public async void ImportarSelecionado()
+        public void CancelChanges()
+        {
+            DisableCancelAndSave();
+            LoadBtx();
+        }
+    
+
+       
+
+        public async void ImportSelectedTexture()
         {
         
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".png";
             dlg.Filter = "Imagens (.png)|*.png";
-
-           
-            Nullable<bool> result = dlg.ShowDialog();
-
-     
+            bool? result = dlg.ShowDialog();
+   
             if (result == true)
             {
-      
-                //NgcrCarregado.ImportarNgcr.Invoke(dlg.FileName);
-                //ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-                //BtnImportarEstaAtivo = false;
-                //BtnExportarEstaAtivo = false;
-                //BtnCancelarEstaAtivo = true;
-                //BtnSalvarEstaAtivo = true;
-               
+                await Task.Run(() => Btx.ImportOneTexture(dlg.FileName));
+                ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
+               _ = MessageBox.Show($"{Path.GetFileName(SelectedTextureInfo.TextureName)} importado com sucesso.");
+                IsCancelButtonEnabled = true;
+                IsSaveButtonEnabled = true;
             }
-           
-    
 
         }
 
-        public async void ImportarTodos()
+        public async void ImportAllTexturesToBtx()
         {
-            AnimacaoBotaoImportarEstaAtiva = true;
-            DesativarComponentes();
-           // await Task.Run(() => AaiBin.ImportarTodos(ListasDeImportacao));
-            AtivarComponentes();
-            AnimacaoBotaoImportarEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".png";
+            dlg.Filter = "Imagens (.png)|*.png";
+            dlg.Multiselect = true;
+            bool? result = dlg.ShowDialog();
+            if (result == true)
+            {
+                await Task.Run(() => Btx.ImportMultipleTextures(dlg.FileNames));
+                ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
+                IsCancelButtonEnabled = true;
+                IsSaveButtonEnabled = true;
+                _ = MessageBox.Show($"Imagens importadas para {Path.GetFileName(Btx.BtxPath)} com sucesso.");
+                
+            }
 
+        }
+
+        private void SetPropertiesInformation(TextureInfo selectedTextureInfo)
+        {
+            InformacoesImagem = new InformacoesImagem
+            {
+                Altura = selectedTextureInfo.Height,
+                Largura = selectedTextureInfo.Width,
+                BppString = selectedTextureInfo.Bpp.ToString(),
+                QuatidadeCores = selectedTextureInfo.ColorCount
+            };
         }
 
         private void DesativarComponentes()
@@ -397,22 +401,12 @@ namespace JacutemAAI2.WPF.ViewModel
 
         }
 
-        public void VerificarListas()
+        private void DisableCancelAndSave()
         {
-            //ListasDeImportacao = AaiBin.ObtenhaListasDEImportaco(Properties.Settings.Default.PastaInfoBinarios);
-            //Binarios = AaiBin.ObtenhaBinariosDaRom(Properties.Settings.Default.DiretorioRomDesmonstada);
-
-
-            //if (Binarios.Count > 0)
-            //{
-            //    BtnExportarTodosEstaAtivo = true;
-            //}
-
-            //if (ListasDeImportacao.Count > 0)
-            //{
-            //    BtnImportarTodosEstaAtivo = true;
-            //}
+            IsCancelButtonEnabled = false;
+            IsSaveButtonEnabled = false;
         }
+
     }
 
    
