@@ -23,8 +23,6 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Bgs</Label>
-            <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontSize="20">BG</Label>
 
             <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="10,15" HorizontalAlignment="Center" >
 
@@ -33,7 +31,7 @@
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Ncgrs"
-                            DisplayMemberBinding="{Binding Key}" Width="200"/>
+                            DisplayMemberBinding="{Binding Key}" Width="170"/>
                          
                         </GridView>
                     </ListView.View>
@@ -52,7 +50,7 @@
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="auto" Height="150" DataContext="{Binding InformacoesImagem}"  VerticalAlignment="Top">
+                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="auto" Height="150" DataContext="{Binding ImageMetadata}"  VerticalAlignment="Top">
                         <Grid Grid.Row="0" Grid.Column="0">
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="auto"/>
@@ -75,15 +73,15 @@
                             </Label>
 
                             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Foreground="Black" Grid.Row="1">Largura</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="1" Text="{Binding Largura}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="1" Text="{Binding Width}"/>
                             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Black" Grid.Row="2">Altura</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="2"  Text="{Binding Altura}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="2"  Text="{Binding Height}"/>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="3">Intensidade de bits</Label>
                             <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="3" Text="{Binding BppString}"/>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="4">Id da paleta</Label>
                             <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="4">0</TextBlock>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="5">Quantidade de cores</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="5" Text="{Binding QuatidadeCores}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="5" Text="{Binding ColorCount}"/>
                         </Grid>
                     </materialDesign:Card>
 
@@ -108,7 +106,7 @@
 
 
                     
-                    <StackPanel Width="832" Height="200" Grid.Row="1">
+                    <StackPanel Width="832" Height="170" Grid.Row="1">
                         
                         <Grid>
 
@@ -139,7 +137,7 @@
                                 <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnCancelarEstaAtivo}"  Command="{Binding MyCommand[CancelarSalvamento]}" CommandParameter="ParameterValue">
                                     Cancelar
                                 </Button>
-                                <materialDesign:Card Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
+                                <materialDesign:Card Margin="0,10,0,0" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
                                     <DockPanel>
                                         <Image Source="{Binding Palette}" Stretch="None"/>
                                     </DockPanel>

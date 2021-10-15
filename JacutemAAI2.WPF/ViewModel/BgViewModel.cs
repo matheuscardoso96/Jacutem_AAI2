@@ -37,7 +37,7 @@ namespace JacutemAAI2.WPF.ViewModel
         private Ncgr _ngcrCarregado;
         private BitmapImage _imagemCarregada;
         private BitmapImage _palette;
-        private InformacoesImagem _informacoesImagem;
+        private ImageMetadata _imageMetada;
         private bool paletaFoiAlterada = false;
 
         public bool BtnSalvarEstaAtivo
@@ -221,13 +221,13 @@ namespace JacutemAAI2.WPF.ViewModel
                 BtnExportarEstaAtivo = true;
             }
         }
-        public InformacoesImagem InformacoesImagem
+        public ImageMetadata ImageMetadata
         {
-            get { return _informacoesImagem; }
+            get { return _imageMetada; }
             set
             {
-                _informacoesImagem = value;
-                NotifyPropertyChanged("InformacoesImagem");
+                _imageMetada = value;
+                NotifyPropertyChanged("ImageMetadata");
             }
         }
 
@@ -272,13 +272,11 @@ namespace JacutemAAI2.WPF.ViewModel
             string args = CaminhoImagem.Value;
             NgcrCarregado = await Task.Run(() =>GerenciadorConversaoImagens.CarregarNcgr(args));
             ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-            InformacoesImagem = new InformacoesImagem
-            {
-                Altura = NgcrCarregado.Imagens[0].Height,
-                Largura = NgcrCarregado.Imagens[0].Width,
-                BppString = NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
-                QuatidadeCores = NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2
-            };
+            ImageMetadata = new ImageMetadata(
+                NgcrCarregado.Imagens[0].Width,
+                NgcrCarregado.Imagens[0].Height,
+                NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
+                NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2);
 
             Palette = PaletteVisualGenerator.CreateImage(NgcrCarregado.ArquivoNclr.Colors);
 

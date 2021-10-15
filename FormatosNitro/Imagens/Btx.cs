@@ -14,6 +14,7 @@ namespace FormatosNitro.Imagens
 {
     public class Btx
     {
+        public List<string> Errors = new List<string>();
         public List<TextureInfo> TextureInfos { get; set; }
         public List<PaletteInfo> PaletteInfos { get; set; }
         public string BtxPath { get; set; }
@@ -22,18 +23,12 @@ namespace FormatosNitro.Imagens
         public int TextureInfosBaseOffset {get;set;}
         public int BaseOffsetTextures { get; set; }
         public byte[] BtxBytes { get; set; }
-        public Btx()
-        {
-
-        }
 
         public Btx(string dirBtx)
         {
             BtxPath = dirBtx.Split(',')[0];
             ExportPath = $"{dirBtx.Split(',')[1]}{Path.GetFileName(BtxPath).Replace(".btx", "")}\\";
             BtxBytes = File.ReadAllBytes(BtxPath);
-
-            var txtInfo = new List<TextureInfo>();
 
             using (BinaryReader br = new BinaryReader(new MemoryStream(BtxBytes)))
             {
@@ -42,7 +37,7 @@ namespace FormatosNitro.Imagens
                 int textInfoOffset = br.ReadInt16();
 
                 br.BaseStream.Position = TextureInfosBaseOffset + 0x34;
-                int PaletteInfosOffset = br.ReadInt32();
+                int paletteInfosOffset = br.ReadInt32();
                 PalettesOffset = br.ReadInt32();
 
                 br.BaseStream.Position = TextureInfosBaseOffset + 0x14;
@@ -52,43 +47,18 @@ namespace FormatosNitro.Imagens
                 br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 6;
                 int tamanhoHeaderUkn = br.ReadInt16();
                 textInfoOffset += 4;
-                br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn;
-
+                TextureInfos = GetTextureInfos(br, TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn, objectCount);              
                 
-
-                for (int i = 0; i < objectCount; i++)
-                {
-                    ushort textureOffset = br.ReadUInt16();
-                    int paramss = br.ReadUInt16() >> 4;
-                    br.BaseStream.Position += 4;
-
-                    TextureInfo textureInfo = new TextureInfo();
-                    textureInfo.Offset = textureOffset << 3;
-                    textureInfo.Index = i;
-                    textureInfo.Width = (8 << (paramss & 7));
-                    paramss = paramss >> 3;
-                    textureInfo.Height = (8 << (paramss & 7));
-                    paramss = paramss >> 3;
-                    textureInfo.Format = paramss & 7;
-                    txtInfo.Add(textureInfo);
-
-                }
-
-                foreach (var info in txtInfo)
-                {
-                    info.TextureName = Encoding.ASCII.GetString(br.ReadBytes(0x10)).Replace("\0", "");
-                }
-
-                br.BaseStream.Position = TextureInfosBaseOffset + PaletteInfosOffset + 1;
-
+                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 1;
+               
                 int paletteCount = br.ReadByte();
-
-                br.BaseStream.Position = TextureInfosBaseOffset + PaletteInfosOffset + 6;
+                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 6;
                 int paletteInfoSectionSize = br.ReadUInt16();
-                PaletteInfosOffset += 4;             
-                PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + PaletteInfosOffset + paletteInfoSectionSize, paletteCount);
-                LoadTextures(br, txtInfo);
-                TextureInfos = txtInfo;
+                paletteInfosOffset += 4;             
+                PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + paletteInfosOffset + paletteInfoSectionSize, paletteCount);
+                
+                LoadTextures(br, TextureInfos);
+
             }
 
 
@@ -114,8 +84,39 @@ namespace FormatosNitro.Imagens
             return paleteInfos;
         }
 
+        private List<TextureInfo> GetTextureInfos(BinaryReader br, int offset, int objectCount)
+        {
+            br.BaseStream.Position = offset;
+            var txtInfo = new List<TextureInfo>();
+            for (int i = 0; i < objectCount; i++)
+            {
+                ushort textureOffset = br.ReadUInt16();
+                int paramss = br.ReadUInt16() >> 4;
+                br.BaseStream.Position += 4;
+
+                TextureInfo textureInfo = new TextureInfo();
+                textureInfo.Offset = textureOffset << 3;
+                textureInfo.Index = i;
+                textureInfo.Width = (8 << (paramss & 7));
+                paramss = paramss >> 3;
+                textureInfo.Height = (8 << (paramss & 7));
+                paramss = paramss >> 3;
+                textureInfo.Format = paramss & 7;
+                txtInfo.Add(textureInfo);
+
+            }
+
+            foreach (var info in txtInfo)
+            {
+                info.TextureName = Encoding.ASCII.GetString(br.ReadBytes(0x10)).Replace("\0", "");
+            }
+
+            return txtInfo;
+        }
+
         public void LoadTextures(BinaryReader br, List<TextureInfo> textureInfos)
         {
+
             foreach (var textura in textureInfos)
             {
                 int texturesByteSize = 0;
@@ -145,16 +146,17 @@ namespace FormatosNitro.Imagens
         {
             br.BaseStream.Position = info.Offset + BaseOffsetTextures + TextureInfosBaseOffset;
             byte[] img = br.ReadBytes(textureSize);
-            var pInfo = PaletteInfos.First(x => x.PaletteName.Contains(info.TextureName + "_pl"));
-            br.BaseStream.Position = PalettesOffset + TextureInfosBaseOffset + pInfo.Offset;
+            var pInfoIndex = PaletteInfos.FindIndex(x => x.PaletteName.Contains(info.TextureName + "_pl"));
+            br.BaseStream.Position = PalettesOffset + TextureInfosBaseOffset + PaletteInfos[pInfoIndex].Offset;
             byte[] palette = br.ReadBytes(paletteSize);
-            pInfo.Palette = palette;
+            PaletteInfos[pInfoIndex].PaletteBytes = palette;
             info.ColorCount = paletteSize / 2;
             BGR565 bGR565 = new BGR565(palette);
+            PaletteInfos[pInfoIndex].Palette = bGR565.Colors;
             info.TextureImage = ImageConverter.RawIndexedToBitmap(img, info.Width, info.Height, bGR565, TileMode.NotTiled, colorDepth);
             info.Bpp = colorDepth;
+            info.PaletteIndex = pInfoIndex;
         }
-
 
         public void ExportAllTextures()
         {
@@ -184,14 +186,24 @@ namespace FormatosNitro.Imagens
 
             using (BinaryWriter bw = new BinaryWriter(btx))
             {
-
-                var txtInfo = TextureInfos.Find(t => t.TextureName.Contains(Path.GetFileName(png).Replace(".png", "")));
+                string texureName = Path.GetFileName(png).Replace(".png", "");
+                var txtInfo = TextureInfos.Find(t => t.TextureName.Contains(texureName));
                 if (txtInfo != null)
                 {
-                    ConvertAndInsert(txtInfo,bw, new Bitmap(png));
-                    BtxBytes = btx.ToArray();
+                    var temp = new Bitmap(png);
+                    ValidateTexure(temp, txtInfo);
+                    if (Errors.Count == 0)
+                    {
+                        ConvertAndInsert(txtInfo, bw, temp);
+                        BtxBytes = btx.ToArray();
+                    }
+                 
                 }
-               
+                else
+                {
+                    Errors.Add($"{texureName} não encontrado.");
+                }
+
             }
 
         }
@@ -204,11 +216,23 @@ namespace FormatosNitro.Imagens
             {
                 foreach (var png in pngsPaths)
                 {
-                    var txtInfo = TextureInfos.Find(t => t.TextureName.Contains(Path.GetFileName(png).Replace(".png", "")));
+                    string texureName = Path.GetFileName(png).Replace(".png", "");
+                    var txtInfo = TextureInfos.Find(t => t.TextureName.Contains(texureName));
                     if (txtInfo != null)
                     {
-                        ConvertAndInsert(txtInfo, bw, new Bitmap(png));
-                        
+                        Bitmap temp = new Bitmap(png);
+                        ValidateTexure(temp, txtInfo);
+                        if (Errors.Count == 0)
+                        {
+                            ConvertAndInsert(txtInfo, bw, temp);
+                        }
+
+                        temp.Dispose();
+
+                    }
+                    else
+                    {
+                        Errors.Add($"{texureName} não encontrado.");
                     }
                 }
 
@@ -221,7 +245,7 @@ namespace FormatosNitro.Imagens
         private void ConvertAndInsert(TextureInfo info, BinaryWriter bw, Bitmap png)
         {
             var palInfo = PaletteInfos.First(x => x.PaletteName.Contains(info.TextureName + "_pl"));
-            BGR565 bGR565 = new BGR565(palInfo.Palette);
+            BGR565 bGR565 = new BGR565(palInfo.PaletteBytes);
             byte[] img = new byte[0];
             bw.BaseStream.Position = info.Offset + BaseOffsetTextures + TextureInfosBaseOffset;
 
@@ -256,6 +280,30 @@ namespace FormatosNitro.Imagens
         {
             File.WriteAllBytes(BtxPath, BtxBytes);
         }
+
+        private void ValidateTexure(Bitmap png, TextureInfo textureInfo)
+        {
+            if (png.Width > textureInfo.Width)
+            {
+                Errors.Add("A textura importada possui largura maior que a original.");
+            }
+
+            if (png.Height > textureInfo.Height)
+            {
+                Errors.Add("A textura importada possui altura maior que a original.");
+            }
+
+            if (png.Width < textureInfo.Width)
+            {
+                Errors.Add("A textura importada possui largura menor que a original.");
+            }
+
+            if (png.Height < textureInfo.Height)
+            {
+                Errors.Add("A textura importada possui altura menor que a original.");
+            }
+        
+        }
     }
 
     public class TextureInfo
@@ -267,6 +315,7 @@ namespace FormatosNitro.Imagens
         public int Width { get; set; }
         public int Format { get; set; }
         public ColorDepth Bpp { get; set; }
+        public int PaletteIndex { get; set; }
         public int ColorCount { get; set; }
         public string TextureName { get; set; }
         public Bitmap TextureImage { get; set; }
@@ -281,7 +330,8 @@ namespace FormatosNitro.Imagens
     {
         public int Offset { get; set; }
         public string PaletteName { get; set; }
-        public byte[] Palette { get; set; }
+        public Color[] Palette { get; set; }
+        public byte[] PaletteBytes { get; set; }
 
     }
 

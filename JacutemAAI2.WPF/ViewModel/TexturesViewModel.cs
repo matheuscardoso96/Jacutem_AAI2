@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using JacutemAAI2.WPF.Imagens;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -26,19 +27,44 @@ namespace JacutemAAI2.WPF.ViewModel
         public Dictionary<string, DelegateCommand> MyCommand { get; set; }
         private bool _isSaveButtonEnabled = false;
         private bool _isCancelButtonEnabled = false;
-        private bool _btnExportarEstaAtivo;
-        private bool _btnImportarEstaAtivo;
-        private bool _btnExportarTodosEstaAtivo = false;
-        private bool _btnImportarTodosEstaAtivo = false;
-        private bool _listaEstaAtiva = true;
-        private bool _animacaoBotaoEstaAtiva = false;
-        private bool _animacaoBotaoImportarEstaAtiva = false;
+        private bool _isExportButtonEnabled;
+        private bool _isImportButtonEnabled;
+        private bool _isListEnabled = true;
+        private bool _isStatusBarAnimationEnabled = false;
+        private Visibility _statusBarVisibility;
         private Btx _btx;
         private TextureInfo _textureInfo;
-        private BitmapImage _imagemCarregada;
+        private BitmapImage _loadedImage;
         private BitmapImage _palette;
-        private InformacoesImagem _informacoesImagem;
-        private bool paletaFoiAlterada = false;
+        private ImageMetadata _imageMetaData;
+        private bool _isExecutingBatchOperation = false;
+        private string _statusText;
+
+        public string StatusText
+        {
+            get
+            {
+                return _statusText;
+            }
+            set
+            {
+                _statusText = value;
+                NotifyPropertyChanged("StatusText");
+            }
+        }
+
+        public Visibility StatusBarVisibility
+        {
+            get
+            {
+                return _statusBarVisibility;
+            }
+            set
+            {
+                _statusBarVisibility = value;
+                NotifyPropertyChanged("StatusBarVisibility");
+            }
+        }
 
         public bool IsSaveButtonEnabled
         {
@@ -80,25 +106,26 @@ namespace JacutemAAI2.WPF.ViewModel
                 NotifyPropertyChanged("SelectedTextureInfo");
                 if (SelectedTextureInfo != null)
                 {
-                    ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
-                    SetPropertiesInformation(SelectedTextureInfo);
-                    BtnExportarEstaAtivo = true;
-                    BtnImportarEstaAtivo = true;
+                    LoadedImage = SelectedTextureInfo.TextureImage.ToImageSource();
+                    SetImageMetada(SelectedTextureInfo);
+                    IsExportButtonEnabled = true;
+                    IsImportButtonEnabled = true;
+                    Palette = PaletteVisualGenerator.CreateImage(Btx.PaletteInfos[SelectedTextureInfo.PaletteIndex].Palette);
                 }
 
             }
         }   
 
-        public BitmapImage ImagemCarregada
+        public BitmapImage LoadedImage
         {
             get
             {
-                return _imagemCarregada;
+                return _loadedImage;
             }
             set
             {
-                _imagemCarregada = value;
-                NotifyPropertyChanged("ImagemCarregada");
+                _loadedImage = value;
+                NotifyPropertyChanged("LoadedImage");
             }
         }
 
@@ -115,93 +142,55 @@ namespace JacutemAAI2.WPF.ViewModel
             }
         }
 
-        public bool BtnExportarEstaAtivo
+        public bool IsExportButtonEnabled
         {
             get
             {
-                return _btnExportarEstaAtivo;
+                return _isExportButtonEnabled;
             }
             set
             {
-                _btnExportarEstaAtivo = value;
-                NotifyPropertyChanged("BtnExportarEstaAtivo");
-            }
-        }
-        public bool BtnExportarTodosEstaAtivo
-        {
-            get
-            {
-                return _btnExportarTodosEstaAtivo;
-            }
-            set
-            {
-                _btnExportarTodosEstaAtivo = value;
-                NotifyPropertyChanged("BtnExportarTodosEstaAtivo");
+                _isExportButtonEnabled = value;
+                NotifyPropertyChanged("IsExportButtonEnabled");
             }
         }
 
-        public bool BtnImportarEstaAtivo
+        public bool IsImportButtonEnabled
         {
             get
             {
-                return _btnImportarEstaAtivo;
+                return _isImportButtonEnabled;
             }
             set
             {
-                _btnImportarEstaAtivo = value;
-                NotifyPropertyChanged("BtnImportarEstaAtivo");
+                _isImportButtonEnabled = value;
+                NotifyPropertyChanged("IsImportButtonEnabled");
             }
         }
 
-        public bool BtnImportarTodosEstaAtivo
+        public bool IsListEnabled
         {
             get
             {
-                return _btnImportarTodosEstaAtivo;
+                return _isListEnabled;
             }
             set
             {
-                _btnImportarTodosEstaAtivo = value;
-                NotifyPropertyChanged("BtnImportarTodosEstaAtivo");
+                _isListEnabled = value;
+                NotifyPropertyChanged("IsListEnabled");
             }
         }
 
-        public bool ListaEstaAtiva
+        public bool IsStatusBarAnimationEnabled
         {
             get
             {
-                return _listaEstaAtiva;
+                return _isStatusBarAnimationEnabled;
             }
             set
             {
-                _listaEstaAtiva = value;
-                NotifyPropertyChanged("ListaEstaAtiva");
-            }
-        }
-
-        public bool AnimacaoBotaoEstaAtiva
-        {
-            get
-            {
-                return _animacaoBotaoEstaAtiva;
-            }
-            set
-            {
-                _animacaoBotaoEstaAtiva = value;
-                NotifyPropertyChanged("AnimacaoBotaoEstaAtiva");
-            }
-        }
-
-        public bool AnimacaoBotaoImportarEstaAtiva
-        {
-            get
-            {
-                return _animacaoBotaoImportarEstaAtiva;
-            }
-            set
-            {
-                _animacaoBotaoImportarEstaAtiva = value;
-                NotifyPropertyChanged("AnimacaoBotaoImportarEstaAtiva");
+                _isStatusBarAnimationEnabled = value;
+                NotifyPropertyChanged("IsStatusBarAnimationEnabled");
             }
         }
 
@@ -218,9 +207,6 @@ namespace JacutemAAI2.WPF.ViewModel
 
             }
         }
-
-
-
 
         public KeyValuePair<string,string> TexturePath
         {
@@ -240,18 +226,17 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 _btx = value;
                 NotifyPropertyChanged("Btx");
-                ImagemCarregada = null;
-               // BtnImportarEstaAtivo = true;
-                //BtnExportarEstaAtivo = true;
+                LoadedImage = null;
+                DisableCancelAndSave();
             }
         }
-        public InformacoesImagem InformacoesImagem
+        public ImageMetadata ImageMetaData
         {
-            get { return _informacoesImagem; }
+            get { return _imageMetaData; }
             set
             {
-                _informacoesImagem = value;
-                NotifyPropertyChanged("InformacoesImagem");
+                _imageMetaData = value;
+                NotifyPropertyChanged("ImageMetaData");
             }
         }
 
@@ -263,11 +248,12 @@ namespace JacutemAAI2.WPF.ViewModel
             {
                 ["SaveBtxToFile"] = new DelegateCommand(SaveBtxToFile).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
                 ["CancelChanges"] = new DelegateCommand(CancelChanges).ObservesCanExecute(() => IsCancelButtonEnabled),
-                ["ExportSelectedTexture"] = new DelegateCommand(ExportSelectedTexture).ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["ImportSelectedTexture"] = new DelegateCommand(ImportSelectedTexture).ObservesCanExecute(() => BtnImportarEstaAtivo),
-                ["ExportAllTexturesFromBtx"] = new DelegateCommand(ExportAllTexturesFromBtx).ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["ImportAllTexturesToBtx"] = new DelegateCommand(ImportAllTexturesToBtx).ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["ExportarAllBtx"] = new DelegateCommand(ExportarAllBtx)
+                ["ExportSelectedTexture"] = new DelegateCommand(ExportSelectedTexture).ObservesCanExecute(() => IsExportButtonEnabled),
+                ["ImportSelectedTexture"] = new DelegateCommand(ImportSelectedTexture).ObservesCanExecute(() => IsImportButtonEnabled),
+                ["ExportAllTexturesFromBtx"] = new DelegateCommand(ExportAllTexturesFromBtx).ObservesCanExecute(() => IsExportButtonEnabled),
+                ["ImportAllTexturesToBtx"] = new DelegateCommand(ImportAllTexturesToBtx).ObservesCanExecute(() => IsImportButtonEnabled),
+                ["ExportarAllBtx"] = new DelegateCommand(ExportarAllBtx),
+                ["ImportAllBtx"] = new DelegateCommand(ImportAllBtx)
 
             };
 
@@ -278,6 +264,8 @@ namespace JacutemAAI2.WPF.ViewModel
                 TexturesPaths.Add(item.Key, item.Value);
             }
 
+            IsListEnabled = true;
+            StatusBarVisibility = Visibility.Hidden;
         }
 
         private void NotifyPropertyChanged(string propertyName)
@@ -306,17 +294,19 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public void SaveBtxToFile()
         {
-            Btx.SaveToFile();
-            MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} salvo com sucesso.");
-            DisableCancelAndSave();
+            if (!_isExecutingBatchOperation)
+            {
+                Btx.SaveToFile();
+                _ = MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} salvo com sucesso.");
+                DisableCancelAndSave();
+            }
+            
         }
 
         public async void ExportarAllBtx()
         {
             await Task.Run(() => _texturesMap.Lista.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
-            MessageBox.Show("Texutras exportadas com sucesso.");
-
-            AnimacaoBotaoEstaAtiva = false;
+            _ = MessageBox.Show("Texutras exportadas com sucesso.");
         }
 
         public void CancelChanges()
@@ -324,25 +314,32 @@ namespace JacutemAAI2.WPF.ViewModel
             DisableCancelAndSave();
             LoadBtx();
         }
-    
-
-       
 
         public async void ImportSelectedTexture()
         {
-        
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".png";
             dlg.Filter = "Imagens (.png)|*.png";
             bool? result = dlg.ShowDialog();
-   
+
             if (result == true)
             {
                 await Task.Run(() => Btx.ImportOneTexture(dlg.FileName));
-                ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
-               _ = MessageBox.Show($"{Path.GetFileName(SelectedTextureInfo.TextureName)} importado com sucesso.");
-                IsCancelButtonEnabled = true;
-                IsSaveButtonEnabled = true;
+                LoadedImage = SelectedTextureInfo.TextureImage.ToImageSource();
+                EnableStatus("Importando texturas...");
+                if (Btx.Errors.Count == 0)
+                {
+                    _ = MessageBox.Show($"{Path.GetFileName(SelectedTextureInfo.TextureName)} importado com sucesso.");
+                    IsCancelButtonEnabled = true;
+                    IsSaveButtonEnabled = true;
+                }
+                else
+                {
+                    _ = MessageBox.Show($"{string.Join("\r\n", Btx.Errors)}");
+                    Btx.Errors = new List<string>();
+                }
+                
+                DisableStatus();
             }
 
         }
@@ -356,49 +353,92 @@ namespace JacutemAAI2.WPF.ViewModel
             bool? result = dlg.ShowDialog();
             if (result == true)
             {
+                EnableStatus("Importando texturas...");
                 await Task.Run(() => Btx.ImportMultipleTextures(dlg.FileNames));
-                ImagemCarregada = SelectedTextureInfo.TextureImage.ToImageSource();
-                IsCancelButtonEnabled = true;
-                IsSaveButtonEnabled = true;
-                _ = MessageBox.Show($"Imagens importadas para {Path.GetFileName(Btx.BtxPath)} com sucesso.");
-                
+                LoadedImage = SelectedTextureInfo.TextureImage.ToImageSource();
+                if (Btx.Errors.Count == 0)
+                {
+                    IsCancelButtonEnabled = true;
+                    IsSaveButtonEnabled = true;
+                    _ = MessageBox.Show($"Imagens importadas para {Path.GetFileName(Btx.BtxPath)} com sucesso.");
+                }
+                else
+                {
+                    _ = MessageBox.Show($"{string.Join("\r\n", Btx.Errors)}");
+                    Btx.Errors = new List<string>();
+                }
+                DisableStatus();
             }
 
         }
 
-        private void SetPropertiesInformation(TextureInfo selectedTextureInfo)
+        public async void ImportAllBtx()
         {
-            InformacoesImagem = new InformacoesImagem
+            _isExecutingBatchOperation = true;
+            CommonOpenFileDialog commonOpenFileDialog = new CommonOpenFileDialog();
+            commonOpenFileDialog.IsFolderPicker = true;
+            var importErros = new List<string>();
+            if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                Altura = selectedTextureInfo.Height,
-                Largura = selectedTextureInfo.Width,
-                BppString = selectedTextureInfo.Bpp.ToString(),
-                QuatidadeCores = selectedTextureInfo.ColorCount
-            };
+                EnableStatus("Importando texturas...");
+                DisableViewComponents();
+                string[] folders = Directory.GetDirectories(commonOpenFileDialog.FileName);
+                foreach (var finalDir in folders)
+                {
+                    string arg;
+                    _texturesMap.Lista.TryGetValue($"{finalDir.Split('\\').Last()}.btx", out arg);
+                    if (arg != null)
+                    {
+                        Btx tmp = new Btx(arg);
+                        await Task.Run(() => tmp.ImportMultipleTextures(Directory.GetFiles(finalDir)));
+                        if (tmp.Errors.Count == 0)
+                        {
+                            tmp.SaveToFile();
+                        }
+                        else
+                        {
+                            importErros.AddRange(tmp.Errors);
+                        }
+
+                        tmp.TextureInfos.ForEach(x => x.TextureImage.Dispose());
+
+                    }
+                }
+                EnableViewComponents();
+                DisableStatus();
+                if (importErros.Count == 0)
+                {
+                    _ = MessageBox.Show($"Imagens importadas com sucesso.");
+                }
+                else
+                {
+                    _ = MessageBox.Show($"{string.Join("\r\n", importErros)}");
+                }
+                
+
+            }
+            _isExecutingBatchOperation = false;
+
         }
 
-        private void DesativarComponentes()
+        private void SetImageMetada(TextureInfo selectedTextureInfo)
         {
-
-            BtnExportarEstaAtivo = false;
-            BtnExportarTodosEstaAtivo = false;
-            ListaEstaAtiva = false;
-            BtnImportarEstaAtivo = false;
-            BtnImportarTodosEstaAtivo = false;
-
+            ImageMetaData = new ImageMetadata(selectedTextureInfo.Width, selectedTextureInfo.Height, selectedTextureInfo.Bpp.ToString(), selectedTextureInfo.ColorCount);
 
         }
 
-        private void AtivarComponentes()
+        private void DisableViewComponents()
         {
+            IsListEnabled = false;
+            IsExportButtonEnabled = false;
+            IsImportButtonEnabled = false;
+        }
 
-            BtnExportarEstaAtivo = true;
-            BtnExportarTodosEstaAtivo = true;
-            BtnImportarEstaAtivo = true;
-            ListaEstaAtiva = true;
-            BtnImportarTodosEstaAtivo = true;
-
-
+        private void EnableViewComponents()
+        {
+           IsListEnabled = true;
+           IsExportButtonEnabled = true;
+           IsImportButtonEnabled = true;
         }
 
         private void DisableCancelAndSave()
@@ -407,6 +447,19 @@ namespace JacutemAAI2.WPF.ViewModel
             IsSaveButtonEnabled = false;
         }
 
+        private void EnableStatus(string text)
+        {
+            StatusBarVisibility = Visibility.Visible;
+            IsStatusBarAnimationEnabled = true;
+            StatusText = text;
+        }
+
+        private void DisableStatus()
+        {
+            IsStatusBarAnimationEnabled = false;
+            StatusBarVisibility = Visibility.Hidden;
+            StatusText = null;
+        }
     }
 
    

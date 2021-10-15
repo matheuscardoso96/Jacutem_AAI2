@@ -25,25 +25,22 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Row="0" HorizontalAlignment="Center">Lista de Texturas</Label>
-            <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontSize="20">
-                <TextBlock>Texturas de modelos 3D</TextBlock> </Label>
 
             <materialDesign:Card Height="auto" Margin="10,15"  Width="210" Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" >
 
 
-                <ListView ItemsSource="{Binding TexturesPaths}" SelectedItem="{Binding TexturePath}">
+                <ListView ItemsSource="{Binding TexturesPaths}" Width="auto" SelectedItem="{Binding TexturePath}" IsEnabled="{Binding IsListEnabled}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Btx"
-                            DisplayMemberBinding="{Binding Key}" Width="200"/>
+                            DisplayMemberBinding="{Binding Key}" Width="140"/>
 
                         </GridView>
                     </ListView.View>
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem  Header="Exportar todos os Btx da lista"  Command="{Binding MyCommand[ExportarAllBtx]}" CommandParameter="ParameterValue"/>
-                            <MenuItem  Header="Importar todos"  Command="{Binding MyCommand[ExportarImagemCarregada]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Importar todos"  Command="{Binding MyCommand[ImportAllBtx]}" CommandParameter="ParameterValue"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>
@@ -52,12 +49,12 @@
             <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="1" Margin="10,15" HorizontalAlignment="Center" >
 
 
-                <ListView  ItemsSource="{Binding Btx.TextureInfos}" SelectedItem="{Binding SelectedTextureInfo}">
+                <ListView  ItemsSource="{Binding Btx.TextureInfos}" SelectedItem="{Binding SelectedTextureInfo}" IsEnabled="{Binding IsListEnabled}">
                     <ListView.View>
 
                         <GridView>
                             <GridViewColumn Header="Texturas"
-                             Width="200"/>
+                             Width="170"/>
 
 
                         </GridView>
@@ -72,18 +69,19 @@
 
             </materialDesign:Card>
 
-            <materialDesign:Card Height="auto" Width="auto" Grid.Column="2" Margin="10,15,-10,0" Grid.Row="1" VerticalAlignment="Top" >
+            <materialDesign:Card Height="auto" Width="auto" Grid.Column="2" Margin="7,15,3,0" Grid.Row="1" VerticalAlignment="Top" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="60"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="600"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="160" Height="150" DataContext="{Binding InformacoesImagem}"  VerticalAlignment="Top">
+                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="1" Width="190" Height="150" DataContext="{Binding ImageMetaData}"  VerticalAlignment="Top">
                         <Grid Grid.Row="0" Grid.Column="0">
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="auto"/>
@@ -106,15 +104,15 @@
                             </Label>
 
                             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Foreground="Black" Grid.Row="1">Largura</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="1" Text="{Binding Largura}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="1" Text="{Binding Width}"/>
                             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="Black" Grid.Row="2">Altura</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="2"  Text="{Binding Altura}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="2"  Text="{Binding Height}"/>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="3">Bpp</Label>
                             <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="3" Text="{Binding BppString}"/>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="4">Id da paleta</Label>
                             <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="4">0</TextBlock>
                             <Label HorizontalAlignment="Left"  Foreground="Black" Grid.Row="5">Quantidade de cores</Label>
-                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="5" Text="{Binding QuatidadeCores}"/>
+                            <TextBlock HorizontalAlignment="Right" Margin="0,4,5,0" Grid.Row="5" Text="{Binding ColorCount}"/>
                         </Grid>
                     </materialDesign:Card>
 
@@ -122,7 +120,7 @@
                         <StackPanel.Background>
                             <SolidColorBrush Color="LimeGreen"/>
                         </StackPanel.Background>
-                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="256" Source="{Binding ImagemCarregada}" Stretch="None">
+                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="256" Source="{Binding LoadedImage}" Stretch="None">
                             <Image.ContextMenu>
                                 <ContextMenu>
 
@@ -137,19 +135,16 @@
                         </Image>
                     </StackPanel>
 
-
-
-                    <StackPanel Width="770" Height="200" Grid.Row="1">
+                    <StackPanel Width="795" Height="200" Grid.Row="1">
 
                         <Grid>
-
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto"/>
                                 <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
+                                
                             </Grid.ColumnDefinitions>
 
                             <Grid Grid.Row="0" Grid.Column="1">
@@ -157,20 +152,20 @@
                                     <RowDefinition Height="auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
+            
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
 
 
-                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding MyCommand[SaveBtxToFile]}" CommandParameter="ParameterValue">
+                                <Button Margin="10,20,0,0" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding MyCommand[SaveBtxToFile]}" CommandParameter="ParameterValue">
                                     Salvar
                                 </Button>
 
                                 <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding MyCommand[CancelChanges]}" CommandParameter="ParameterValue">
                                     Cancelar
                                 </Button>
-                                <materialDesign:Card Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="450,0,150,10" Width="140" Height="140" >
+                                <materialDesign:Card Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="450,10,150,10" Width="140" Height="140" >
                                     <DockPanel>
                                         <Image Source="{Binding Palette}" Stretch="None"/>
                                     </DockPanel>
@@ -188,10 +183,28 @@
                         </Grid>
 
                     </StackPanel>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button
+                    Style="{StaticResource MaterialDesignFloatingActionButton}"
+                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                    materialDesign:ButtonProgressAssist.Value="-1"
+                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsStatusBarAnimationEnabled}"
+                    Content="{materialDesign:PackIcon DotsHorizontal}" Visibility="{Binding StatusBarVisibility}" Margin="10" Grid.Column="0"  Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Top" Width="20" Height="20"/>
+                        <TextBlock Margin="0,14,0,0" Grid.Row="2" Visibility="{Binding StatusBarVisibility}" Grid.Column="1" Text="{Binding StatusText}"/>
+                    </Grid>
+                    
                 </Grid>
 
 
             </materialDesign:Card>
+
+           
+
 
 
 

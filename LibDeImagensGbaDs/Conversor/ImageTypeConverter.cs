@@ -70,9 +70,8 @@ namespace LibDeImagensGbaDs.Conversor
             foreach (var tile in tiles)
             {
                 Color[] colors = tile.GetColors();
-                foreach (var cor in colors)
-                    indexes.Add(paleta.GetNearColorIndex(cor));
-
+                foreach (var color in colors)
+                    indexes.Add(paleta.GetNearColorIndex(color));
             }
 
             return indexes.ToArray();
