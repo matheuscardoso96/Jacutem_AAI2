@@ -29,7 +29,7 @@
             <materialDesign:Card Height="auto" Margin="10,15"  Width="210" Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" >
 
 
-                <ListView ItemsSource="{Binding TexturesPaths}" Width="auto" SelectedItem="{Binding TexturePath}" IsEnabled="{Binding IsListEnabled}">
+                <ListView ItemsSource="{Binding Path=FilePaths.List}" Width="auto" SelectedItem="{Binding SelectedPath}" IsEnabled="{Binding IsListEnabled}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Btx"
@@ -39,8 +39,8 @@
                     </ListView.View>
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem  Header="Exportar todos os Btx da lista"  Command="{Binding MyCommand[ExportarAllBtx]}" CommandParameter="ParameterValue"/>
-                            <MenuItem  Header="Importar todos"  Command="{Binding MyCommand[ImportAllBtx]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Exportar todos os Btx da lista"  Command="{Binding ScreenCommands[ExportarAllBtx]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Importar todos"  Command="{Binding ScreenCommands[ImportAllBtx]}" CommandParameter="ParameterValue"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>
@@ -61,8 +61,8 @@
                     </ListView.View>
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem  Header="Exportar todos"  Command="{Binding MyCommand[ExportAllTexturesFromBtx]}" CommandParameter="ParameterValue"/>
-                            <MenuItem  Header="Importar todos"  Command="{Binding MyCommand[ImportAllTexturesToBtx]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Exportar todos"  Command="{Binding ScreenCommands[ExportAllTexturesFromBtx]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Importar todos"  Command="{Binding ScreenCommands[ImportAllTexturesToBtx]}" CommandParameter="ParameterValue"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>
@@ -124,10 +124,10 @@
                             <Image.ContextMenu>
                                 <ContextMenu>
 
-                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding MyCommand[ExportSelectedTexture]}" CommandParameter="ParameterValue"/>
+                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding ScreenCommands[ExportSelectedTexture]}" CommandParameter="ParameterValue"/>
 
                                     <MenuItem Header="Importar">
-                                        <MenuItem Command="{Binding MyCommand[ImportSelectedTexture]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
+                                        <MenuItem Command="{Binding ScreenCommands[ImportSelectedTexture]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
                                         <MenuItem  Header="Gerando nova paleta"></MenuItem>
                                     </MenuItem>
                                 </ContextMenu>
@@ -158,11 +158,11 @@
 
 
 
-                                <Button Margin="10,20,0,0" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding MyCommand[SaveBtxToFile]}" CommandParameter="ParameterValue">
+                                <Button Margin="10,20,0,0" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding ScreenCommands[SaveChanges]}" CommandParameter="ParameterValue">
                                     Salvar
                                 </Button>
 
-                                <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding MyCommand[CancelChanges]}" CommandParameter="ParameterValue">
+                                <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding ScreenCommands[CancelChanges]}" CommandParameter="ParameterValue">
                                     Cancelar
                                 </Button>
                                 <materialDesign:Card Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="450,10,150,10" Width="140" Height="140" >

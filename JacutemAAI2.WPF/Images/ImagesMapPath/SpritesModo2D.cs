@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace JacutemAAI2.WPF.Imagens.MapaDeArquivos
+namespace JacutemAAI2.WPF.Images.ImagesMapPath
 {
-    public class SpritesModo2D : MapaDeArquivos
+    public class SpritesModo2D : FilePaths
     {
         public SpritesModo2D()
         {
-            Tipo = "Sprites Modo 2D";
-            Lista = new Dictionary<string, string>()
+            Type = "Sprites Modo 2D";
+            List = new Dictionary<string, string>()
             {
                 ["0002_opening.ncgr"] = @"__Binarios\com_opening\0002_opening.ncgr,__Binarios\com_opening\0003_opening.nclr,__Binarios\com_opening\0001_opening.ncer,__Imagens\com_opening\",
                 ["0006_opening.ncgr"] = @"__Binarios\com_opening\0006_opening.ncgr,__Binarios\com_opening\0007_opening.nclr,__Binarios\com_opening\0005_opening.ncer,__Imagens\com_opening\",

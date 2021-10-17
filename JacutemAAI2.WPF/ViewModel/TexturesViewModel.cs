@@ -1,98 +1,22 @@
 ﻿using FormatosNitro.Imagens;
 using JacutemAAI2.WPF.Ferramentas.Internas;
-using JacutemAAI2.WPF.Imagens.MapaDeArquivos;
+using JacutemAAI2.WPF.Images.ImagesMapPath;
 using Prism.Commands;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
-using JacutemAAI2.WPF.Imagens;
+using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
-    public class TexturesViewModel : INotifyPropertyChanged
+    public class TexturesViewModel : ImageViewModelBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private Dictionary<string, string> _texturesPath;
-        private TexturesMap _texturesMap = new TexturesMap();
-        KeyValuePair<string, string> _texturePath;
-        public Dictionary<string, DelegateCommand> MyCommand { get; set; }
-        private bool _isSaveButtonEnabled = false;
-        private bool _isCancelButtonEnabled = false;
-        private bool _isExportButtonEnabled;
-        private bool _isImportButtonEnabled;
-        private bool _isListEnabled = true;
-        private bool _isStatusBarAnimationEnabled = false;
-        private Visibility _statusBarVisibility;
         private Btx _btx;
         private TextureInfo _textureInfo;
-        private BitmapImage _loadedImage;
-        private BitmapImage _palette;
-        private ImageMetadata _imageMetaData;
-        private bool _isExecutingBatchOperation = false;
-        private string _statusText;
-
-        public string StatusText
-        {
-            get
-            {
-                return _statusText;
-            }
-            set
-            {
-                _statusText = value;
-                NotifyPropertyChanged("StatusText");
-            }
-        }
-
-        public Visibility StatusBarVisibility
-        {
-            get
-            {
-                return _statusBarVisibility;
-            }
-            set
-            {
-                _statusBarVisibility = value;
-                NotifyPropertyChanged("StatusBarVisibility");
-            }
-        }
-
-        public bool IsSaveButtonEnabled
-        {
-            get
-            {
-                return _isSaveButtonEnabled;
-            }
-            set
-            {
-                _isSaveButtonEnabled = value;
-                NotifyPropertyChanged("IsSaveButtonEnabled");
-            }
-        }
-
-        public bool IsCancelButtonEnabled
-        {
-            get
-            {
-                return _isCancelButtonEnabled;
-            }
-            set
-            {
-                _isCancelButtonEnabled = value;
-                NotifyPropertyChanged("IsCancelButtonEnabled");
-            }
-        }
-
-
 
         public TextureInfo SelectedTextureInfo
         {
@@ -116,109 +40,6 @@ namespace JacutemAAI2.WPF.ViewModel
             }
         }   
 
-        public BitmapImage LoadedImage
-        {
-            get
-            {
-                return _loadedImage;
-            }
-            set
-            {
-                _loadedImage = value;
-                NotifyPropertyChanged("LoadedImage");
-            }
-        }
-
-        public BitmapImage Palette
-        {
-            get
-            {
-                return _palette;
-            }
-            set
-            {
-                _palette = value;
-                NotifyPropertyChanged("Palette");
-            }
-        }
-
-        public bool IsExportButtonEnabled
-        {
-            get
-            {
-                return _isExportButtonEnabled;
-            }
-            set
-            {
-                _isExportButtonEnabled = value;
-                NotifyPropertyChanged("IsExportButtonEnabled");
-            }
-        }
-
-        public bool IsImportButtonEnabled
-        {
-            get
-            {
-                return _isImportButtonEnabled;
-            }
-            set
-            {
-                _isImportButtonEnabled = value;
-                NotifyPropertyChanged("IsImportButtonEnabled");
-            }
-        }
-
-        public bool IsListEnabled
-        {
-            get
-            {
-                return _isListEnabled;
-            }
-            set
-            {
-                _isListEnabled = value;
-                NotifyPropertyChanged("IsListEnabled");
-            }
-        }
-
-        public bool IsStatusBarAnimationEnabled
-        {
-            get
-            {
-                return _isStatusBarAnimationEnabled;
-            }
-            set
-            {
-                _isStatusBarAnimationEnabled = value;
-                NotifyPropertyChanged("IsStatusBarAnimationEnabled");
-            }
-        }
-
-        public Dictionary<string, string> TexturesPaths
-        {
-            get
-            {
-                return _texturesPath;
-            }
-            set
-            {
-                _texturesPath = value;
-                NotifyPropertyChanged("TexturesPaths");
-
-            }
-        }
-
-        public KeyValuePair<string,string> TexturePath
-        {
-            get { return _texturePath; }
-            set
-            {
-                _texturePath = value;             
-                NotifyPropertyChanged("TexturePath");
-                LoadBtx();
-            }
-        }
-
         public Btx Btx
         {
             get { return _btx; }
@@ -230,23 +51,13 @@ namespace JacutemAAI2.WPF.ViewModel
                 DisableCancelAndSave();
             }
         }
-        public ImageMetadata ImageMetaData
+
+
+        public TexturesViewModel():base(new TexturesMap())
         {
-            get { return _imageMetaData; }
-            set
+            ScreenCommands = new Dictionary<string, DelegateCommand>()
             {
-                _imageMetaData = value;
-                NotifyPropertyChanged("ImageMetaData");
-            }
-        }
-
-
-
-        public TexturesViewModel()
-        {
-            MyCommand = new Dictionary<string, DelegateCommand>()
-            {
-                ["SaveBtxToFile"] = new DelegateCommand(SaveBtxToFile).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["SaveChanges"] = new DelegateCommand(SaveChanges).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
                 ["CancelChanges"] = new DelegateCommand(CancelChanges).ObservesCanExecute(() => IsCancelButtonEnabled),
                 ["ExportSelectedTexture"] = new DelegateCommand(ExportSelectedTexture).ObservesCanExecute(() => IsExportButtonEnabled),
                 ["ImportSelectedTexture"] = new DelegateCommand(ImportSelectedTexture).ObservesCanExecute(() => IsImportButtonEnabled),
@@ -256,27 +67,18 @@ namespace JacutemAAI2.WPF.ViewModel
                 ["ImportAllBtx"] = new DelegateCommand(ImportAllBtx)
 
             };
-
-
-            TexturesPaths = new Dictionary<string, string>();
-            foreach (var item in _texturesMap.Lista)
-            {
-                TexturesPaths.Add(item.Key, item.Value);
-            }
-
-            IsListEnabled = true;
-            StatusBarVisibility = Visibility.Hidden;
         }
-
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
+       
         public async void LoadBtx()
         {
-            string args = _texturePath.Value;
-            Btx = await Task.Run(() =>GerenciadorConversaoImagens.LoadBtx(args));
+            string args = SelectedPath.Value;
+            Btx = await Task.Run(() =>NDSImageFactory.LoadBtx(args));
+            if (Btx.Errors.Count > 0)
+            {
+                MessageBox.Show(string.Join("\r\n",Btx.Errors)); 
+                Btx = null;
+            }
+
         }
 
         public async void ExportSelectedTexture()
@@ -292,9 +94,9 @@ namespace JacutemAAI2.WPF.ViewModel
             MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} exportado com sucesso.");
         }
 
-        public void SaveBtxToFile()
+        public override void SaveChanges()
         {
-            if (!_isExecutingBatchOperation)
+            if (!IsExecutingBatchOperation)
             {
                 Btx.SaveToFile();
                 _ = MessageBox.Show($"{Path.GetFileName(Btx.BtxPath)} salvo com sucesso.");
@@ -303,18 +105,18 @@ namespace JacutemAAI2.WPF.ViewModel
             
         }
 
-        public async void ExportarAllBtx()
-        {
-            await Task.Run(() => _texturesMap.Lista.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
-            _ = MessageBox.Show("Texutras exportadas com sucesso.");
-        }
-
-        public void CancelChanges()
+        public override void CancelChanges()
         {
             DisableCancelAndSave();
             LoadBtx();
         }
 
+        public async void ExportarAllBtx()
+        {
+            await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
+            _ = MessageBox.Show("Texutras exportadas com sucesso.");
+        }
+      
         public async void ImportSelectedTexture()
         {
             OpenFileDialog dlg = new OpenFileDialog();
@@ -374,23 +176,37 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void ImportAllBtx()
         {
-            _isExecutingBatchOperation = true;
+            IsExecutingBatchOperation = true;
             CommonOpenFileDialog commonOpenFileDialog = new CommonOpenFileDialog();
             commonOpenFileDialog.IsFolderPicker = true;
-            var importErros = new List<string>();
+            
             if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                EnableStatus("Importando texturas...");
-                DisableViewComponents();
-                string[] folders = Directory.GetDirectories(commonOpenFileDialog.FileName);
-                foreach (var finalDir in folders)
+              await BtxBatchImport(commonOpenFileDialog.FileName);                
+            }
+            IsExecutingBatchOperation = false;
+
+        }
+
+        private async Task BtxBatchImport(string folderPaths) 
+        {
+            var importErros = new List<string>();
+            EnableStatus("Importando texturas...");
+            DisableViewComponents();
+            
+            string[] folders = Directory.GetDirectories(folderPaths);
+            foreach (var finalDir in folders)
+            {
+                string arg;
+                string btxName = $"{finalDir.Split('\\').Last()}.btx";
+                FilePaths.List.TryGetValue(btxName, out arg);
+                if (arg != null)
                 {
-                    string arg;
-                    _texturesMap.Lista.TryGetValue($"{finalDir.Split('\\').Last()}.btx", out arg);
-                    if (arg != null)
+                    Btx tmp = new Btx(arg);
+                    
+                    if (tmp.Errors.Count == 0)
                     {
-                        Btx tmp = new Btx(arg);
-                        await Task.Run(() => tmp.ImportMultipleTextures(Directory.GetFiles(finalDir)));
+                        await Task.Run(() =>  tmp.ImportMultipleTextures(Directory.GetFiles(finalDir)));
                         if (tmp.Errors.Count == 0)
                         {
                             tmp.SaveToFile();
@@ -400,66 +216,37 @@ namespace JacutemAAI2.WPF.ViewModel
                             importErros.AddRange(tmp.Errors);
                         }
 
-                        tmp.TextureInfos.ForEach(x => x.TextureImage.Dispose());
-
                     }
-                }
-                EnableViewComponents();
-                DisableStatus();
-                if (importErros.Count == 0)
-                {
-                    _ = MessageBox.Show($"Imagens importadas com sucesso.");
+                    else
+                    {
+                        importErros.AddRange(tmp.Errors);
+                    }
+
                 }
                 else
                 {
-                    _ = MessageBox.Show($"{string.Join("\r\n", importErros)}");
+                    importErros.AddRange(Btx.Errors);
                 }
-                
-
             }
-            _isExecutingBatchOperation = false;
+            
+            EnableViewComponents();
+            DisableStatus();
+            if (importErros.Count == 0)
+            {
+                _ = MessageBox.Show($"Imagens importadas com sucesso.");
+            }
+            else
+            {
+                _ = MessageBox.Show($"{string.Join("\r\n", importErros)}");
+            }
 
         }
 
-        private void SetImageMetada(TextureInfo selectedTextureInfo)
+        public void SetImageMetada(TextureInfo selectedTextureInfo)
         {
             ImageMetaData = new ImageMetadata(selectedTextureInfo.Width, selectedTextureInfo.Height, selectedTextureInfo.Bpp.ToString(), selectedTextureInfo.ColorCount);
-
-        }
-
-        private void DisableViewComponents()
-        {
-            IsListEnabled = false;
-            IsExportButtonEnabled = false;
-            IsImportButtonEnabled = false;
-        }
-
-        private void EnableViewComponents()
-        {
-           IsListEnabled = true;
-           IsExportButtonEnabled = true;
-           IsImportButtonEnabled = true;
-        }
-
-        private void DisableCancelAndSave()
-        {
-            IsCancelButtonEnabled = false;
-            IsSaveButtonEnabled = false;
-        }
-
-        private void EnableStatus(string text)
-        {
-            StatusBarVisibility = Visibility.Visible;
-            IsStatusBarAnimationEnabled = true;
-            StatusText = text;
-        }
-
-        private void DisableStatus()
-        {
-            IsStatusBarAnimationEnabled = false;
-            StatusBarVisibility = Visibility.Hidden;
-            StatusText = null;
-        }
+        }     
+       
     }
 
    

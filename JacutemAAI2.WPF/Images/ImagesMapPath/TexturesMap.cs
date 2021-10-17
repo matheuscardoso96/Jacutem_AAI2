@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace JacutemAAI2.WPF.Imagens.MapaDeArquivos
+namespace JacutemAAI2.WPF.Images.ImagesMapPath
 {
-    public class TexturesMap : MapaDeArquivos
+    public class TexturesMap : FilePaths
     {
         public TexturesMap()
         {
-            Tipo = "Texturas";
-            Lista = new Dictionary<string, string>()
+            Type = "Texturas";
+            List = new Dictionary<string, string>()
             {
                 ["0001_modelexam.btx"] = @"__Binarios\com_modelexam\0001_modelexam.btx,__Imagens\com_modelexam\",
                 ["0003_modelexam.btx"] = @"__Binarios\com_modelexam\0003_modelexam.btx,__Imagens\com_modelexam\",

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace JacutemAAI2.WPF.Imagens.MapaDeArquivos
+namespace JacutemAAI2.WPF.Images.ImagesMapPath
 {
-    public class SpritesBinariosModoTile : MapaDeArquivos
+    public class SpritesBinariosModoTile : FilePaths
     {
         public SpritesBinariosModoTile()
         {
-            Tipo = "Sprites Binarios Modo Tile";
-            Lista = new Dictionary<string, string>()
+            Type = "Sprites Binarios Modo Tile";
+            List = new Dictionary<string, string>()
             {
                 ["0004_idcom.bin"] = @"__Binarios\com_idcom\0004_idcom.bin,__Binarios\com_idcom\0005_idcom.nclr,__Imagens\com_idcom\",
                 ["0006_idcom.bin"] = @"__Binarios\com_idcom\0006_idcom.bin,__Binarios\com_idcom\0008_idcom.nclr,__Imagens\com_idcom\",

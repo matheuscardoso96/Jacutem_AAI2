@@ -1,6 +1,6 @@
 ﻿using FormatosNitro.Imagens;
 using JacutemAAI2.WPF.Ferramentas.Internas;
-using JacutemAAI2.WPF.Imagens.MapaDeArquivos;
+using JacutemAAI2.WPF.Images.ImagesMapPath;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -12,398 +12,116 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using JacutemAAI2.WPF.Imagens;
+using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
-    public class BgViewModel : INotifyPropertyChanged
+    public class BgViewModel : ImageViewModelBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private Dictionary<string, string> _bGTileSemMapsDi;
-        private BGTileSemMap _bGTileSemMap = new BGTileSemMap();
-        private BGTileComMap _bGTileComMap = new BGTileComMap();
-        KeyValuePair<string, string> _chaveSelecionada;
-        public Dictionary<string, DelegateCommand> MyCommand { get; set; }
-        private bool _btnSalvarEstaAtivo = false;
-        private bool _btnCancelarEstaAtivo = false;
-        private bool _btnExportarEstaAtivo;
-        private bool _btnImportarEstaAtivo;
-        private bool _btnExportarTodosEstaAtivo = false;
-        private bool _btnImportarTodosEstaAtivo = false;
-        private bool _listaEstaAtiva = true;
-        private bool _animacaoBotaoEstaAtiva = false;
-        private bool _animacaoBotaoImportarEstaAtiva = false;
-        private Ncgr _ngcrCarregado;
-        private BitmapImage _imagemCarregada;
-        private BitmapImage _palette;
-        private ImageMetadata _imageMetada;
-        private bool paletaFoiAlterada = false;
 
-        public bool BtnSalvarEstaAtivo
+        private Ncgr _loadedNcgr;
+        public Ncgr LoadedNgcr
         {
-            get
-            {
-                return _btnSalvarEstaAtivo;
-            }
+            get { return _loadedNcgr; }
             set
             {
-                _btnSalvarEstaAtivo = value;
-                NotifyPropertyChanged("BtnSalvarEstaAtivo");
-            }
-        }
-
-        public bool BtnCancelarEstaAtivo
-        {
-            get
-            {
-                return _btnCancelarEstaAtivo;
-            }
-            set
-            {
-                _btnCancelarEstaAtivo = value;
-                NotifyPropertyChanged("BtnCancelarEstaAtivo");
-            }
-        }
-
-        public BitmapImage ImagemCarregada
-        {
-            get
-            {
-                return _imagemCarregada;
-            }
-            set
-            {
-                _imagemCarregada = value;
-                NotifyPropertyChanged("ImagemCarregada");
-            }
-        }
-
-        public BitmapImage Palette
-        {
-            get
-            {
-                return _palette;
-            }
-            set
-            {
-                _palette = value;
-                NotifyPropertyChanged("Palette");
-            }
-        }
-
-        public bool BtnExportarEstaAtivo
-        {
-            get
-            {
-                return _btnExportarEstaAtivo;
-            }
-            set
-            {
-                _btnExportarEstaAtivo = value;
-                NotifyPropertyChanged("BtnExportarEstaAtivo");
-            }
-        }
-        public bool BtnExportarTodosEstaAtivo
-        {
-            get
-            {
-                return _btnExportarTodosEstaAtivo;
-            }
-            set
-            {
-                _btnExportarTodosEstaAtivo = value;
-                NotifyPropertyChanged("BtnExportarTodosEstaAtivo");
-            }
-        }
-
-        public bool BtnImportarEstaAtivo
-        {
-            get
-            {
-                return _btnImportarEstaAtivo;
-            }
-            set
-            {
-                _btnImportarEstaAtivo = value;
-                NotifyPropertyChanged("BtnImportarEstaAtivo");
-            }
-        }
-
-        public bool BtnImportarTodosEstaAtivo
-        {
-            get
-            {
-                return _btnImportarTodosEstaAtivo;
-            }
-            set
-            {
-                _btnImportarTodosEstaAtivo = value;
-                NotifyPropertyChanged("BtnImportarTodosEstaAtivo");
-            }
-        }
-
-        public bool ListaEstaAtiva
-        {
-            get
-            {
-                return _listaEstaAtiva;
-            }
-            set
-            {
-                _listaEstaAtiva = value;
-                NotifyPropertyChanged("ListaEstaAtiva");
-            }
-        }
-
-        public bool AnimacaoBotaoEstaAtiva
-        {
-            get
-            {
-                return _animacaoBotaoEstaAtiva;
-            }
-            set
-            {
-                _animacaoBotaoEstaAtiva = value;
-                NotifyPropertyChanged("AnimacaoBotaoEstaAtiva");
-            }
-        }
-
-        public bool AnimacaoBotaoImportarEstaAtiva
-        {
-            get
-            {
-                return _animacaoBotaoImportarEstaAtiva;
-            }
-            set
-            {
-                _animacaoBotaoImportarEstaAtiva = value;
-                NotifyPropertyChanged("AnimacaoBotaoImportarEstaAtiva");
-            }
-        }
-
-        public Dictionary<string, string> BGTileSemMapsDi
-        {
-            get
-            {
-                return _bGTileSemMapsDi;
-            }
-            set
-            {
-                _bGTileSemMapsDi = value;
-                NotifyPropertyChanged("BGTileSemMapsDi");
-
-            }
-        }
-
-
-
-
-        public KeyValuePair<string,string> CaminhoImagem
-        {
-            get { return _chaveSelecionada; }
-            set
-            {
-                _chaveSelecionada = value;             
-                NotifyPropertyChanged("ChaveSelecionada");
-                CarregarNcgr();
-            }
-        }
-
-        public Ncgr NgcrCarregado
-        {
-            get { return _ngcrCarregado; }
-            set
-            {
-                _ngcrCarregado = value;
+                _loadedNcgr = value;
                 NotifyPropertyChanged("NgcrCarregado");
-                BtnImportarEstaAtivo = true;
-                BtnExportarEstaAtivo = true;
-            }
-        }
-        public ImageMetadata ImageMetadata
-        {
-            get { return _imageMetada; }
-            set
-            {
-                _imageMetada = value;
-                NotifyPropertyChanged("ImageMetadata");
             }
         }
 
 
-
-        public BgViewModel()
+        public BgViewModel():base(new BGSPaths())
         {
-            MyCommand = new Dictionary<string, DelegateCommand>()
+            LoadFile = LoadNcgr;
+            ScreenCommands = new Dictionary<string, DelegateCommand>()
             {
-                ["SalvarImagemCarregada"] = new DelegateCommand(SalvarImagemCarregada).ObservesCanExecute(() => BtnSalvarEstaAtivo),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
-                ["CancelarSalvamento"] = new DelegateCommand(CancelarSalvamento).ObservesCanExecute(() => BtnCancelarEstaAtivo),
-                ["ImportarSelecionado"] = new DelegateCommand(ImportarSelecionado).ObservesCanExecute(() => BtnImportarEstaAtivo),
-                ["ExportarImagemCarregada"] = new DelegateCommand(ExportarImagemCarregada).ObservesCanExecute(() => BtnExportarEstaAtivo)
-
+                ["SaveChanges"] = new DelegateCommand(SaveChanges).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["CancelChanges"] = new DelegateCommand(CancelChanges).ObservesCanExecute(() => IsCancelButtonEnabled),
+                ["ImportImageToNgcr"] = new DelegateCommand(ImportImageToNgcr).ObservesCanExecute(() => IsExportButtonEnabled),
+                ["ExportNcgrImage"] = new DelegateCommand(ExportNcgrImage).ObservesCanExecute(() => IsExportButtonEnabled),
+                ["ExportAllNcgr"] = new DelegateCommand(ExportAllNcgr),
+                ["ImportAllNgcr"] = new DelegateCommand(ImportAllNgcr)
             };
 
+        }
 
-            BGTileSemMapsDi = new Dictionary<string, string>();
-            foreach (var item in _bGTileComMap.Lista)
-            {
-                BGTileSemMapsDi.Add(item.Key, item.Value);
-            }
 
-            foreach (var item in _bGTileSemMap.Lista)
-            {
-                BGTileSemMapsDi.Add(item.Key,item.Value);
-            }
-
+        public async void LoadNcgr()
+        {
+            DisableCancelAndSave();
+            EnableViewComponents();
+            string args = SelectedPath.Value;
+            LoadedNgcr = await Task.Run(() =>NDSImageFactory.LoadNgcr(args));
+            LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+            
+            ImageMetaData = new ImageMetadata(
+                LoadedNgcr.Imagens[0].Width,
+                LoadedNgcr.Imagens[0].Height,
+                LoadedNgcr.Char.IntensidadeDeBits == 3 ? "4" : "8",
+                LoadedNgcr.ArquivoNclr.Pltt.Paleta.Length / 2);
+            Palette = PaletteVisualGenerator.CreateImage(LoadedNgcr.ArquivoNclr.Colors);
 
 
         }
 
-        private void NotifyPropertyChanged(string propertyName)
+        public void ExportNcgrImage()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-
-        public async void CarregarNcgr()
-        {
-            string args = CaminhoImagem.Value;
-            NgcrCarregado = await Task.Run(() =>GerenciadorConversaoImagens.CarregarNcgr(args));
-            ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-            ImageMetadata = new ImageMetadata(
-                NgcrCarregado.Imagens[0].Width,
-                NgcrCarregado.Imagens[0].Height,
-                NgcrCarregado.Char.IntensidadeDeBits == 3 ? "4" : "8",
-                NgcrCarregado.ArquivoNclr.Pltt.Paleta.Length / 2);
-
-            Palette = PaletteVisualGenerator.CreateImage(NgcrCarregado.ArquivoNclr.Colors);
-
+           LoadedNgcr.ExportarImagem.Invoke();
+           MessageBox.Show($"Imagem exportada para: {LoadedNgcr.ExportPath}");
 
         }
 
-        public async void ExportarImagemCarregada()
+        public async override void SaveChanges() 
         {
-            string args = CaminhoImagem.Value;
-            NgcrCarregado.ExportarImagem.Invoke(CaminhoImagem.Value.Split(',').ToList().Last());
-            ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();           
-
+            await Task.Run(() => LoadedNgcr.SalvarNCGR(false));
+            DisableCancelAndSave();
+            MessageBox.Show($"{Path.GetFileName(LoadedNgcr.Diretorio)} salvo.");
+            
         }
 
-        public async void SalvarImagemCarregada() 
+        public override void CancelChanges()
         {
-            await Task.Run(() => GerenciadorConversaoImagens.SalvarNcgr(NgcrCarregado, paletaFoiAlterada));
-            BtnCancelarEstaAtivo = false;
-            BtnSalvarEstaAtivo = false;
-            BtnImportarEstaAtivo = true;
-            BtnExportarEstaAtivo = true;
-            MessageBox.Show("Imagem salva na pasta imagens.");
+            LoadNcgr();
+            DisableCancelAndSave();
+            MessageBox.Show("Operação cancelada.");
         }
 
-        public void CancelarSalvamento()
+
+        public async void ExportAllNcgr()
         {
-            BtnCancelarEstaAtivo = false;
-            BtnSalvarEstaAtivo = false;
-            CarregarNcgr();
+           
+            await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => NDSImageFactory.LoadNgcr(arg).ExportarImagem()));          
+            _ = MessageBox.Show("Bgs exportados com sucesso.");
         }
 
-       
-
-        public async void ExportarTodos()
+        public async void ImportImageToNgcr()
         {
-            AnimacaoBotaoEstaAtiva = true;
-            DesativarComponentes();
-           // await Task.Run(() => AaiBin.ExportarTodos(Binarios));
-            VerificarListas();
-            AtivarComponentes();
-            MessageBox.Show(AaiBin.Mensagem);
-
-            AnimacaoBotaoEstaAtiva = false;
-        }
-
-        public async void ImportarSelecionado()
-        {
-            //  AnimacaoBotaoImportarEstaAtiva = true;
-            // DesativarComponentes();
-            //  await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
             OpenFileDialog dlg = new OpenFileDialog();
-           // Default file name
-           dlg.DefaultExt = ".png"; // Default file extension
-            dlg.Filter = "Imagens (.png)|*.png"; // Filter files by extension
+           dlg.DefaultExt = ".png";
+           dlg.Filter = "Imagens (.png)|*.png";
 
-            // Show open file dialog box
-            Nullable<bool> result = dlg.ShowDialog();
+            var result = dlg.ShowDialog();
 
-            // Process open file dialog box results
             if (result == true)
             {
-                // Open document
-                NgcrCarregado.ImportarNgcr.Invoke(dlg.FileName);
-                ImagemCarregada = NgcrCarregado.Imagens[0].ToImageSource();
-                BtnImportarEstaAtivo = false;
-                BtnExportarEstaAtivo = false;
-                BtnCancelarEstaAtivo = true;
-                BtnSalvarEstaAtivo = true;
-                // AtivarComponentes();
+                LoadedNgcr.ImportarNgcr.Invoke(dlg.FileName);
+                LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+                EnableCancelAndSave();
             }
            
-           // AnimacaoBotaoImportarEstaAtiva = false;
-           // MessageBox.Show(AaiBin.Mensagem);
 
         }
 
-        public async void ImportarTodos()
+        public async void ImportAllNgcr()
         {
-            AnimacaoBotaoImportarEstaAtiva = true;
-            DesativarComponentes();
-           // await Task.Run(() => AaiBin.ImportarTodos(ListasDeImportacao));
-            AtivarComponentes();
-            AnimacaoBotaoImportarEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
+          
 
         }
 
-        private void DesativarComponentes()
-        {
 
-            BtnExportarEstaAtivo = false;
-            BtnExportarTodosEstaAtivo = false;
-            ListaEstaAtiva = false;
-            BtnImportarEstaAtivo = false;
-            BtnImportarTodosEstaAtivo = false;
-
-
-        }
-
-        private void AtivarComponentes()
-        {
-
-            BtnExportarEstaAtivo = true;
-            BtnExportarTodosEstaAtivo = true;
-            BtnImportarEstaAtivo = true;
-            ListaEstaAtiva = true;
-            BtnImportarTodosEstaAtivo = true;
-
-
-        }
-
-        public void VerificarListas()
-        {
-            //ListasDeImportacao = AaiBin.ObtenhaListasDEImportaco(Properties.Settings.Default.PastaInfoBinarios);
-            //Binarios = AaiBin.ObtenhaBinariosDaRom(Properties.Settings.Default.DiretorioRomDesmonstada);
-
-
-            //if (Binarios.Count > 0)
-            //{
-            //    BtnExportarTodosEstaAtivo = true;
-            //}
-
-            //if (ListasDeImportacao.Count > 0)
-            //{
-            //    BtnImportarTodosEstaAtivo = true;
-            //}
-        }
+        
     }
 
    

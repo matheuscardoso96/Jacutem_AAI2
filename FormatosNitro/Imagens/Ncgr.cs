@@ -14,21 +14,24 @@ namespace FormatosNitro.Imagens
 {
     public class Ncgr : NitroBase
     {
+        public List<string> Errors { get; set; } = new List<string>();
         public Char Char { get; private set; }
         public Cpos Cpos { get; private set; }
         public Ncer ArquivoNcer { get; private set; }
         public Nscr ArquivoNscr { get; private set; }
         public Nclr ArquivoNclr { get; private set; }
         public List<Bitmap> Imagens { get; private set; }
+        public string ExportPath { get; set; }
 
         public delegate void Importar(string dirImg);
         public delegate void Salvar(string dir, bool paletaFoiModificada);
-        public delegate void Exportar(string dir);
+        public delegate void Exportar();
         public Importar ImportarNgcr { get; set; }
         public Exportar ExportarImagem { get; set; }
 
-        public Ncgr(BinaryReader br, Nclr nclr,string diretorio) : base(br, diretorio)
+        public Ncgr(BinaryReader br, Nclr nclr,string diretorio, string exportPath) : base(br, diretorio)
         {
+            ExportPath = exportPath;
             ArquivoNclr = nclr;
             Char = new Char(br);
             if (QuantidadeDeSecoes > 1)
@@ -41,8 +44,9 @@ namespace FormatosNitro.Imagens
 
         }
 
-        public Ncgr(BinaryReader br,Nclr nclr, Nscr nscr, string diretorio) : base(br, diretorio)
+        public Ncgr(BinaryReader br,Nclr nclr, Nscr nscr, string diretorio, string exportPath) : base(br, diretorio)
         {
+            ExportPath = exportPath;
             ArquivoNscr = nscr;
             ArquivoNclr = nclr;
             Char = new Char(br);
@@ -54,44 +58,47 @@ namespace FormatosNitro.Imagens
             ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
         }
 
-        public Ncgr(BinaryReader br, Nclr nclr, Ncer ncer, string diretorio) : base(br, diretorio)
+        public Ncgr(BinaryReader br, Nclr nclr, Ncer ncer, string diretorio, string exportPath) : base(br, diretorio)
         {
+            ExportPath = exportPath;
             ArquivoNcer = ncer;
             ArquivoNclr = nclr;
             Char = new Char(br);
             if (QuantidadeDeSecoes > 1)
-                Cpos = new Cpos(br);            
+                Cpos = new Cpos(br);
             br.Close();
         }
 
-        public void ExportarNcgrComOuSemNscr(string dir) 
+        public void ExportarNcgrComOuSemNscr()
         {
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-           Imagens.First().Save($"{dir}{Path.GetFileName(Diretorio).Replace("ncgr","png")}");
+            if (!Directory.Exists(ExportPath))
+            {
+                _ = Directory.CreateDirectory(ExportPath);
+            }
+
+            Imagens.First().Save($"{ExportPath}{Path.GetFileName(Diretorio).Replace("ncgr", "png")}");
         }
 
         private void CarregarImagens()
         {
-            
-            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
-            
-            Imagens = new List<Bitmap>() { 
-                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, palette , TileMode.Tiled, eIndexFormat)
+
+            Imagens = new List<Bitmap>() {
+                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, palette , TileMode.Tiled, depth)
             };
 
             ArquivoNclr.Colors = palette.Colors;
         }
-          
 
         private void CarregarImagemNCGRComNSCR()
         {
-            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
             Imagens = new List<Bitmap>() {
-                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, palette, eIndexFormat)
+                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, palette, depth)
             };
+            
             ArquivoNclr.Colors = palette.Colors;
         }
 
@@ -100,25 +107,57 @@ namespace FormatosNitro.Imagens
 
         public void ImportaNCGR(string dirImg)
         {
-
-            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
-            Char.Tiles = ImageConverter.BitmapToRawIndexed(new Bitmap(dirImg), palette, TileMode.Tiled, eIndexFormat);
-            CarregarImagens();
-            ArquivoNclr.Colors = palette.Colors;
+            Bitmap imageToInsert = new Bitmap(dirImg);
+            if (imageToInsert.Width > Char.QuatidadeDeTilesX * 8)
+            {
+                Errors.Add("A largura da imagem importada é maior a que original");
+            }
+
+            if (imageToInsert.Height > Char.QuatidadeDeTilesY * 8)
+            {
+                Errors.Add("A altura da imagem importada é maior que a original");
+            }
+
+            if (Errors.Count == 0)
+            {
+                Char.Tiles = ImageConverter.BitmapToRawIndexed(imageToInsert, palette, TileMode.Tiled, depth);
+                CarregarImagens();
+                ArquivoNclr.Colors = palette.Colors;
+            }
+           
+
+           
         }
 
         public void ImportaNCGRComNscr(string dirImg)
         {
-            ColorDepth eIndexFormat = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
-            byte[] palette = ArquivoNclr.Pltt.Paleta;
+            ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
             TileMapType tilemap = new TileMapType();
-            Char.Tiles = ImageConverter.BitmapToTileMapped(new Bitmap(dirImg), ref palette, tilemap, eIndexFormat);
-            ArquivoNscr.Scrn.InfoTela = tilemap.Tilemap.ToArray();
-            CarregarImagemNCGRComNSCR();
+            Bitmap imageToInsert = new Bitmap(dirImg);
+            if (imageToInsert.Width > ArquivoNscr.Scrn.Largura)
+            {
+                Errors.Add("A largura da imagem importada é maior que a original");
+            }
+
+            if (imageToInsert.Height > ArquivoNscr.Scrn.Altura)
+            {
+                Errors.Add("A altura da imagem importada é maior que a original");
+            }
+
+            if (Errors.Count == 0)
+            {
+                Char.Tiles = ImageConverter.BitmapToTileMapped(imageToInsert, palette, tilemap, depth);
+                ArquivoNscr.Scrn.InfoTela = tilemap.Tilemap.ToArray();
+                CarregarImagemNCGRComNSCR();
+            }
+
+           
         }
  
-        public void SalvarNCGR(bool paletaFoiModificada) 
+        public void SalvarNCGR(bool paletaFoiModificada)
         {
             MemoryStream novoNgcr = new MemoryStream();
             using (BinaryWriter bw = new BinaryWriter(novoNgcr))
@@ -151,11 +190,9 @@ namespace FormatosNitro.Imagens
 
         }
 
-      
-
     }
 
-    public class Char 
+    public class Char
     {
         public string Id { get; set; }
         public uint TamanhoChar { get; set; }
@@ -202,7 +239,7 @@ namespace FormatosNitro.Imagens
 
     }
 
-    public class Cpos 
+    public class Cpos
     {
         public string Id { get; set; }
         public uint TamanhoCpos { get; set; }
@@ -226,7 +263,6 @@ namespace FormatosNitro.Imagens
             bw.Write(Padding);
             bw.Write(TamanhoDeTile);
             bw.Write(QuatidadeDeTiles);
-           
         }
     }
 }

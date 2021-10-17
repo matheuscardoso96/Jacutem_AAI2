@@ -67,9 +67,8 @@ namespace LibDeImagensGbaDs.Conversor
 
         
 
-        public static byte[] BitmapToTileMapped(Bitmap image, ref byte[] palette, TileMapType tileMap, ColorDepth colorDepth)
+        public static byte[] BitmapToTileMapped(Bitmap image, BGR565 pal, TileMapType tileMap, ColorDepth colorDepth)
         {
-            BGR565 pal = new BGR565(palette);
             if (!_isConvertersInitialized)
             {
                 InitilizeConverters();

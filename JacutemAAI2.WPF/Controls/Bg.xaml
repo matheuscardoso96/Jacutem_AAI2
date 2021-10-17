@@ -24,10 +24,10 @@
             </Grid.ColumnDefinitions>
 
 
-            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="10,15" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="10,15,15,10" HorizontalAlignment="Center" >
 
 
-                <ListView ItemsSource="{Binding BGTileSemMapsDi}" SelectedItem="{Binding CaminhoImagem}">
+                <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Path=FilePaths.List}" SelectedItem="{Binding SelectedPath}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Ncgrs"
@@ -35,6 +35,12 @@
                          
                         </GridView>
                     </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem  Header="Exportar todos os Ncgr"  Command="{Binding ScreenCommands[ExportAllNcgr]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Importar todos os Ncgr"  Command="{Binding ScreenCommands[ImportAllNcgr]}" CommandParameter="ParameterValue"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
                 </ListView>
 
             </materialDesign:Card>
@@ -42,6 +48,7 @@
             <materialDesign:Card Height="auto" Width="auto" Margin="0,16,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="1">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
@@ -89,14 +96,14 @@
                         <StackPanel.Background>
                             <SolidColorBrush Color="LimeGreen"/>
                         </StackPanel.Background>
-                        <Image Grid.Row="0"  Name="ImageViewer1" Height="480" Width="832" Source="{Binding ImagemCarregada}" Stretch="None">
+                        <Image Grid.Row="0"  Name="ImageViewer1" Height="480" Width="832" Source="{Binding LoadedImage}" Stretch="None">
                             <Image.ContextMenu>
                                 <ContextMenu>
 
-                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding MyCommand[ExportarImagemCarregada]}" CommandParameter="ParameterValue"/>
+                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding ScreenCommands[ExportNcgrImage]}" CommandParameter="ParameterValue"/>
 
                                     <MenuItem Header="Importar">
-                                        <MenuItem Command="{Binding MyCommand[ImportarSelecionado]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
+                                        <MenuItem Command="{Binding ScreenCommands[ImportImageToNgcr]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
                                         <MenuItem  Header="Gerando nova paleta"></MenuItem>
                                     </MenuItem>
                                 </ContextMenu>
@@ -130,11 +137,11 @@
 
 
 
-                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnSalvarEstaAtivo}"  Command="{Binding MyCommand[SalvarImagemCarregada]}" CommandParameter="ParameterValue">
+                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding ScreenCommands[SaveChanges]}" CommandParameter="ParameterValue">
                                     Salvar
                                 </Button>
 
-                                <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding BtnCancelarEstaAtivo}"  Command="{Binding MyCommand[CancelarSalvamento]}" CommandParameter="ParameterValue">
+                                <Button Margin="10,30,0,0"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding ScreenCommands[CancelChanges]}" CommandParameter="ParameterValue">
                                     Cancelar
                                 </Button>
                                 <materialDesign:Card Margin="0,10,0,0" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
@@ -155,6 +162,20 @@
                         </Grid>
                         
                     </StackPanel>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button
+                    Style="{StaticResource MaterialDesignFloatingActionButton}"
+                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                    materialDesign:ButtonProgressAssist.Value="-1"
+                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsStatusBarAnimationEnabled}"
+                    Content="{materialDesign:PackIcon DotsHorizontal}" Visibility="{Binding StatusBarVisibility}" Margin="10" Grid.Column="0"  Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Top" Width="20" Height="20"/>
+                        <TextBlock Margin="0,14,0,0" Grid.Row="2" Visibility="{Binding StatusBarVisibility}" Grid.Column="1" Text="{Binding StatusText}"/>
+                    </Grid>
                 </Grid>
 
 

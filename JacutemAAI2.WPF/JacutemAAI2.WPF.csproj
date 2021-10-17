@@ -284,21 +284,21 @@
     <Compile Include="Ferramentas\Internas\PaletteVisualGenerator.cs" />
     <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
-    <Compile Include="Imagens\GerenciadorConversaoImagens.cs" />
-    <Compile Include="Imagens\ImageMetadata.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\BGTileComMap.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\BGTileSemMap.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\MapaDeArquivos.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModo2D.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\SpritesBinariosModoTile.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\SpritesModo2D.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\SpritesModoTile.cs" />
-    <Compile Include="Imagens\MapaDeArquivos\TexturesMap.cs" />
+    <Compile Include="Images\NDSImageFactory.cs" />
+    <Compile Include="Images\ImageMetadata.cs" />
+    <Compile Include="Images\ImagesMapPath\BGSPaths.cs" />
+    <Compile Include="Images\ImagesMapPath\FilePaths.cs" />
+    <Compile Include="Images\ImagesMapPath\SpritesBinariosModo2D.cs" />
+    <Compile Include="Images\ImagesMapPath\SpritesBinariosModoTile.cs" />
+    <Compile Include="Images\ImagesMapPath\SpritesModo2D.cs" />
+    <Compile Include="Images\ImagesMapPath\SpritesModoTile.cs" />
+    <Compile Include="Images\ImagesMapPath\TexturesMap.cs" />
     <Compile Include="ViewModel\TexturesViewModel.cs" />
     <Compile Include="ViewModel\BgViewModel.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
     <Compile Include="Gerenciadores\GerenciadoEstaticoDeViewsModels.cs" />
+    <Compile Include="ViewModel\ImageViewModelBase.cs" />
     <Compile Include="Views\TelaPrincipalView.xaml.cs">
       <DependentUpon>TelaPrincipalView.xaml</DependentUpon>
     </Compile>

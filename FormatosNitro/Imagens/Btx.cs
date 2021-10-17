@@ -28,40 +28,45 @@ namespace FormatosNitro.Imagens
         {
             BtxPath = dirBtx.Split(',')[0];
             ExportPath = $"{dirBtx.Split(',')[1]}{Path.GetFileName(BtxPath).Replace(".btx", "")}\\";
-            BtxBytes = File.ReadAllBytes(BtxPath);
-
-            using (BinaryReader br = new BinaryReader(new MemoryStream(BtxBytes)))
+            if (File.Exists(BtxPath))
             {
-                TextureInfosBaseOffset = 0x14;
-                br.BaseStream.Position = TextureInfosBaseOffset + 0xE;
-                int textInfoOffset = br.ReadInt16();
+                BtxBytes = File.ReadAllBytes(BtxPath);
+                using (BinaryReader br = new BinaryReader(new MemoryStream(BtxBytes)))
+                {
+                    TextureInfosBaseOffset = 0x14;
+                    br.BaseStream.Position = TextureInfosBaseOffset + 0xE;
+                    int textInfoOffset = br.ReadInt16();
 
-                br.BaseStream.Position = TextureInfosBaseOffset + 0x34;
-                int paletteInfosOffset = br.ReadInt32();
-                PalettesOffset = br.ReadInt32();
+                    br.BaseStream.Position = TextureInfosBaseOffset + 0x34;
+                    int paletteInfosOffset = br.ReadInt32();
+                    PalettesOffset = br.ReadInt32();
 
-                br.BaseStream.Position = TextureInfosBaseOffset + 0x14;
-                BaseOffsetTextures = br.ReadInt32();
-                br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 1;
-                int objectCount = br.ReadByte();
-                br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 6;
-                int tamanhoHeaderUkn = br.ReadInt16();
-                textInfoOffset += 4;
-                TextureInfos = GetTextureInfos(br, TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn, objectCount);              
-                
-                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 1;
-               
-                int paletteCount = br.ReadByte();
-                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 6;
-                int paletteInfoSectionSize = br.ReadUInt16();
-                paletteInfosOffset += 4;             
-                PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + paletteInfosOffset + paletteInfoSectionSize, paletteCount);
-                
-                LoadTextures(br, TextureInfos);
+                    br.BaseStream.Position = TextureInfosBaseOffset + 0x14;
+                    BaseOffsetTextures = br.ReadInt32();
+                    br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 1;
+                    int objectCount = br.ReadByte();
+                    br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 6;
+                    int tamanhoHeaderUkn = br.ReadInt16();
+                    textInfoOffset += 4;
+                    TextureInfos = GetTextureInfos(br, TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn, objectCount);
 
+                    br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 1;
+
+                    int paletteCount = br.ReadByte();
+                    br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 6;
+                    int paletteInfoSectionSize = br.ReadUInt16();
+                    paletteInfosOffset += 4;
+                    PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + paletteInfosOffset + paletteInfoSectionSize, paletteCount);
+
+                    LoadTextures(br, TextureInfos);
+
+                }
             }
-
-
+            else
+            {
+                Errors.Add($"Não foi possível encontrar {BtxPath}");
+            }
+                     
         }
 
         private List<PaletteInfo> GetPalleteInfos(BinaryReader br, int offset, int paletteCount)

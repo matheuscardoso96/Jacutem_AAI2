@@ -1,18 +1,11 @@
 ﻿using FormatosNitro.Imagens;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LibDeImagensGbaDs.Conversor;
 using System.IO;
 
-namespace JacutemAAI2.WPF.Imagens
+namespace JacutemAAI2.WPF.Images
 {
-    public static class GerenciadorConversaoImagens
+    public static class NDSImageFactory
     {
-        public static Ncgr CarregarNcgr(string argumentosImg) 
+        public static Ncgr LoadNgcr(string argumentosImg)
         {
             string[] argSplit = argumentosImg.Split(',');
             
@@ -27,34 +20,27 @@ namespace JacutemAAI2.WPF.Imagens
             {
                 BinaryReader leitorNscr = new BinaryReader(File.OpenRead(argSplit[2]));
                 Nscr nscr = new Nscr(leitorNscr, argSplit[2]);
-                ncgr = new Ncgr(leitorNgcr, nclr, nscr, argSplit[0]);
+                ncgr = new Ncgr(leitorNgcr, nclr, nscr, argSplit[0],argSplit[3]);
 
             }
             else if (argumentosImg.Contains(".ncer"))
             {
                 BinaryReader leitorNscer = new BinaryReader(File.OpenRead(argSplit[2]));
                 Ncer ncer = new Ncer(leitorNscer, argSplit[2]);
-                ncgr = new Ncgr(leitorNgcr, nclr, ncer, argSplit[0]);
-            }          
+                ncgr = new Ncgr(leitorNgcr, nclr, ncer, argSplit[0],argSplit[3]);
+            }
             else
             {
-                ncgr = new Ncgr(leitorNgcr, nclr, argSplit[0]);
-               
+                ncgr = new Ncgr(leitorNgcr, nclr, argSplit[0], argSplit[2]);
+
             }
-            
+
             return ncgr;
         }
 
-        public static void SalvarNcgr(Ncgr ncgr, bool paletaFoiModifacada)
-        {
-                     
-          ncgr.SalvarNCGR(paletaFoiModifacada);
-         
-
-        }
 
         public static Btx LoadBtx(string argumentosImg)
-        {        
+        {
             return new Btx(argumentosImg);
         }
     }
