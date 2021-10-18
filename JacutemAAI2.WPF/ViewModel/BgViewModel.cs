@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -35,14 +36,15 @@ namespace JacutemAAI2.WPF.ViewModel
         public BgViewModel():base(new BGSPaths())
         {
             LoadFile = LoadNcgr;
+            BatchImportOp = NgcrBatchImport;
             ScreenCommands = new Dictionary<string, DelegateCommand>()
             {
-                ["SaveChanges"] = new DelegateCommand(SaveChanges).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
+                ["SaveChanges"] = new DelegateCommand(SaveChanges).ObservesCanExecute(() => IsSaveButtonEnabled),
                 ["CancelChanges"] = new DelegateCommand(CancelChanges).ObservesCanExecute(() => IsCancelButtonEnabled),
                 ["ImportImageToNgcr"] = new DelegateCommand(ImportImageToNgcr).ObservesCanExecute(() => IsExportButtonEnabled),
                 ["ExportNcgrImage"] = new DelegateCommand(ExportNcgrImage).ObservesCanExecute(() => IsExportButtonEnabled),
                 ["ExportAllNcgr"] = new DelegateCommand(ExportAllNcgr),
-                ["ImportAllNgcr"] = new DelegateCommand(ImportAllNgcr)
+                ["BatchImportOperation"] = new DelegateCommand(BatchImportOperation)
             };
 
         }
@@ -53,15 +55,26 @@ namespace JacutemAAI2.WPF.ViewModel
             DisableCancelAndSave();
             EnableViewComponents();
             string args = SelectedPath.Value;
-            LoadedNgcr = await Task.Run(() =>NDSImageFactory.LoadNgcr(args));
-            LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
-            
-            ImageMetaData = new ImageMetadata(
-                LoadedNgcr.Imagens[0].Width,
-                LoadedNgcr.Imagens[0].Height,
-                LoadedNgcr.Char.IntensidadeDeBits == 3 ? "4" : "8",
-                LoadedNgcr.ArquivoNclr.Pltt.Paleta.Length / 2);
-            Palette = PaletteVisualGenerator.CreateImage(LoadedNgcr.ArquivoNclr.Colors);
+            LoadedNgcr = await Task.Run(() => NDSImageFactory.LoadNgcr(args));
+
+            if (LoadedNgcr.AllErrors.Count == 0)
+            {
+                LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+
+                ImageMetaData = new ImageMetadata(
+                    LoadedNgcr.Imagens[0].Width,
+                    LoadedNgcr.Imagens[0].Height,
+                    LoadedNgcr.Char.IntensidadeDeBits == 3 ? "4" : "8",
+                    LoadedNgcr.ArquivoNclr.Pltt.Paleta.Length / 2);
+                Palette = PaletteVisualGenerator.CreateImage(LoadedNgcr.ArquivoNclr.Colors);
+            }
+            else
+            {
+                MessageBox.Show($"Alguns erros foram encontrados: {string.Join("\r\n", LoadedNgcr.AllErrors)}");
+                LoadedNgcr = null;
+            }
+
+           
 
 
         }
@@ -77,7 +90,7 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             await Task.Run(() => LoadedNgcr.SalvarNCGR(false));
             DisableCancelAndSave();
-            MessageBox.Show($"{Path.GetFileName(LoadedNgcr.Diretorio)} salvo.");
+            MessageBox.Show($"{Path.GetFileName(LoadedNgcr.NitroFilePath)} salvo.");
             
         }
 
@@ -91,9 +104,10 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void ExportAllNcgr()
         {
-           
-            await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => NDSImageFactory.LoadNgcr(arg).ExportarImagem()));          
+            EnableStatus("Exportando ncgrs...");
+            await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => NDSImageFactory.LoadNgcr(arg).ExportarImagem()));
             _ = MessageBox.Show("Bgs exportados com sucesso.");
+            DisableStatus();
         }
 
         public async void ImportImageToNgcr()
@@ -106,22 +120,75 @@ namespace JacutemAAI2.WPF.ViewModel
 
             if (result == true)
             {
-                LoadedNgcr.ImportarNgcr.Invoke(dlg.FileName);
-                LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
-                EnableCancelAndSave();
+                EnableStatus("Importando imagem...");
+                await Task.Run(() => LoadedNgcr.ImportarNgcr.Invoke(dlg.FileName));
+                if (LoadedNgcr.AllErrors.Count == 0)
+                {
+                    LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+                    EnableCancelAndSave();
+                }
+                else
+                {
+                    MessageBox.Show($"Alguns erros foram encontrados: {string.Join("\r\n", LoadedNgcr.AllErrors)}");
+                    LoadedNgcr.AllErrors.Clear();
+                }
+                DisableStatus();
             }
            
 
         }
 
-        public async void ImportAllNgcr()
+        private void NgcrBatchImport(string[] pngsDirectory)
         {
-          
+
+            foreach (var path in pngsDirectory)
+            {
+                string arg;
+                string ngcrName = $"{path.Split('\\').Last().Replace(".png","").Replace("com_","").Replace("jpn_","")}.ncgr";
+                FilePaths.List.TryGetValue(ngcrName, out arg);
+                if (arg != null)
+                {
+                    Ncgr tmpNcgr = NDSImageFactory.LoadNgcr(arg);
+
+                    if (tmpNcgr.Errors.Count == 0)
+                    {
+                        tmpNcgr.ImportarNgcr.Invoke(path);
+                        if (tmpNcgr.Errors.Count == 0)
+                        {
+                            tmpNcgr.SalvarNCGR(false);
+                        }
+                        else
+                        {
+                            ErrorsLog.AddRange(tmpNcgr.Errors);
+                        }
+
+                    }
+                    else
+                    {
+                        ErrorsLog.AddRange(tmpNcgr.Errors);
+                    }
+
+                }
+                else
+                {
+                    ErrorsLog.Add($"{ngcrName} não encontrado.");
+                }
+            }
+
+            if (ErrorsLog.Count == 0)
+            {
+                _ = MessageBox.Show($"Imagens importadas com sucesso.");
+            }
+            else
+            {
+                _ = MessageBox.Show($"{string.Join("\r\n", ErrorsLog)}");
+                ErrorsLog.Clear();
+            }
 
         }
 
 
-        
+
     }
 
    

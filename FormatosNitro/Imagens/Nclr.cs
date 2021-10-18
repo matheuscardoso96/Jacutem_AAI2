@@ -14,9 +14,13 @@ namespace FormatosNitro.Imagens
 
         public Nclr(BinaryReader br, string diretorio) : base(br, diretorio)
         {
-            Pltt = new Pltt(br);
-            if (QuantidadeDeSecoes > 1)
-                Pcmp = new Pcmp(br);
+            if (Errors.Count == 0)
+            {
+                Pltt = new Pltt(br);
+                if (SectionCount > 1)
+                    Pcmp = new Pcmp(br);
+            }
+            
             
             br.Close();         
 
@@ -36,7 +40,7 @@ namespace FormatosNitro.Imagens
                 
             }
 
-            File.WriteAllBytes(base.Diretorio, novoNclr.ToArray());
+            File.WriteAllBytes(base.NitroFilePath, novoNclr.ToArray());
         }
     }
 

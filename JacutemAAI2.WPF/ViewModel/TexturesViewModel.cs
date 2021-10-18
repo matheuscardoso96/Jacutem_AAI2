@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -55,6 +54,8 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public TexturesViewModel():base(new TexturesMap())
         {
+            LoadFile = LoadBtx;
+            BatchImportOp = BtxBatchImport;
             ScreenCommands = new Dictionary<string, DelegateCommand>()
             {
                 ["SaveChanges"] = new DelegateCommand(SaveChanges).ObservesCanExecute(() => IsSaveButtonEnabled),//.ObservesCanExecute(() => BtnExportarEstaAtivo),
@@ -64,7 +65,7 @@ namespace JacutemAAI2.WPF.ViewModel
                 ["ExportAllTexturesFromBtx"] = new DelegateCommand(ExportAllTexturesFromBtx).ObservesCanExecute(() => IsExportButtonEnabled),
                 ["ImportAllTexturesToBtx"] = new DelegateCommand(ImportAllTexturesToBtx).ObservesCanExecute(() => IsImportButtonEnabled),
                 ["ExportarAllBtx"] = new DelegateCommand(ExportarAllBtx),
-                ["ImportAllBtx"] = new DelegateCommand(ImportAllBtx)
+                ["BatchImportOperation"] = new DelegateCommand(BatchImportOperation)
 
             };
         }
@@ -113,8 +114,10 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public async void ExportarAllBtx()
         {
+            EnableStatus("Importando texturas...");
             await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
-            _ = MessageBox.Show("Texutras exportadas com sucesso.");
+            _ = MessageBox.Show("Texturas exportadas com sucesso.");
+            DisableStatus();
         }
       
         public async void ImportSelectedTexture()
@@ -174,31 +177,15 @@ namespace JacutemAAI2.WPF.ViewModel
 
         }
 
-        public async void ImportAllBtx()
-        {
-            IsExecutingBatchOperation = true;
-            CommonOpenFileDialog commonOpenFileDialog = new CommonOpenFileDialog();
-            commonOpenFileDialog.IsFolderPicker = true;
-            
-            if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-              await BtxBatchImport(commonOpenFileDialog.FileName);                
-            }
-            IsExecutingBatchOperation = false;
 
-        }
-
-        private async Task BtxBatchImport(string folderPaths) 
+        private void BtxBatchImport(string[] pngsDirectory)
         {
-            var importErros = new List<string>();
-            EnableStatus("Importando texturas...");
-            DisableViewComponents();
             
-            string[] folders = Directory.GetDirectories(folderPaths);
-            foreach (var finalDir in folders)
+            
+            foreach (var path in pngsDirectory)
             {
                 string arg;
-                string btxName = $"{finalDir.Split('\\').Last()}.btx";
+                string btxName = $"{path.Split('\\').Last()}.btx";
                 FilePaths.List.TryGetValue(btxName, out arg);
                 if (arg != null)
                 {
@@ -206,38 +193,37 @@ namespace JacutemAAI2.WPF.ViewModel
                     
                     if (tmp.Errors.Count == 0)
                     {
-                        await Task.Run(() =>  tmp.ImportMultipleTextures(Directory.GetFiles(finalDir)));
+                        tmp.ImportMultipleTextures(Directory.GetFiles(path));
                         if (tmp.Errors.Count == 0)
                         {
                             tmp.SaveToFile();
                         }
                         else
                         {
-                            importErros.AddRange(tmp.Errors);
+                            ErrorsLog.AddRange(tmp.Errors);
                         }
 
                     }
                     else
                     {
-                        importErros.AddRange(tmp.Errors);
+                        ErrorsLog.AddRange(tmp.Errors);
                     }
 
                 }
                 else
                 {
-                    importErros.AddRange(Btx.Errors);
+                    ErrorsLog.AddRange(Btx.Errors);
                 }
             }
             
-            EnableViewComponents();
-            DisableStatus();
-            if (importErros.Count == 0)
+            if (ErrorsLog.Count == 0)
             {
                 _ = MessageBox.Show($"Imagens importadas com sucesso.");
             }
             else
             {
-                _ = MessageBox.Show($"{string.Join("\r\n", importErros)}");
+                _ = MessageBox.Show($"{string.Join("\r\n", ErrorsLog)}");
+                ErrorsLog.Clear();
             }
 
         }
@@ -245,7 +231,7 @@ namespace JacutemAAI2.WPF.ViewModel
         public void SetImageMetada(TextureInfo selectedTextureInfo)
         {
             ImageMetaData = new ImageMetadata(selectedTextureInfo.Width, selectedTextureInfo.Height, selectedTextureInfo.Bpp.ToString(), selectedTextureInfo.ColorCount);
-        }     
+        }
        
     }
 

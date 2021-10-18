@@ -11,7 +11,11 @@ namespace FormatosNitro.Imagens
        
         public Nscr(BinaryReader br, string diretorio) : base(br, diretorio)
         {
-            Scrn = new Scrn(br);
+            if (Errors.Count == 0)
+            {
+                Scrn = new Scrn(br);
+            }
+            
             br.Close();
 
         }
@@ -26,7 +30,7 @@ namespace FormatosNitro.Imagens
                
             }
 
-            File.WriteAllBytes(base.Diretorio, novoNscr.ToArray());
+            File.WriteAllBytes(base.NitroFilePath, novoNscr.ToArray());
         }
     }
 

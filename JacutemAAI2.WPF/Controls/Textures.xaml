@@ -62,7 +62,7 @@
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem  Header="Exportar todos"  Command="{Binding ScreenCommands[ExportAllTexturesFromBtx]}" CommandParameter="ParameterValue"/>
-                            <MenuItem  Header="Importar todos"  Command="{Binding ScreenCommands[ImportAllTexturesToBtx]}" CommandParameter="ParameterValue"/>
+                            <MenuItem  Header="Importar todos"  Command="{Binding ScreenCommands[BatchImportOperation]}" CommandParameter="ParameterValue"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>

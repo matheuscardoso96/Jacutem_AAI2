@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 using JacutemAAI2.WPF.Ferramentas.Externas;
 using Prism.Commands;
-using System.Collections;
-using Microsoft.Win32;
-using MaterialDesignThemes.Wpf;
 using System.Windows.Forms;
 using JacutemAAI2.WPF.Gerenciadores;
-using JacutemAAI2.WPF.Views;
 
 namespace JacutemAAI2.WPF.ViewModel
 {

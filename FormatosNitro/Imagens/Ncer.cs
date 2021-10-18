@@ -14,16 +14,18 @@ namespace FormatosNitro.Imagens
 
         public Ncer(BinaryReader br, string diretorio) : base(br, diretorio)
         {
-            Cebk = new Cebk(br);
-            if (base.QuantidadeDeSecoes > 1)
+            if (Errors.Count == 0)
             {
-                Labl = new Labl(br, Cebk.QuatidadeEntradasDeBeks);
-                Uext = new Uext(br);
+                Cebk = new Cebk(br);
+                if (base.SectionCount > 1)
+                {
+                    Labl = new Labl(br, Cebk.QuatidadeEntradasDeBeks);
+                    Uext = new Uext(br);
+                }
             }
-           
             
-
-            
+            br.Close();
+                     
         }
 
         public void SalvarNcer(string diretorio)
@@ -64,7 +66,7 @@ namespace FormatosNitro.Imagens
 
 
 
-            File.WriteAllBytes(base.Diretorio, novoNcer.ToArray());
+            File.WriteAllBytes(base.NitroFilePath, novoNcer.ToArray());
         }
     }
 

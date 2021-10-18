@@ -19,10 +19,9 @@
             </dragablz:TabablzControl.InterTabController>
             <TabItem Header="BG">
                 <controls:Bg/>
-
             </TabItem>
             <TabItem Header="SPRITES">
-               
+                <controls:Sprites/>
             </TabItem>
             <TabItem Header="TEXTURAS">
                 <controls:Textures/>

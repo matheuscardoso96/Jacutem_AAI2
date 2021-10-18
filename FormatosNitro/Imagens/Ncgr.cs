@@ -14,7 +14,6 @@ namespace FormatosNitro.Imagens
 {
     public class Ncgr : NitroBase
     {
-        public List<string> Errors { get; set; } = new List<string>();
         public Char Char { get; private set; }
         public Cpos Cpos { get; private set; }
         public Ncer ArquivoNcer { get; private set; }
@@ -22,6 +21,7 @@ namespace FormatosNitro.Imagens
         public Nclr ArquivoNclr { get; private set; }
         public List<Bitmap> Imagens { get; private set; }
         public string ExportPath { get; set; }
+        public List<string> AllErrors { get; set; } = new List<string>();
 
         public delegate void Importar(string dirImg);
         public delegate void Salvar(string dir, bool paletaFoiModificada);
@@ -31,42 +31,73 @@ namespace FormatosNitro.Imagens
 
         public Ncgr(BinaryReader br, Nclr nclr,string diretorio, string exportPath) : base(br, diretorio)
         {
-            ExportPath = exportPath;
-            ArquivoNclr = nclr;
-            Char = new Char(br);
-            if (QuantidadeDeSecoes > 1)
-                Cpos = new Cpos(br);
-            br.Close();
-            CarregarImagens();
-            ImportarNgcr = new Importar(ImportaNCGR);
-            ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
+            if (Errors.Count == 0 && nclr.Errors.Count == 0)
+            {
+                ExportPath = exportPath;
+                ArquivoNclr = nclr;
+                SetNgcrProperties(br, exportPath);
+                CarregarImagens();
+                ImportarNgcr = new Importar(ImportaNCGR);
+                ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
+            }
+            else
+            {
+                AllErrors.AddRange(Errors);
+                AllErrors.AddRange(nclr.Errors);
+            }
 
+            br.Close();
 
         }
 
         public Ncgr(BinaryReader br,Nclr nclr, Nscr nscr, string diretorio, string exportPath) : base(br, diretorio)
         {
-            ExportPath = exportPath;
-            ArquivoNscr = nscr;
-            ArquivoNclr = nclr;
-            Char = new Char(br);
-            if (QuantidadeDeSecoes > 1)
-                Cpos = new Cpos(br);        
+            if (Errors.Count == 0 && nclr.Errors.Count == 0 && nscr.Errors.Count == 0)
+            {
+                ArquivoNscr = nscr;
+                ArquivoNclr = nclr;
+                SetNgcrProperties(br, exportPath);             
+                CarregarImagemNCGRComNSCR();
+                ImportarNgcr = new Importar(ImportaNCGRComNscr);
+                ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
+            }
+            else
+            {
+                AllErrors.AddRange(Errors);
+                AllErrors.AddRange(nclr.Errors);
+                AllErrors.AddRange(nscr.Errors);
+            }
+
             br.Close();
-            CarregarImagemNCGRComNSCR();
-            ImportarNgcr = new Importar(ImportaNCGRComNscr);
-            ExportarImagem = new Exportar(ExportarNcgrComOuSemNscr);
+
         }
 
         public Ncgr(BinaryReader br, Nclr nclr, Ncer ncer, string diretorio, string exportPath) : base(br, diretorio)
         {
-            ExportPath = exportPath;
-            ArquivoNcer = ncer;
-            ArquivoNclr = nclr;
-            Char = new Char(br);
-            if (QuantidadeDeSecoes > 1)
-                Cpos = new Cpos(br);
+            if (Errors.Count == 0 && nclr.Errors.Count == 0 && ncer.Errors.Count == 0)
+            {
+                ArquivoNcer = ncer;
+                ArquivoNclr = nclr;
+                SetNgcrProperties(br,exportPath);
+            }
+            else
+            {
+                AllErrors.AddRange(Errors);
+                AllErrors.AddRange(nclr.Errors);
+                AllErrors.AddRange(ncer.Errors);
+            }
+
             br.Close();
+
+        }
+
+        private void SetNgcrProperties(BinaryReader br, string exportPath)
+        {
+            ExportPath = exportPath;
+            Char = new Char(br);
+            if (SectionCount > 1)
+                Cpos = new Cpos(br);
+            
         }
 
         public void ExportarNcgrComOuSemNscr()
@@ -76,7 +107,17 @@ namespace FormatosNitro.Imagens
                 _ = Directory.CreateDirectory(ExportPath);
             }
 
-            Imagens.First().Save($"{ExportPath}{Path.GetFileName(Diretorio).Replace("ncgr", "png")}");
+            try
+            {
+                Imagens.First().Save($"{ExportPath}{Path.GetFileName(NitroFilePath).Replace("ncgr", "png")}");
+            }
+            catch (Exception)
+            {
+
+                throw new Exception($"{NitroFilePath}");
+            }
+
+            
         }
 
         private void CarregarImagens()
@@ -171,7 +212,7 @@ namespace FormatosNitro.Imagens
                 
             }
 
-            File.WriteAllBytes(base.Diretorio, novoNgcr.ToArray());
+            File.WriteAllBytes(base.NitroFilePath, novoNgcr.ToArray());
 
             if (paletaFoiModificada)
             {

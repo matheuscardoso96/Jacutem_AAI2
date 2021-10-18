@@ -1,9 +1,11 @@
 ﻿using JacutemAAI2.WPF.Images;
 using JacutemAAI2.WPF.Images.ImagesMapPath;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Prism.Commands;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -26,8 +28,11 @@ namespace JacutemAAI2.WPF.ViewModel
         private BitmapImage _palette;
         private bool _isExecutingBatchOperation;
         public delegate void Load();
+        public delegate void BatchImport(string[] pngsPaths);
         public Load LoadFile;
+        public BatchImport BatchImportOp;
         public Dictionary<string, DelegateCommand> ScreenCommands { get; set; }
+        public List<string> ErrorsLog = new List<string>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -271,6 +276,34 @@ namespace JacutemAAI2.WPF.ViewModel
             IsListEnabled = true;
             IsExportButtonEnabled = true;
             IsImportButtonEnabled = true;
+        }
+
+        public async void BatchImportOperation()
+        {
+            var importErros = new List<string>();
+            EnableStatus("Importando pngs...");
+            DisableViewComponents();
+
+            IsExecutingBatchOperation = true;
+            CommonOpenFileDialog commonOpenFileDialog = new CommonOpenFileDialog();
+            commonOpenFileDialog.IsFolderPicker = true;
+
+            if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                string[] pngPaths = Directory.GetFiles(commonOpenFileDialog.FileName,"*.png");
+                if (BatchImportOp != null)
+                {
+                    await Task.Run(() => BatchImportOp.Invoke(pngPaths));
+                }
+                else
+                {
+                    MessageBox.Show("A ação BatchImportOp não foi setada.");
+                }
+               
+            }
+            IsExecutingBatchOperation = false;
+            DisableStatus();
+            EnableViewComponents();
         }
 
     }

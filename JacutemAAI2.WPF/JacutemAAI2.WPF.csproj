@@ -274,6 +274,9 @@
     <Compile Include="Controls\Rom.xaml.cs">
       <DependentUpon>Rom.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Sprites.xaml.cs">
+      <DependentUpon>Sprites.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Textures.xaml.cs">
       <DependentUpon>Textures.xaml</DependentUpon>
     </Compile>
@@ -289,10 +292,11 @@
     <Compile Include="Images\ImagesMapPath\BGSPaths.cs" />
     <Compile Include="Images\ImagesMapPath\FilePaths.cs" />
     <Compile Include="Images\ImagesMapPath\SpritesBinariosModo2D.cs" />
-    <Compile Include="Images\ImagesMapPath\SpritesBinariosModoTile.cs" />
+    <Compile Include="Images\ImagesMapPath\SpritesPaths.cs" />
     <Compile Include="Images\ImagesMapPath\SpritesModo2D.cs" />
     <Compile Include="Images\ImagesMapPath\SpritesModoTile.cs" />
     <Compile Include="Images\ImagesMapPath\TexturesMap.cs" />
+    <Compile Include="ViewModel\SpritesViewModel.cs" />
     <Compile Include="ViewModel\TexturesViewModel.cs" />
     <Compile Include="ViewModel\BgViewModel.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
@@ -351,6 +355,10 @@
     <Page Include="Controls\Rom.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Sprites.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Textures.xaml">
       <SubType>Designer</SubType>
