@@ -1,6 +1,7 @@
 ﻿using LibDeImagensGbaDs.Conversor;
 using LibDeImagensGbaDs.Enums;
 using LibDeImagensGbaDs.Paleta;
+using LibDeImagensGbaDs.Sprites;
 using LibDeImagensGbaDs.TileMap;
 using System;
 using System.Collections;
@@ -19,7 +20,7 @@ namespace FormatosNitro.Imagens
         public Ncer ArquivoNcer { get; private set; }
         public Nscr ArquivoNscr { get; private set; }
         public Nclr ArquivoNclr { get; private set; }
-        public List<Bitmap> Imagens { get; private set; }
+        public Bitmap ConvertedImage { get; private set; }
         public string ExportPath { get; set; }
         public List<string> AllErrors { get; set; } = new List<string>();
 
@@ -79,6 +80,7 @@ namespace FormatosNitro.Imagens
                 ArquivoNcer = ncer;
                 ArquivoNclr = nclr;
                 SetNgcrProperties(br,exportPath);
+                //CarregarImagemNCGRComNCER();
             }
             else
             {
@@ -109,7 +111,7 @@ namespace FormatosNitro.Imagens
 
             try
             {
-                Imagens.First().Save($"{ExportPath}{Path.GetFileName(NitroFilePath).Replace("ncgr", "png")}");
+                ConvertedImage.Save($"{ExportPath}{Path.GetFileName(NitroFilePath).Replace("ncgr", "png")}");
             }
             catch (Exception)
             {
@@ -124,11 +126,7 @@ namespace FormatosNitro.Imagens
         {
             ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
-
-            Imagens = new List<Bitmap>() {
-                ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, palette , TileMode.Tiled, depth)
-            };
-
+            ConvertedImage = ImageConverter.RawIndexedToBitmap(Char.Tiles, Char.QuatidadeDeTilesX * 8, Char.QuatidadeDeTilesY * 8, palette, TileMode.Tiled, depth);
             ArquivoNclr.Colors = palette.Colors;
         }
 
@@ -136,13 +134,18 @@ namespace FormatosNitro.Imagens
         {
             ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
             BGR565 palette = new BGR565(ArquivoNclr.Pltt.Paleta);
-            Imagens = new List<Bitmap>() {
-                ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, palette, depth)
-            };
-            
+            ConvertedImage = ImageConverter.TileMappedToBitmap(Char.Tiles, ArquivoNscr.Scrn.InfoTela.ToList(), ArquivoNscr.Scrn.Largura, ArquivoNscr.Scrn.Altura, palette, depth);
             ArquivoNclr.Colors = palette.Colors;
         }
 
+        public void LoadNGCRImageWithNcer(Ebk ebk)
+        {
+            ColorDepth depth = Char.IntensidadeDeBits == 3 ? ColorDepth.F4BBP : ColorDepth.F8BBP;
+            TypeSprite typeSprite = new TypeSprite() { Oams = ebk.Oams, TileBoundary = (int)ArquivoNcer.Cebk.TileBoundary };
+            TileMode tileMode = Char.FlagDeDimensao == 0 ? TileMode.Tiled : TileMode.NotTiled;
+            ConvertedImage = ImageConverter.SpriteToBitmap(Char.Tiles, ArquivoNclr.Pltt.Paleta, typeSprite, tileMode, depth);    
+
+        }
 
 
 
@@ -195,7 +198,6 @@ namespace FormatosNitro.Imagens
                 CarregarImagemNCGRComNSCR();
             }
 
-           
         }
  
         public void SalvarNCGR(bool paletaFoiModificada)

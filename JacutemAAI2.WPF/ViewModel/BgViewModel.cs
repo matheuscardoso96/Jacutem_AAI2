@@ -28,7 +28,7 @@ namespace JacutemAAI2.WPF.ViewModel
             set
             {
                 _loadedNcgr = value;
-                NotifyPropertyChanged("NgcrCarregado");
+                NotifyPropertyChanged("LoadedNgcr");
             }
         }
 
@@ -59,11 +59,11 @@ namespace JacutemAAI2.WPF.ViewModel
 
             if (LoadedNgcr.AllErrors.Count == 0)
             {
-                LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+                LoadedImage = LoadedNgcr.ConvertedImage.ToImageSource();
 
                 ImageMetaData = new ImageMetadata(
-                    LoadedNgcr.Imagens[0].Width,
-                    LoadedNgcr.Imagens[0].Height,
+                    LoadedNgcr.ConvertedImage.Width,
+                    LoadedNgcr.ConvertedImage.Height,
                     LoadedNgcr.Char.IntensidadeDeBits == 3 ? "4" : "8",
                     LoadedNgcr.ArquivoNclr.Pltt.Paleta.Length / 2);
                 Palette = PaletteVisualGenerator.CreateImage(LoadedNgcr.ArquivoNclr.Colors);
@@ -73,10 +73,6 @@ namespace JacutemAAI2.WPF.ViewModel
                 MessageBox.Show($"Alguns erros foram encontrados: {string.Join("\r\n", LoadedNgcr.AllErrors)}");
                 LoadedNgcr = null;
             }
-
-           
-
-
         }
 
         public void ExportNcgrImage()
@@ -124,7 +120,7 @@ namespace JacutemAAI2.WPF.ViewModel
                 await Task.Run(() => LoadedNgcr.ImportarNgcr.Invoke(dlg.FileName));
                 if (LoadedNgcr.AllErrors.Count == 0)
                 {
-                    LoadedImage = LoadedNgcr.Imagens[0].ToImageSource();
+                    LoadedImage = LoadedNgcr.ConvertedImage.ToImageSource();
                     EnableCancelAndSave();
                 }
                 else

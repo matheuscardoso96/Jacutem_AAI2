@@ -6,64 +6,60 @@ namespace LibDeImagensGbaDs.Sprites
 {
     public class Oam
     {
-        public ushort _atributosOBJ0 { get; set; }
-        public ushort _atributosOBJ1 { get; set; }
-        public ushort _atributosOBJ2 { get; set; }
+        public ushort OBJ0Attributes { get; set; }
+        public ushort OBJ1Attributes { get; set; }
+        public ushort OBJ2Attributes { get; set; }
         public uint Y { get; set; }
         public uint X { get; set; }
-        public uint Largura { get; set; }
-        public uint Altura { get; set; }
+        public uint Width { get; set; }
+        public uint Height { get; set; }
         public uint TileId { get; set; }
-        public uint Prioridade { get; set; }
-        public uint NumeroDaPaleta { get; set; }
+        public uint Priority { get; set; }
+        public uint PaletteId { get; set; }
         public bool RotateOrScaling { get; set; }
-        public bool Mozaico { get; set; }
+        public bool Mozaic { get; set; }
         public bool HorizontalFlip { get; set; }
         public bool VerticalFlip { get; set; }
         public OBJShape OBJShape { get; set; }
         public OBJMode OBJMode { get; set; }
         public Bpp Bpp { get; set; }
-        public Bitmap Imagem { get; set; }
-        public List<Color> Paleta{ get; set; }
-        public Rectangle Retangulo { get; set; }
 
 
         public Oam(ushort atributosOBJ0, ushort atributosOBJ1, ushort atributosOBJ2)
         {
-            _atributosOBJ0 = atributosOBJ0;
-            _atributosOBJ1 = atributosOBJ1;
-            _atributosOBJ2 = atributosOBJ2;
-            ObtenhaAtribuosObj0(atributosOBJ0);
-            ObtenhaAtribuosObj1(atributosOBJ1);
-            ObtenhaAtribuosObj2(atributosOBJ2);
-            Retangulo = new Rectangle((int) X, (int) Y, (int) Largura, (int) Altura);
+            OBJ0Attributes = atributosOBJ0;
+            OBJ1Attributes = atributosOBJ1;
+            OBJ2Attributes = atributosOBJ2;
+            GetObj0Attributes(atributosOBJ0);
+            GetObj1Attributes(atributosOBJ1);
+            GetObj2Attributes(atributosOBJ2);
 
 
         }
 
         public Oam(Oam oam, int resX, int resY)
         {
-            _atributosOBJ0 = oam._atributosOBJ0;
-            _atributosOBJ1 = oam._atributosOBJ1;
-            _atributosOBJ2 = oam._atributosOBJ2;
-            ObtenhaAtribuosObj0(oam._atributosOBJ0);
-            ObtenhaAtribuosObj1(oam._atributosOBJ1);
-            ObtenhaAtribuosObj2(oam._atributosOBJ2);
-            Imagem = new Bitmap(resX, resY);
-            using (Graphics gg = Graphics.FromImage(Imagem))
-            {
-                SolidBrush sb = new SolidBrush(oam.Paleta[0]);
-                Rectangle rect = new Rectangle(0, 0, resX, resY);
-                gg.FillRectangle(sb, rect);
-                gg.Dispose();
-                sb.Dispose();
-                Retangulo = rect;
-            }
-            Paleta = oam.Paleta;
+            OBJ0Attributes = oam.OBJ0Attributes;
+            OBJ1Attributes = oam.OBJ1Attributes;
+            OBJ2Attributes = oam.OBJ2Attributes;
+            GetObj0Attributes(oam.OBJ0Attributes);
+            GetObj1Attributes(oam.OBJ1Attributes);
+            GetObj2Attributes(oam.OBJ2Attributes);
+            //Imagem = new Bitmap(resX, resY);
+            //using (Graphics gg = Graphics.FromImage(Imagem))
+            //{
+            //    SolidBrush sb = new SolidBrush(oam.Paleta[0]);
+            //    Rectangle rect = new Rectangle(0, 0, resX, resY);
+            //    gg.FillRectangle(sb, rect);
+            //    gg.Dispose();
+            //    sb.Dispose();
+            //    Rectangle = rect;
+            //}
+            //Paleta = oam.Paleta;
 
         }
 
-        private void ObtenhaAtribuosObj0(ushort atb0)
+        private void GetObj0Attributes(ushort atb0)
         {
             Y = (uint)(atb0 & 0XFF);
 
@@ -85,7 +81,7 @@ namespace LibDeImagensGbaDs.Sprites
 
             OBJMode = (OBJMode)(atb0 & 3);
             atb0 = (ushort)(atb0 >> 2);
-            Mozaico = ((atb0 & 1) == 0) ? false : true;
+            Mozaic = ((atb0 & 1) == 0) ? false : true;
             atb0 = (ushort)(atb0 >> 1);
             Bpp = (Bpp)(atb0 & 1);
             atb0 = (ushort)(atb0 >> 1);
@@ -93,7 +89,7 @@ namespace LibDeImagensGbaDs.Sprites
 
         }
 
-        private void ObtenhaAtribuosObj1(ushort atb1)
+        private void GetObj1Attributes(ushort atb1)
         {
             X = (uint)(atb1 & 0X1FF);
 
@@ -127,54 +123,54 @@ namespace LibDeImagensGbaDs.Sprites
             switch (OBJShape)
             {
                 case OBJShape.Square:
-                    Largura = (uint)(8 << (int)size);
-                    Altura = (uint)(8 << (int)size);
+                    Width = (uint)(8 << (int)size);
+                    Height = (uint)(8 << (int)size);
 
                     break;
                 case OBJShape.Horizontal:
                     if (size == 0)
                     {
-                        Largura = 16;
-                        Altura = 8;
+                        Width = 16;
+                        Height = 8;
 
                     }
                     else if (size == 1)
                     {
-                        Largura = 32;
-                        Altura = 8;
+                        Width = 32;
+                        Height = 8;
                     }
                     else if (size == 2)
                     {
-                        Largura = 32;
-                        Altura = 16;
+                        Width = 32;
+                        Height = 16;
                     }
                     else if (size == 3)
                     {
-                        Largura = 64;
-                        Altura = 32;
+                        Width = 64;
+                        Height = 32;
                     }
                     break;
                 case OBJShape.Vertical:
                     if (size == 0)
                     {
-                        Largura = 8;
-                        Altura = 16;
+                        Width = 8;
+                        Height = 16;
 
                     }
                     else if (size == 1)
                     {
-                        Largura = 8;
-                        Altura = 32;
+                        Width = 8;
+                        Height = 32;
                     }
                     else if (size == 2)
                     {
-                        Largura = 16;
-                        Altura = 32;
+                        Width = 16;
+                        Height = 32;
                     }
                     else if (size == 3)
                     {
-                        Largura = 32;
-                        Altura = 64;
+                        Width = 32;
+                        Height = 64;
                     }
                     break;
                 case OBJShape.Prohibited:
@@ -187,13 +183,18 @@ namespace LibDeImagensGbaDs.Sprites
 
         }
 
-        private void ObtenhaAtribuosObj2(ushort atb2)
+        private void GetObj2Attributes(ushort atb2)
         {
             TileId = (uint)(atb2 & 0X3FF);
             atb2 = (ushort)(atb2 >> 10);
-            Prioridade = (uint)(atb2 & 3);
+            Priority = (uint)(atb2 & 3);
             atb2 = (ushort)(atb2 >> 2);
-            NumeroDaPaleta = (uint)(atb2 & 0xF);
+            PaletteId = (uint)(atb2 & 0xF);
+        }
+
+        public override string ToString()
+        {
+            return $"{Width} x {Height}";
         }
     }
 }

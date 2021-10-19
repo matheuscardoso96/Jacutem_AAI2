@@ -1,12 +1,12 @@
 ﻿using LibDeImagensGbaDs.Tipos;
-using System;
 using System.Collections.Generic;
-using System.Text;
+
 
 namespace LibDeImagensGbaDs.Sprites
 {
-    public class TipoSprite : TipoBase
+    public class TypeSprite : TipoBase
     {
         public List<Oam> Oams { get; set; }
+        public int TileBoundary { get; set; }
     }
 }

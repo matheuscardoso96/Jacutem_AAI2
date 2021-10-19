@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JacutemAAI2.WPF.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace JacutemAAI2.WPF.Controls
         public Sprites()
         {
             InitializeComponent();
+            DataContext = new SpritesViewModel();
         }
     }
 }

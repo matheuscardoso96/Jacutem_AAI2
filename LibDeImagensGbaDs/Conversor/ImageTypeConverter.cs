@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using LibDeImagensGbaDs.Tipos;
+using LibDeImagensGbaDs.Enums;
 
 namespace LibDeImagensGbaDs.Conversor
 {
@@ -49,6 +50,56 @@ namespace LibDeImagensGbaDs.Conversor
 
         }
 
+        public static Bitmap SpriteFrameToBmp(byte[] tiles, byte[] palette, TypeSprite typeSprite, TileMode tileMode, ColorDepth depth)
+        {
+            Bitmap final = new Bitmap(512, 256);
+            byte[] alphaValues = null;
+            using (Graphics g = Graphics.FromImage(final))
+            {
+                foreach (var oam in typeSprite.Oams)
+                {
+                    Bitmap framePart;
+                    int framePartIndexesSz = (int)oam.Width * (int)oam.Height;
+                    if (depth == ColorDepth.F4BBP)
+                    {
+                        framePartIndexesSz /= 2;
+                    }
+
+                    byte[] framePartIndexes = new byte[framePartIndexesSz];
+                    Array.Copy(tiles, oam.TileId * (typeSprite.TileBoundary * 64), framePartIndexes, 0, framePartIndexesSz);
+
+                    framePartIndexes = ImageConverter._indexedFormatConverters[depth].DecompressIndexes(framePartIndexes, ref alphaValues);
+                    int paletteByteSz = depth == ColorDepth.F4BBP ? 0x20 : 0x200;
+                    BGR565 pal = new BGR565(palette, paletteByteSz, (int)oam.PaletteId * paletteByteSz);
+
+                    framePart = tileMode == TileMode.Tiled
+                        ? TiledToBmp(framePartIndexes, (int)oam.Width, (int)oam.Height, pal)
+                        : NotTiledToBmp(framePartIndexes, (int)oam.Width, (int)oam.Height, pal);
+
+                    if (oam.HorizontalFlip && oam.VerticalFlip)
+                    {
+                        framePart.RotateFlip(RotateFlipType.RotateNoneFlipXY);
+                    }
+                    else if (oam.HorizontalFlip)
+                    {
+                        framePart.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    }
+                    else if (oam.VerticalFlip)
+                    {
+                        framePart.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    }
+
+                    g.DrawImage(framePart, oam.X, oam.Y);
+                    framePart.Dispose();
+
+                }
+            }
+
+            return final;
+
+        }
+
+
         public static Bitmap ConvertDirectToBmp()
         {
             return null;
@@ -88,7 +139,6 @@ namespace LibDeImagensGbaDs.Conversor
             return indexes.ToArray();
         }
 
-
-
+        
     }
 }

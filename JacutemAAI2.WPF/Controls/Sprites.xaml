@@ -25,13 +25,13 @@
             </Grid.ColumnDefinitions>
 
 
-            <materialDesign:Card Height="auto" Width="190" Grid.Row="1" Grid.Column="0" Margin="10,15,15,10" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Width="210" Grid.Row="1" Grid.Column="0" Margin="10,15,15,10" HorizontalAlignment="Center" >
 
                 <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Path=FilePaths.List}" SelectedItem="{Binding SelectedPath}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Ncgrs"
-                            DisplayMemberBinding="{Binding Key}" Width="170"/>
+                            <GridViewColumn Header="Arquivos"
+                            DisplayMemberBinding="{Binding Key}" Width="185"/>
 
                         </GridView>
                     </ListView.View>
@@ -45,13 +45,13 @@
 
             </materialDesign:Card>
 
-            <materialDesign:Card Height="auto" Width="160" Grid.Row="1" Grid.Column="1" Margin="0,15,10,10" HorizontalAlignment="Center" >
+            <materialDesign:Card Height="auto" Width="140" Grid.Row="1" Grid.Column="1" Margin="0,15,10,10" HorizontalAlignment="Center" >
 
-                <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Path=FilePaths.List}" SelectedItem="{Binding SelectedPath}">
+                <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Ebks}" SelectedItem="{Binding SelectedEbk}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Frames"
-                            DisplayMemberBinding="{Binding Key}" Width="170"/>
+                            DisplayMemberBinding="{Binding Id}" Width="120"/>
 
                         </GridView>
                     </ListView.View>
@@ -74,7 +74,7 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="510"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -191,11 +191,11 @@
 
                     <materialDesign:Card Height="auto" Width="160" Grid.Row="1" Grid.Column="1" Margin="10,-250,5,10" HorizontalAlignment="Center" >
 
-                        <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Path=FilePaths.List}" SelectedItem="{Binding SelectedPath}">
+                        <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Oams}" SelectedItem="{Binding SelectOam}">
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Header="Atributos"
-                            DisplayMemberBinding="{Binding Key}" Width="170"/>
+                             Width="170"/>
 
                                 </GridView>
                             </ListView.View>

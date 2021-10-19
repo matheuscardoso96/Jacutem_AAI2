@@ -1,6 +1,7 @@
 ﻿using LibDeImagensGbaDs.Enums;
 using LibDeImagensGbaDs.Formats.Indexed;
 using LibDeImagensGbaDs.Paleta;
+using LibDeImagensGbaDs.Sprites;
 using LibDeImagensGbaDs.TileMap;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,7 +10,7 @@ namespace LibDeImagensGbaDs.Conversor
 {
     public static class ImageConverter
     {
-        private static Dictionary<ColorDepth,IIndexedFormat> _indexedFormatConverters;
+        public static Dictionary<ColorDepth,IIndexedFormat> _indexedFormatConverters;
         private static bool _isConvertersInitialized;
 
         public static Bitmap RawIndexedToBitmap(byte[] file, int width, int height, BGR565 pal, TileMode tileMode, ColorDepth colorDepth)
@@ -41,6 +42,16 @@ namespace LibDeImagensGbaDs.Conversor
             byte[] indexes = _indexedFormatConverters[colorDepth].DecompressIndexes(file, ref alphaValues);
             return ImageTypeConverter.TiledToBmp(indexes, width, height, pal, tilemap, alphaValues);
         }
+        public static Bitmap SpriteToBitmap(byte[] tiles, byte[] pal, TypeSprite oams, TileMode tileMode, ColorDepth colorDepth)
+        {
+            if (!_isConvertersInitialized)
+            {
+                InitilizeConverters();
+            }
+            byte[] alphaValues = null;
+           // byte[] indexes = _indexedFormatConverters[colorDepth].DecompressIndexes(tiles, ref alphaValues);
+            return ImageTypeConverter.SpriteFrameToBmp(tiles, pal, oams, tileMode, colorDepth);
+        }
 
         public static byte[] BitmapToRawIndexed(Bitmap image, BGR565 pal, TileMode tileMode, ColorDepth colorDepth)
         {
@@ -65,8 +76,6 @@ namespace LibDeImagensGbaDs.Conversor
             return indexes;
         }
 
-        
-
         public static byte[] BitmapToTileMapped(Bitmap image, BGR565 pal, TileMapType tileMap, ColorDepth colorDepth)
         {
             if (!_isConvertersInitialized)
@@ -78,7 +87,7 @@ namespace LibDeImagensGbaDs.Conversor
             return _indexedFormatConverters[colorDepth].CompressIndexes(uncompressedIndexes);
         }
 
-       
+        
 
         //public static Bitmap SpriteToBimap(byte[] file, List<Oam> oamAttributes)
         //{

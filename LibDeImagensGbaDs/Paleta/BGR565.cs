@@ -28,6 +28,29 @@ namespace LibDeImagensGbaDs.Paleta
          
         }
 
+        public BGR565(byte[] palette, int size ,int offset)
+        {
+            Colors = new Color[size / 2];
+            byte[] justPalette = new byte[size];
+            Array.Copy(palette, offset, justPalette, 0, size);
+
+            using (BinaryReader br = new BinaryReader(new MemoryStream(justPalette)))
+            {
+                int counter = 0;
+                while (counter < Colors.Length)
+                {
+                    int bgr = br.ReadInt16();
+                    int r = (bgr & 31) * 255 / 31;
+                    int g = (bgr >> 5 & 31) * 255 / 31;
+                    int b = (bgr >> 10 & 31) * 255 / 31;
+                    Colors[counter] = Color.FromArgb(r, g, b);
+                    counter++;
+                }
+            }
+
+
+        }
+
 
         public byte GetNearColorIndex(Color c1)
         {

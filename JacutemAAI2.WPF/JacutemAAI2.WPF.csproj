@@ -291,11 +291,9 @@
     <Compile Include="Images\ImageMetadata.cs" />
     <Compile Include="Images\ImagesMapPath\BGSPaths.cs" />
     <Compile Include="Images\ImagesMapPath\FilePaths.cs" />
-    <Compile Include="Images\ImagesMapPath\SpritesBinariosModo2D.cs" />
     <Compile Include="Images\ImagesMapPath\SpritesPaths.cs" />
-    <Compile Include="Images\ImagesMapPath\SpritesModo2D.cs" />
-    <Compile Include="Images\ImagesMapPath\SpritesModoTile.cs" />
     <Compile Include="Images\ImagesMapPath\TexturesMap.cs" />
+    <Compile Include="Images\SpriteHelpers.cs" />
     <Compile Include="ViewModel\SpritesViewModel.cs" />
     <Compile Include="ViewModel\TexturesViewModel.cs" />
     <Compile Include="ViewModel\BgViewModel.cs" />

@@ -8,8 +8,8 @@ namespace FormatosNitro.Imagens
 {
     public class Ncer : NitroBase
     {
-        Cebk Cebk { get; set; }
-        Labl Labl { get; set; }
+        public Cebk Cebk { get; set; }
+        public Labl Labl { get; set; }
         public Uext Uext { get; set; }
 
         public Ncer(BinaryReader br, string diretorio) : base(br, diretorio)
@@ -17,7 +17,7 @@ namespace FormatosNitro.Imagens
             if (Errors.Count == 0)
             {
                 Cebk = new Cebk(br);
-                if (base.SectionCount > 1)
+                if (SectionCount > 1)
                 {
                     Labl = new Labl(br, Cebk.QuatidadeEntradasDeBeks);
                     Uext = new Uext(br);
@@ -25,7 +25,6 @@ namespace FormatosNitro.Imagens
             }
             
             br.Close();
-                     
         }
 
         public void SalvarNcer(string diretorio)
@@ -57,16 +56,13 @@ namespace FormatosNitro.Imagens
             MemoryStream novoNcer = new MemoryStream();
             using (BinaryWriter bw = new BinaryWriter(novoNcer))
             {
-                base.EscreverPropiedades(bw);
+                EscreverPropiedades(bw);
                 Cebk.EscreverPropiedades(bw);
                 Labl.EscreverPropiedades(bw);
                 Uext.EscreverPropiedades(bw);
-
             }
 
-
-
-            File.WriteAllBytes(base.NitroFilePath, novoNcer.ToArray());
+            File.WriteAllBytes(NitroFilePath, novoNcer.ToArray());
         }
     }
 
@@ -77,12 +73,11 @@ namespace FormatosNitro.Imagens
         public ushort QuatidadeEntradasDeBeks{ get; set; }
         public ushort TamanhoEntradaBek{ get; set; }
         public uint EnderecoBeks { get; set; }
-        public uint LimiteAreaBek { get; set; }
+        public uint TileBoundary { get; set; } //TileBoundary * 64
         public uint EnderecoDeParticaoDeDados { get; set; }
         public ulong Padding { get; set; }
 
         public List<Ebk> Ebks { get; set; }
-        
 
         public Cebk(BinaryReader br)
         {
@@ -91,13 +86,11 @@ namespace FormatosNitro.Imagens
             QuatidadeEntradasDeBeks = br.ReadUInt16();
             TamanhoEntradaBek = br.ReadUInt16();
             EnderecoBeks = br.ReadUInt32();
-            LimiteAreaBek = br.ReadUInt32();
+            TileBoundary = br.ReadUInt32();
             EnderecoDeParticaoDeDados = br.ReadUInt32();
             Padding = br.ReadUInt64();
             br.BaseStream.Position = EnderecoBeks + 8 + 16; //16 tamanho do cabeçalho + 8 padding
             LerEbks(br);
-            
-
         }
 
         private void LerEbks(BinaryReader br) 
@@ -106,6 +99,7 @@ namespace FormatosNitro.Imagens
             for (int i = 0; i < QuatidadeEntradasDeBeks; i++)
             {
                 Ebk ebk = new Ebk();
+                ebk.Id = i;
                 ebk.QuantidadeDeCelulas = br.ReadUInt16();
                 ebk.InfoSomenteLeituraCelula = br.ReadUInt16();
                 ebk.EnderecoCelula = br.ReadUInt32();
@@ -124,7 +118,7 @@ namespace FormatosNitro.Imagens
 
             long enderecoBase = br.BaseStream.Position;
 
-            foreach (Ebk ebk  in Ebks)
+            foreach (Ebk ebk in Ebks)
             {
                 ebk.Oams = new List<Oam>();
 
@@ -132,7 +126,10 @@ namespace FormatosNitro.Imagens
                 {
                     ebk.Oams.Add(new Oam(br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
                 }
+
+                ebk.Oams.Reverse();
             }
+    
 
         }
 
@@ -143,15 +140,15 @@ namespace FormatosNitro.Imagens
             bw.Write(QuatidadeEntradasDeBeks);
             bw.Write(TamanhoEntradaBek);
             bw.Write(EnderecoBeks);
-            bw.Write(LimiteAreaBek);
+            bw.Write(TileBoundary);
             bw.Write(EnderecoDeParticaoDeDados);
             bw.Write(Padding);
             foreach (var ebk in Ebks)
             {
-               bw.Write(ebk.QuantidadeDeCelulas);
+                bw.Write(ebk.QuantidadeDeCelulas);
                 bw.Write(ebk.InfoSomenteLeituraCelula);
                 bw.Write(ebk.EnderecoCelula);
-                bw.Write(ebk.TamanhoParticao);
+                //bw.Write(ebk.TamanhoParticao);
 
                 if (TamanhoEntradaBek == 1)
                 {
@@ -167,18 +164,21 @@ namespace FormatosNitro.Imagens
             {
                 foreach (var item in ebk.Oams)
                 {
-                    bw.Write(item._atributosOBJ0);
-                    bw.Write(item._atributosOBJ1);
-                    bw.Write(item._atributosOBJ2);
+                    bw.Write(item.OBJ0Attributes);
+                    bw.Write(item.OBJ1Attributes);
+                    bw.Write(item.OBJ2Attributes);
                 }
 
             }
 
         }
+
+        
     }
 
     public class Ebk
     {
+        public int Id { get; set; }
         public ushort QuantidadeDeCelulas { get; set; }
         public ushort InfoSomenteLeituraCelula { get; set; }
         public uint EnderecoCelula { get; set; }
@@ -189,6 +189,11 @@ namespace FormatosNitro.Imagens
         public short LarguraMinima { get; set; }
         public short AlturaMinima { get; set; }
         public List<Oam> Oams { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Id}";
+        }
     }
 
     public class Labl
@@ -200,34 +205,47 @@ namespace FormatosNitro.Imagens
 
         public Labl(BinaryReader br, int quantidadeDeBanks)
         {
-            
+            byte IsZero = br.ReadByte();
+
+            if (IsZero == 0)
+            {
+                while (IsZero == 0)
+                {
+                   IsZero = br.ReadByte();
+                }
+            }
+
+            br.BaseStream.Position--;
+
             Id = Encoding.ASCII.GetString(br.ReadBytes(4));
-            if (Id != "LABL")
+            if (Id != "LBAL")
             {
                 throw new Exception("Cade o LABL?");
             }
-            
+
             TamanhoLabl = br.ReadUInt32();
 
             Enderecos = new List<uint>();
-
-            for (int i = 0; i < quantidadeDeBanks; i++)
+            uint offset = br.ReadUInt32();
+            while (offset < br.BaseStream.Length)
             {
-                Enderecos.Add(br.ReadUInt32());
+                Enderecos.Add(offset);
+                offset = br.ReadUInt32();
             }
 
+            br.BaseStream.Position -= 4;
             Labls = new List<string>();
 
             long enderecoBase = br.BaseStream.Position;
 
-            for (int i = 0; i < quantidadeDeBanks; i++)
+            for (int i = 0; i < Enderecos.Count; i++)
             {
                 br.BaseStream.Position = enderecoBase + Enderecos[i];
                 StringBuilder label = new StringBuilder();
                 while (true)
                 {
                     char[] letra = Encoding.ASCII.GetChars(br.ReadBytes(1));
-                    if (letra[0] == '0')
+                    if (letra[0] == '\0')
                         break;
                     
                     label.Append(letra);
@@ -240,7 +258,18 @@ namespace FormatosNitro.Imagens
 
         public void EscreverPropiedades(BinaryWriter bw)
         {
-            throw new NotImplementedException();
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(TamanhoLabl);
+            foreach (var index in Enderecos)
+            {
+                bw.Write(index);
+            }
+            foreach (var label in Labls)
+            {
+                bw.Write(Encoding.ASCII.GetBytes(label));
+                bw.Write((byte)0);
+            }
+
         }
     }
 
@@ -258,7 +287,9 @@ namespace FormatosNitro.Imagens
 
         internal void EscreverPropiedades(BinaryWriter bw)
         {
-            throw new NotImplementedException();
+            bw.Write(Encoding.ASCII.GetBytes(Id));
+            bw.Write(TamanhoUext);
+            bw.Write(Padding);
         }
     }
 
