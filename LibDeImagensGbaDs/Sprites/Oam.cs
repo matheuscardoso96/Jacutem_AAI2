@@ -13,6 +13,7 @@ namespace LibDeImagensGbaDs.Sprites
         public uint X { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
+        public uint OBJSize { get; set; }
         public uint TileId { get; set; }
         public uint Priority { get; set; }
         public uint PaletteId { get; set; }
@@ -45,18 +46,6 @@ namespace LibDeImagensGbaDs.Sprites
             GetObj0Attributes(oam.OBJ0Attributes);
             GetObj1Attributes(oam.OBJ1Attributes);
             GetObj2Attributes(oam.OBJ2Attributes);
-            //Imagem = new Bitmap(resX, resY);
-            //using (Graphics gg = Graphics.FromImage(Imagem))
-            //{
-            //    SolidBrush sb = new SolidBrush(oam.Paleta[0]);
-            //    Rectangle rect = new Rectangle(0, 0, resX, resY);
-            //    gg.FillRectangle(sb, rect);
-            //    gg.Dispose();
-            //    sb.Dispose();
-            //    Rectangle = rect;
-            //}
-            //Paleta = oam.Paleta;
-
         }
 
         private void GetObj0Attributes(ushort atb0)
@@ -74,7 +63,7 @@ namespace LibDeImagensGbaDs.Sprites
 
             if (RotateOrScaling)
             {
-
+                throw new System.Exception("Rotation or scaling not Implemented.");
             }
             else
                 atb0 = (ushort)(atb0 >> 1);
@@ -119,6 +108,7 @@ namespace LibDeImagensGbaDs.Sprites
             }
 
             uint size = (uint)atb1 & 3;
+            OBJSize = size;
 
             switch (OBJShape)
             {
@@ -128,16 +118,20 @@ namespace LibDeImagensGbaDs.Sprites
 
                     break;
                 case OBJShape.Horizontal:
-                    if (size == 0)
+                    if (size == 0 || size == 1)
                     {
-                        Width = 16;
+                       
                         Height = 8;
 
-                    }
-                    else if (size == 1)
-                    {
-                        Width = 32;
-                        Height = 8;
+                        if (size == 0)
+                        {
+                            Width = 16;
+                        }
+                        else
+                        {
+                            Width = 32;
+                        }
+
                     }
                     else if (size == 2)
                     {
@@ -151,16 +145,19 @@ namespace LibDeImagensGbaDs.Sprites
                     }
                     break;
                 case OBJShape.Vertical:
-                    if (size == 0)
+                    if (size == 0 || size == 1)
                     {
                         Width = 8;
-                        Height = 16;
 
-                    }
-                    else if (size == 1)
-                    {
-                        Width = 8;
-                        Height = 32;
+                        if (size == 0)
+                        {
+                            Height = 16;
+                        }
+                        else
+                        {
+                            Height = 32;
+                        }
+
                     }
                     else if (size == 2)
                     {
@@ -190,6 +187,101 @@ namespace LibDeImagensGbaDs.Sprites
             Priority = (uint)(atb2 & 3);
             atb2 = (ushort)(atb2 >> 2);
             PaletteId = (uint)(atb2 & 0xF);
+        }
+
+
+        public void SetOamResolution(int width, int height)
+        {
+            X = (uint)width;
+            Y = (uint)height;
+            SetObjShape(width,height);
+        }
+
+        private void SetObjShape(int width, int height)
+        {
+            if (width == height && width > 0)
+            {
+                OBJShape = OBJShape.Square;
+               
+            }
+            else if (width > height)
+            {
+                OBJShape = OBJShape.Horizontal;
+            } else if (width < height) 
+            {
+                OBJShape = OBJShape.Vertical;
+            }
+            else
+            {
+                OBJShape = OBJShape.Prohibited;
+            }
+
+            SetObjectSize(OBJShape, width, height);
+        }
+
+        private void SetObjectSize(OBJShape OBJShape, int width, int height)
+        {           
+
+            switch (OBJShape)
+            {
+                case OBJShape.Square:
+                    int objSz = 0;
+                    while (width != 8)
+                    {
+                        width >>= 8;
+                        objSz++;
+                    }
+
+                    OBJSize = (uint)objSz;
+
+                    break;
+                case OBJShape.Horizontal:
+                    if (height == 8)
+                    {
+                        if (width == 16)
+                        {
+                            OBJSize = 0;
+                        }
+                        else
+                        {
+                            OBJSize = 1;
+                        }
+                    }
+                    else if (height == 16)
+                    {
+                        OBJSize = 2;
+                    }
+                    else
+                    {
+                        OBJSize = 3;
+                    }
+                    break;
+                case OBJShape.Vertical:
+                    if (width == 8)
+                    {
+                        if (height == 16)
+                        {
+                            OBJSize = 0;
+                        }
+                        else
+                        {
+                            OBJSize = 1;
+                        }
+                    }
+                    else if(width == 16)
+                    {
+                        OBJSize = 2;
+                    }
+                    else
+                    {
+                        OBJSize = 3;
+                    }
+                    break;
+                case OBJShape.Prohibited:
+                    break;
+                default:
+                    break;
+            }
         }
 
         public override string ToString()

@@ -294,6 +294,7 @@
     <Compile Include="Images\ImagesMapPath\SpritesPaths.cs" />
     <Compile Include="Images\ImagesMapPath\TexturesMap.cs" />
     <Compile Include="Images\SpriteHelpers.cs" />
+    <Compile Include="ViewModel\OamViewModel.cs" />
     <Compile Include="ViewModel\SpritesViewModel.cs" />
     <Compile Include="ViewModel\TexturesViewModel.cs" />
     <Compile Include="ViewModel\BgViewModel.cs" />

@@ -21,7 +21,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
 
@@ -64,21 +64,141 @@
                 </ListView>
 
             </materialDesign:Card>
+            
+            <!--Terceiro card-->
 
-            <materialDesign:Card Height="auto" Width="auto" Margin="0,16,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.Column="2">
+            <materialDesign:Card Height="660" Width="870" Margin="0,16,0,0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="510"/>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="170"/>
                     </Grid.ColumnDefinitions>
 
-                    <materialDesign:Card Margin="5" Grid.Row="0" Grid.Column="2" Width="auto" Height="150" DataContext="{Binding ImageMetadata}"  VerticalAlignment="Top">
+                     <!--Primeira coluna-->       
+                      
+                    <StackPanel Width="512" Height="256" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Top">
+                        <StackPanel.Background>
+                            <SolidColorBrush Color="LimeGreen"/>
+                        </StackPanel.Background>
+                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="512" Source="{Binding LoadedImage}" Stretch="None">
+                            <Image.ContextMenu>
+                                <ContextMenu>
+
+                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding ScreenCommands[ExportNcgrImage]}" CommandParameter="ParameterValue"/>
+
+                                    <MenuItem Header="Importar">
+                                        <MenuItem Command="{Binding ScreenCommands[ImportImageToNgcr]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
+                                        <MenuItem  Header="Gerando nova paleta"></MenuItem>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Image.ContextMenu>
+                        </Image>
+                    </StackPanel>
+
+                    <StackPanel Width="auto" HorizontalAlignment="Left" Height="auto" Grid.Column="0" Grid.Row="1">
+
+                        <Grid>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+
+
+                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding ScreenCommands[SaveChanges]}" CommandParameter="ParameterValue">
+                                    Salvar
+                                </Button>
+
+                                <Button Margin="10,30,0,0" Grid.Row="1"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding ScreenCommands[CancelChanges]}" CommandParameter="ParameterValue">
+                                    Cancelar
+                                </Button>
+
+                                <Button Margin="15,50,0,0"
+                    Style="{StaticResource MaterialDesignFloatingActionButton}"
+                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                    materialDesign:ButtonProgressAssist.Value="-1"
+                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsStatusBarAnimationEnabled}"
+                    Content="{materialDesign:PackIcon DotsHorizontal}" Visibility="{Binding StatusBarVisibility}"  Grid.Column="0"  Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="20" Height="20"/>
+                                <TextBlock Margin="10,5,0,0" Grid.Row="2" Visibility="{Binding StatusBarVisibility}" Grid.Column="1" Text="{Binding StatusText}"/>
+
+                                <Grid Grid.Column="1" HorizontalAlignment="Left">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!---->
+                                    <!-- SelectedItem="{Binding Path=OamVM.SettedResolution, Mode=TwoWay}"-->
+                                    <ComboBox SelectedIndex="{Binding Path=OamVM.ComboResIndex}"  DisplayMemberPath="Key" ItemsSource="{Binding Path=OamVM.OamResolutions}"  HorizontalAlignment="Center" VerticalAlignment="Bottom" IsSynchronizedWithCurrentItem="True" Grid.Row="0" Grid.Column="1" Width="150"  Height="25" >
+                                    </ComboBox>
+
+                                </Grid>
+                                
+
+                            </Grid>
+
+
+
+
+
+
+
+
+                        </Grid>
+
+                    </StackPanel>
+
+                    <!--Segunda coluna-->
+                    
+
+                    <materialDesign:Card Margin="10,-315,10,0" Height="auto" Width="160" Grid.Column="1" Grid.Row="1"  VerticalAlignment="Top" HorizontalAlignment="Center">
+
+                        <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Oams}" SelectedItem="{Binding SelectOam}" Height="640">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Atributos"
+                             Width="130"/>
+
+                                </GridView>
+                            </ListView.View>
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem  Header="Exportar todos os Ncgr"  Command="{Binding ScreenCommands[ExportAllNcgr]}" CommandParameter="ParameterValue"/>
+                                    <MenuItem  Header="Importar todos os Ncgr"  Command="{Binding ScreenCommands[BatchImportOperation]}" CommandParameter="ParameterValue"/>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                        </ListView>
+
+                    </materialDesign:Card>
+
+                    <!--Terceira coluna-->
+                    
+                    <materialDesign:Card  Grid.Row="0" Grid.Column="2" Width="auto" Height="150" DataContext="{Binding ImageMetadata}"  VerticalAlignment="Top">
                         <Grid Grid.Row="0" Grid.Column="0">
                             <Grid.RowDefinitions >
                                 <RowDefinition Height="auto"/>
@@ -113,103 +233,7 @@
                         </Grid>
                     </materialDesign:Card>
 
-                    <StackPanel Width="512" Height="256" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <StackPanel.Background>
-                            <SolidColorBrush Color="LimeGreen"/>
-                        </StackPanel.Background>
-                        <Image Grid.Row="0"  Name="ImageViewer1" Height="256" Width="512" Source="{Binding LoadedImage}" Stretch="None">
-                            <Image.ContextMenu>
-                                <ContextMenu>
-
-                                    <MenuItem  Name="mnuItem1" Header="Exportar"  Command="{Binding ScreenCommands[ExportNcgrImage]}" CommandParameter="ParameterValue"/>
-
-                                    <MenuItem Header="Importar">
-                                        <MenuItem Command="{Binding ScreenCommands[ImportImageToNgcr]}" CommandParameter="ParameterValue"  Header="Conservando paleta"></MenuItem>
-                                        <MenuItem  Header="Gerando nova paleta"></MenuItem>
-                                    </MenuItem>
-                                </ContextMenu>
-                            </Image.ContextMenu>
-                        </Image>
-                    </StackPanel>
-
-
-
-                    <StackPanel Width="832" Height="410" Grid.Row="1">
-
-                        <Grid>
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Grid Grid.Row="0" Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-
-
-
-                                <Button Margin="10" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsSaveButtonEnabled}"  Command="{Binding ScreenCommands[SaveChanges]}" CommandParameter="ParameterValue">
-                                    Salvar
-                                </Button>
-
-                                <Button Margin="10,30,0,0" Grid.Row="1"  VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Left" Width="150"  Height="25"  IsEnabled="{Binding IsCancelButtonEnabled}"  Command="{Binding ScreenCommands[CancelChanges]}" CommandParameter="ParameterValue">
-                                    Cancelar
-                                </Button>
-
-
-                                <Button Margin="15,50,0,0"
-                    Style="{StaticResource MaterialDesignFloatingActionButton}"
-                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
-                    materialDesign:ButtonProgressAssist.Value="-1"
-                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsStatusBarAnimationEnabled}"
-                    Content="{materialDesign:PackIcon DotsHorizontal}" Visibility="{Binding StatusBarVisibility}"  Grid.Column="0"  Grid.Row="2" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="20" Height="20"/>
-                                <TextBlock Margin="10,5,0,0" Grid.Row="2" Visibility="{Binding StatusBarVisibility}" Grid.Column="1" Text="{Binding StatusText}"/>
-
-                            </Grid>
-
-
-
-
-
-
-
-
-                        </Grid>
-
-                    </StackPanel>
-
-                    <materialDesign:Card Height="auto" Width="160" Grid.Row="1" Grid.Column="1" Margin="10,-250,5,10" HorizontalAlignment="Center" >
-
-                        <ListView IsEnabled="{Binding IsListEnabled}" ItemsSource="{Binding Oams}" SelectedItem="{Binding SelectOam}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Atributos"
-                             Width="170"/>
-
-                                </GridView>
-                            </ListView.View>
-                            <ListView.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem  Header="Exportar todos os Ncgr"  Command="{Binding ScreenCommands[ExportAllNcgr]}" CommandParameter="ParameterValue"/>
-                                    <MenuItem  Header="Importar todos os Ncgr"  Command="{Binding ScreenCommands[BatchImportOperation]}" CommandParameter="ParameterValue"/>
-                                </ContextMenu>
-                            </ListView.ContextMenu>
-                        </ListView>
-
-                    </materialDesign:Card>
-
-                    <materialDesign:Card Margin="0,-80,20,0" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140" >
+                    <materialDesign:Card Margin="0,176,20,0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="140">
                         <DockPanel>
                             <Image Source="{Binding Palette}" Stretch="None"/>
                         </DockPanel>

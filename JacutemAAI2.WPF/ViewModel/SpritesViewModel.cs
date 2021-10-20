@@ -19,6 +19,7 @@ namespace JacutemAAI2.WPF.ViewModel
         private Ebk _selectedEbk;
         private List<Oam> _oams;
         private Oam _selectOam;
+        private OamViewModel _oamVM;
 
         public Ncgr LoadedNgcr
         {
@@ -70,9 +71,23 @@ namespace JacutemAAI2.WPF.ViewModel
                 NotifyPropertyChanged("SelectOam");
                 if (SelectOam != null)
                 {
-                    LoadedImage = SpriteHelpers.MarkSelectOam(LoadedNgcr.ConvertedImage, SelectOam).ToImageSource();
+                    LoadedImage = SpriteHelpers.MarkSelectOam(LoadedNgcr.ConvertedImage, SelectOam).ToImageSource();               
+                    OamVM = new OamViewModel(SelectOam);
+                    //OamVM.ComboResIndex = -1;
+                    //OamVM.ComboResIndex = OamVM.OamResolutions[SelectOam.ToString()];
                 }
                 
+            }
+        }
+
+        public OamViewModel OamVM
+        {
+            get { return _oamVM; }
+            set
+            {
+                _oamVM = value;
+                NotifyPropertyChanged("OamVM");
+
             }
         }
 
