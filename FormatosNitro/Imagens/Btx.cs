@@ -20,53 +20,52 @@ namespace FormatosNitro.Imagens
         public string BtxPath { get; set; }
         public string ExportPath { get; set; }
         public int PalettesOffset { get; set; }
-        public int TextureInfosBaseOffset {get;set;}
+        public int TextureInfosBaseOffset { get; set; }
         public int BaseOffsetTextures { get; set; }
         public byte[] BtxBytes { get; set; }
 
-        public Btx(string dirBtx)
+        public Btx(BinaryReader br, string dirBtx)
         {
             BtxPath = dirBtx.Split(',')[0];
             ExportPath = $"{dirBtx.Split(',')[1]}{Path.GetFileName(BtxPath).Replace(".btx", "")}\\";
             if (File.Exists(BtxPath))
             {
                 BtxBytes = File.ReadAllBytes(BtxPath);
-                using (BinaryReader br = new BinaryReader(new MemoryStream(BtxBytes)))
-                {
-                    TextureInfosBaseOffset = 0x14;
-                    br.BaseStream.Position = TextureInfosBaseOffset + 0xE;
-                    int textInfoOffset = br.ReadInt16();
 
-                    br.BaseStream.Position = TextureInfosBaseOffset + 0x34;
-                    int paletteInfosOffset = br.ReadInt32();
-                    PalettesOffset = br.ReadInt32();
+                TextureInfosBaseOffset = 0x14;
+                br.BaseStream.Position = TextureInfosBaseOffset + 0xE;
+                int textInfoOffset = br.ReadInt16();
 
-                    br.BaseStream.Position = TextureInfosBaseOffset + 0x14;
-                    BaseOffsetTextures = br.ReadInt32();
-                    br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 1;
-                    int objectCount = br.ReadByte();
-                    br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 6;
-                    int tamanhoHeaderUkn = br.ReadInt16();
-                    textInfoOffset += 4;
-                    TextureInfos = GetTextureInfos(br, TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn, objectCount);
+                br.BaseStream.Position = TextureInfosBaseOffset + 0x34;
+                int paletteInfosOffset = br.ReadInt32();
+                PalettesOffset = br.ReadInt32();
 
-                    br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 1;
+                br.BaseStream.Position = TextureInfosBaseOffset + 0x14;
+                BaseOffsetTextures = br.ReadInt32();
+                br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 1;
+                int objectCount = br.ReadByte();
+                br.BaseStream.Position = TextureInfosBaseOffset + textInfoOffset + 6;
+                int tamanhoHeaderUkn = br.ReadInt16();
+                textInfoOffset += 4;
+                TextureInfos = GetTextureInfos(br, TextureInfosBaseOffset + textInfoOffset + tamanhoHeaderUkn, objectCount);
 
-                    int paletteCount = br.ReadByte();
-                    br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 6;
-                    int paletteInfoSectionSize = br.ReadUInt16();
-                    paletteInfosOffset += 4;
-                    PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + paletteInfosOffset + paletteInfoSectionSize, paletteCount);
+                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 1;
 
-                    LoadTextures(br, TextureInfos);
+                int paletteCount = br.ReadByte();
+                br.BaseStream.Position = TextureInfosBaseOffset + paletteInfosOffset + 6;
+                int paletteInfoSectionSize = br.ReadUInt16();
+                paletteInfosOffset += 4;
+                PaletteInfos = GetPalleteInfos(br, TextureInfosBaseOffset + paletteInfosOffset + paletteInfoSectionSize, paletteCount);
 
-                }
+                LoadTextures(br, TextureInfos);
+                br.Close();
+
             }
             else
             {
                 Errors.Add($"Não foi possível encontrar {BtxPath}");
             }
-                     
+
         }
 
         private List<PaletteInfo> GetPalleteInfos(BinaryReader br, int offset, int paletteCount)
@@ -129,7 +128,7 @@ namespace FormatosNitro.Imagens
                 {
                     case 1:
                         texturesByteSize = textura.Height * textura.Width;
-                        GetImage(textura, texturesByteSize, 0x200,ColorDepth.FA5I3, br);
+                        GetImage(textura, texturesByteSize, 0x200, ColorDepth.FA5I3, br);
                         break;
                     case 3:
                         texturesByteSize = textura.Height * textura.Width / 2;
@@ -137,17 +136,17 @@ namespace FormatosNitro.Imagens
                         break;
                     case 4:
                     case 6:
-                        texturesByteSize = textura.Height * textura.Width ;
+                        texturesByteSize = textura.Height * textura.Width;
                         GetImage(textura, texturesByteSize, 0x200, ColorDepth.F8BBP, br);
                         break;
                     default:
                         break;
                 }
-             
+
             }
         }
 
-        private void GetImage(TextureInfo info, int textureSize,int paletteSize, ColorDepth colorDepth, BinaryReader br)
+        private void GetImage(TextureInfo info, int textureSize, int paletteSize, ColorDepth colorDepth, BinaryReader br)
         {
             br.BaseStream.Position = info.Offset + BaseOffsetTextures + TextureInfosBaseOffset;
             byte[] img = br.ReadBytes(textureSize);
@@ -167,7 +166,7 @@ namespace FormatosNitro.Imagens
         {
             if (!Directory.Exists(ExportPath))
             {
-              _ = Directory.CreateDirectory(ExportPath);
+                _ = Directory.CreateDirectory(ExportPath);
             }
             foreach (var txInfo in TextureInfos)
             {
@@ -202,7 +201,7 @@ namespace FormatosNitro.Imagens
                         ConvertAndInsert(txtInfo, bw, temp);
                         BtxBytes = btx.ToArray();
                     }
-                 
+
                 }
                 else
                 {
@@ -260,7 +259,7 @@ namespace FormatosNitro.Imagens
                     //img = ImageConverter.BitmapToRawIndexed(new Bitmap(png), bGR565, TileMode.NotTiled, ColorDepth.F4BBP);
                     break;
                 case 3:
-                    img = ImageConverter.BitmapToRawIndexed(new Bitmap(png), bGR565, TileMode.NotTiled, ColorDepth.F4BBP);                  
+                    img = ImageConverter.BitmapToRawIndexed(new Bitmap(png), bGR565, TileMode.NotTiled, ColorDepth.F4BBP);
                     break;
                 case 4:
                 case 6:
@@ -307,7 +306,7 @@ namespace FormatosNitro.Imagens
             {
                 Errors.Add("A textura importada possui altura menor que a original.");
             }
-        
+
         }
     }
 

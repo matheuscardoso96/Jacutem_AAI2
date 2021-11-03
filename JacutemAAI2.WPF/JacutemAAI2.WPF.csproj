@@ -281,10 +281,11 @@
       <DependentUpon>Textures.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ferramentas\Externas\NdsTool.cs" />
-    <Compile Include="Ferramentas\Internas\Arquivos\AaiBin.cs" />
-    <Compile Include="Ferramentas\Internas\Arquivos\EntradaAAIBin.cs" />
+    <Compile Include="Ferramentas\Internas\Arquivos\AAIBin.cs" />
+    <Compile Include="Ferramentas\Internas\Arquivos\AAIBinEntry.cs" />
     <Compile Include="Ferramentas\Internas\BmpExtesions.cs" />
     <Compile Include="Ferramentas\Internas\PaletteVisualGenerator.cs" />
+    <Compile Include="Gerenciadores\BinaryManager.cs" />
     <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
     <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
     <Compile Include="Images\NDSImageFactory.cs" />

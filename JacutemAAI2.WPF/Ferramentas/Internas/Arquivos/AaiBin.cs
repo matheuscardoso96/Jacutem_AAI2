@@ -6,74 +6,100 @@ using dsdecmp.Formats.Nitro;
 
 namespace JacutemAAI2.WPF.Ferramentas.Internas
 {
-    public class AaiBin
+    public class AAIBin
     {
         public static string Mensagem;
+        public List<AAIBinEntry> Entries { get; set; }
+        public string BinDiretory { get; set; }
+        private readonly LZ11 _lz11;
 
-
-        public static void Exportar(string dirBin)
+        public AAIBin(string dirBin)
         {
-            string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
-            if (!File.Exists(dirBin))
+            _lz11 = new LZ11();
+            BinDiretory = dirBin;
+            using (BinaryReader br = new BinaryReader(File.OpenRead(dirBin)))
             {
-                Mensagem = $"Não foi possível encontrar o arquivo {Path.GetFileName(dirBin)}";
-                return;
+                Entries = LerEntradas(br);
             }
-
-            string dirExt = $"__Binarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
-
-            if (!Directory.Exists(dirExt))
-                Directory.CreateDirectory(dirExt);
-
-            AbraArquivoEhExporte(dirBin, dirExt, subPasta);
-
-            Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin), "")}";
-
+           
         }
 
-        private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta)
+        public byte[] GetFile(AAIBinEntry entry)
         {
-            LZ11 lZ11 = new LZ11();
-            var listaDeArquivos = new List<string>();
-
-            using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(BinDiretory)))
             {
+                br.BaseStream.Position = entry.Offset;
+                byte[] arquivo = br.ReadBytes((int)entry.Size);
+                if (entry.IsCompressed)
+                    arquivo = DescomprimirComLZ11(_lz11, arquivo);
 
-                List<EntradaAAIBin> entradas = LerEntradas(br);
-                int contador = 0;
-
-                foreach (EntradaAAIBin entrada in entradas)
-                {
-                    br.BaseStream.Position = entrada.Endereco;
-                    byte[] arquivo = br.ReadBytes((int)entrada.Tamanho);
-                    if (entrada.Comprimido)
-                        arquivo = DescomprimirComLZ11(lZ11, arquivo);
-
-                    int ext = 0;
-
-                    if (arquivo.Length >= 4)
-                        ext = BitConverter.ToInt32(arquivo, 0);
-
-                    string extensao = ext == 0 ? ".bin" : ObtenhaExtensao(ext);
-                    string prefixoCompressao = entrada.Comprimido ? "LZ11_" : "";
-                    File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
-                    listaDeArquivos.Add($"{dirExt}\\{contador:0000}_{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
-                    contador++;
-                }
-
-                File.WriteAllLines($"__Binarios\\_InfoBinarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", ".txt")}", listaDeArquivos);
+                return arquivo;
             }
-
         }
+
+        //public static void Exportar(string dirBin)
+        //{
+        //    string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
+        //    if (!File.Exists(dirBin))
+        //    {
+        //        Mensagem = $"Não foi possível encontrar o arquivo {Path.GetFileName(dirBin)}";
+        //        return;
+        //    }
+
+        //    string dirExt = $"__Binarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
+
+        //    if (!Directory.Exists(dirExt))
+        //        Directory.CreateDirectory(dirExt);
+
+        //    AbraArquivoEhExporte(dirBin, dirExt, subPasta);
+
+        //    Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin), "")}";
+
+        //}
+
+        //private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta)
+        //{
+        //    LZ11 lZ11 = new LZ11();
+        //    var listaDeArquivos = new List<string>();
+
+        //    using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
+        //    {
+        //        List<AAIBinEntry> entradas = LerEntradas(br);
+
+        //        int contador = 0;
+
+        //        foreach (AAIBinEntry entrada in entradas)
+        //        {
+        //            br.BaseStream.Position = entrada.Offset;
+        //            byte[] arquivo = br.ReadBytes((int)entrada.Size);
+        //            if (entrada.IsCompressed)
+        //                arquivo = DescomprimirComLZ11(lZ11, arquivo);
+
+        //            int ext = 0;
+
+        //            if (arquivo.Length >= 4)
+        //                ext = BitConverter.ToInt32(arquivo, 0);
+
+        //            string extensao = ext == 0 ? ".bin" : ObtenhaExtensao(ext);
+        //            string prefixoCompressao = entrada.IsCompressed ? "LZ11_" : "";
+        //            File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
+        //            listaDeArquivos.Add($"{dirExt}\\{contador:0000}_{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
+        //            contador++;
+        //        }
+
+        //        File.WriteAllLines($"__Binarios\\_InfoBinarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", ".txt")}", listaDeArquivos);
+        //    }
+
+        //}
 
         public static void ExportarTodos(IEnumerable<ItemListasDeBinarios> Binarios)
         {
 
-            foreach (var bin in Binarios)
-            {
-                Exportar(bin.Diretorio);
+            //foreach (var bin in Binarios)
+            //{
+            //    Exportar(bin.Diretorio);
 
-            }
+            //}
 
             Mensagem = $"Arquivos exportados com sucesso para a pasta __Binarios";
 
@@ -106,9 +132,9 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
         }
 
 
-        private static List<EntradaAAIBin> LerEntradas(BinaryReader br)
+        private static List<AAIBinEntry> LerEntradas(BinaryReader br)
         {
-            var entradas = new List<EntradaAAIBin>();
+            var entradas = new List<AAIBinEntry>();
             int quantidadeDeEntradas = br.ReadInt32() / 8;
             br.BaseStream.Position = 0;
 
@@ -118,7 +144,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
                 if (i == quantidadeDeEntradas - 1)
                     ehUltimo = true;
 
-                entradas.Add(new EntradaAAIBin(br, ehUltimo));
+                entradas.Add(new AAIBinEntry(br, ehUltimo));
 
             }
 
@@ -199,7 +225,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
 
         private static void CriarNovoBinario(List<string> listaDeArquivos, string dirNovoArquivo)
         {
-            var entradas = new List<EntradaAAIBin>();
+            var entradas = new List<AAIBinEntry>();
             LZ11 LZ11 = new LZ11();
             uint tamanhoTabela = (uint)listaDeArquivos.Count * 8;
             uint endereco = tamanhoTabela;
@@ -220,7 +246,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
                         arquivo = ComprimirComLZ11(LZ11, arquivo);
 
                     bw.Write(arquivo);
-                    entradas.Add(new EntradaAAIBin(endereco, tamanhoArquivo, comprimido));
+                    entradas.Add(new AAIBinEntry(endereco, tamanhoArquivo, comprimido));
                     endereco += (uint)arquivo.Length;
 
 
@@ -235,14 +261,14 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
             
         }
 
-        private static byte[] CrieUmaNovaTabela(byte[] tabelaNova, List<EntradaAAIBin> entradas)
+        private static byte[] CrieUmaNovaTabela(byte[] tabelaNova, List<AAIBinEntry> entradas)
         {
             MemoryStream ms = new MemoryStream(tabelaNova);
 
             using (BinaryWriter bw = new BinaryWriter(ms))
             {
                 foreach (var entrada in entradas)
-                    entrada.EscreverEntrada(bw);
+                    entrada.WriteEntry(bw);
 
                 tabelaNova = ms.ToArray();
             }

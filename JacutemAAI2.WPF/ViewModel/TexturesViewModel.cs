@@ -115,7 +115,7 @@ namespace JacutemAAI2.WPF.ViewModel
         public async void ExportarAllBtx()
         {
             EnableStatus("Importando texturas...");
-            await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
+           // await Task.Run(() => FilePaths.List.Values.ToList().ForEach(arg => new Btx(arg).ExportAllTextures()));
             _ = MessageBox.Show("Texturas exportadas com sucesso.");
             DisableStatus();
         }
@@ -189,7 +189,7 @@ namespace JacutemAAI2.WPF.ViewModel
                 FilePaths.List.TryGetValue(btxName, out arg);
                 if (arg != null)
                 {
-                    Btx tmp = new Btx(arg);
+                    Btx tmp = null; // new Btx(arg);
                     
                     if (tmp.Errors.Count == 0)
                     {

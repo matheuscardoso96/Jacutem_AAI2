@@ -191,10 +191,10 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             AnimacaoBotaoEstaAtiva = true;
             DesativarComponentes();
-            await Task.Run(() => AaiBin.Exportar(_binarioSelecionado.Diretorio));
+           // await Task.Run(() => AAIBin.Exportar(_binarioSelecionado.Diretorio));
             VerificarListas();
             AtivarComponentes();
-            MessageBox.Show(AaiBin.Mensagem);
+            MessageBox.Show(AAIBin.Mensagem);
             AnimacaoBotaoEstaAtiva = false;
             
 
@@ -204,10 +204,10 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             AnimacaoBotaoEstaAtiva = true;
             DesativarComponentes();
-            await Task.Run(() => AaiBin.ExportarTodos(Binarios));                     
+            await Task.Run(() => AAIBin.ExportarTodos(Binarios));                     
             VerificarListas();
             AtivarComponentes();
-            MessageBox.Show(AaiBin.Mensagem);
+            MessageBox.Show(AAIBin.Mensagem);
 
             AnimacaoBotaoEstaAtiva = false;
         }
@@ -216,10 +216,10 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             AnimacaoBotaoImportarEstaAtiva = true;
             DesativarComponentes();
-            await Task.Run(() => AaiBin.Importar(_listaImportcaoSelecionada.Diretorio));
+            await Task.Run(() => AAIBin.Importar(_listaImportcaoSelecionada.Diretorio));
             AtivarComponentes();
             AnimacaoBotaoImportarEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
+            MessageBox.Show(AAIBin.Mensagem);
 
         }
 
@@ -227,10 +227,10 @@ namespace JacutemAAI2.WPF.ViewModel
         {
             AnimacaoBotaoImportarEstaAtiva = true;
             DesativarComponentes();
-            await Task.Run(() => AaiBin.ImportarTodos(ListasDeImportacao));
+            await Task.Run(() => AAIBin.ImportarTodos(ListasDeImportacao));
             AtivarComponentes();
             AnimacaoBotaoImportarEstaAtiva = false;
-            MessageBox.Show(AaiBin.Mensagem);
+            MessageBox.Show(AAIBin.Mensagem);
 
         }
 
@@ -260,8 +260,8 @@ namespace JacutemAAI2.WPF.ViewModel
 
         public void VerificarListas() 
         {
-            ListasDeImportacao = AaiBin.ObtenhaListasDEImportaco(Properties.Settings.Default.PastaInfoBinarios);
-            Binarios = AaiBin.ObtenhaBinariosDaRom(Properties.Settings.Default.DiretorioRomDesmonstada);
+            ListasDeImportacao = AAIBin.ObtenhaListasDEImportaco(Properties.Settings.Default.PastaInfoBinarios);
+            Binarios = AAIBin.ObtenhaBinariosDaRom(Properties.Settings.Default.DiretorioRomDesmonstada);
            
 
             if (Binarios.Count > 0)

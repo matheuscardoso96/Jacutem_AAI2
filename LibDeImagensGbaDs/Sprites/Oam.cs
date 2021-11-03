@@ -63,7 +63,7 @@ namespace LibDeImagensGbaDs.Sprites
 
             if (RotateOrScaling)
             {
-                throw new System.Exception("Rotation or scaling not Implemented.");
+               // throw new System.Exception("Rotation or scaling not Implemented.");
             }
             else
                 atb0 = (ushort)(atb0 >> 1);
