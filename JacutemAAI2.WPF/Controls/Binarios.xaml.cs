@@ -1,5 +1,5 @@
 ﻿using JacutemAAI2.WPF.ViewModel;
-using JacutemAAI2.WPF.Gerenciadores;
+using JacutemAAI2.WPF.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace JacutemAAI2.WPF.Controls
         public Binarios()
         {
             InitializeComponent();
-            DataContext = GerenciadoEstaticoDeViewsModels.BinariosViewModel;
+            //DataContext = GerenciadoEstaticoDeViewsModels.BinariosViewModel;
         }
     }
 }

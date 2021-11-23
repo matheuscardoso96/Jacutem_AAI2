@@ -33,7 +33,7 @@
       <Value Profile="(Default)">__Textos\Scripts_Traduzidos</Value>
     </Setting>
     <Setting Name="PastaTools" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_Tools</Value>
+      <Value Profile="(Default)">__Tools</Value>
     </Setting>
     <Setting Name="ToolNdstool" Type="System.String" Scope="Application">
       <Value Profile="(Default)">ndstool.exe</Value>

@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace JacutemAAI2.WPF.Gerenciadores
+namespace JacutemAAI2.WPF.Managers
 {
     public static class BinaryManager
     {
@@ -24,18 +22,25 @@ namespace JacutemAAI2.WPF.Gerenciadores
             string[] parts = containerName.Split('_');
             containerName = $"{string.Join("_", parts.Skip(1).Take(parts.Length - 1))}.bin";
             int index = Convert.ToInt32(parts[0]);
-           
-            return _binFiles[containerName].GetFile(_binFiles[containerName].Entries[index]);
+
+            return _binFiles[containerName].GetFile(_binFiles[containerName].Entries[index], Path.GetFileName(filePath));
+            
         }
 
-        private static void Initialize()
+        public static void Initialize()
         {
             _isInialized = true;
             _binFiles = new Dictionary<string, AAIBin>();
             foreach (var dir in _binaryFiles)
             {
                 string fileName = Path.GetFileName(dir);
-                _binFiles.Add(fileName, new AAIBin($"Rom_Desmontada\\{dir}"));
+                string path = $"Rom_Desmontada\\{dir}";
+
+                if (File.Exists(path))
+                {
+                    _binFiles.Add(fileName, new AAIBin(path));
+                }
+               
             }
 
         }

@@ -2,88 +2,70 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JacutemAAI2.WPF.Ferramentas.Externas
 {
     public static class NdsTool
     {
-        public static string Mensagem = "";
-        public static void DesmontarArquivoNds(string dirRom, string dirDestino)
+        public static string Message = "";
+        private const string _ndsToolPath = "__Tools\\ndstool.exe";
+        private const string _blzToolPath = "__Tools\\blz.exe";
+        public static void ExportNdsFiles(string dirRom, string dirDestino)
         {
 
             Directory.CreateDirectory(dirDestino);
 
-            if (ValidacoesDeDiretorios(dirDestino, dirRom))
+            if (ValidatePaths(dirDestino, dirRom))
             {
-                string comando = $"/c _Tools\\ndstool.exe -x \"{dirRom}\" -9 \"{dirDestino}\\arm9.bin\" -7 \"{dirDestino}\\arm7.bin\" -y9 \"{dirDestino}\\y9.bin\" -y7 \"{dirDestino}\\y7.bin\" -d \"{dirDestino}\\data\" -y \"{dirDestino}\\overlay\" -t \"{dirDestino}\\banner.bin\" -h \"{dirDestino}\\header.bin\"";
-                ExecutarComando(comando);
+                string comando = $"/c {_ndsToolPath} -x \"{dirRom}\" -9 \"{dirDestino}\\arm9.bin\" -7 \"{dirDestino}\\arm7.bin\" -y9 \"{dirDestino}\\y9.bin\" -y7 \"{dirDestino}\\y7.bin\" -d \"{dirDestino}\\data\" -y \"{dirDestino}\\overlay\" -t \"{dirDestino}\\banner.bin\" -h \"{dirDestino}\\header.bin\"";
+                CommandExecute(comando);
                
-                if (ValidacoesDeExportacao(dirDestino))
+                if (ValidateNdsExtraction(dirDestino))
                 {
-                    DescomprimirArm9($"{dirDestino}\\arm9.bin");
-                    Mensagem = $"ROM desmontada para o seguinte diretório: {dirDestino}\\ROM_Desmontada, não mude esta pasta de diretório ou apague os arquivos internos.";
+                    DecompressArm9($"{dirDestino}\\arm9.bin");
+                    Message = $"ROM desmontada para o seguinte diretório: {dirDestino}\\ROM_Desmontada, não mude esta pasta de diretório ou apague os arquivos internos.";
                 }
             }
 
-                        
-
         }
 
-     
 
-        public static void NovoArquivoNds(string dirRomDesmontada, string nomeDaNovaRom)
+        public static void CreateNewNdsFile(string exportedFilesPath, string fileName)
         {
-            nomeDaNovaRom = $"{nomeDaNovaRom}{DateTime.Now:dd_MM_yyyy_HH_mm_ss}.nds";
-            string comando = $"/c _Tools\\ndstool.exe -c {nomeDaNovaRom} -9 \"{dirRomDesmontada}\\arm9.bin\" -7 \"{dirRomDesmontada}\\arm7.bin\" -y9 \"{dirRomDesmontada}\\y9.bin\" -y7 \"{dirRomDesmontada}\\y7.bin\" -d \"{dirRomDesmontada}\\data\" -y \"{dirRomDesmontada}\\overlay\" -t \"{dirRomDesmontada}\\banner.bin\" -h \"{dirRomDesmontada}\\header.bin\"";
-            var validacaoDeDiretorio = ValideSeDiretorioPodeSerUsadoParaCriarRom(dirRomDesmontada);
-            if (validacaoDeDiretorio.Count == 0)
+            fileName = $"{fileName}{DateTime.Now:dd_MM_yyyy_HH_mm_ss}.nds";
+            string command = $"/c {_ndsToolPath} -c {fileName} -9 \"{exportedFilesPath}\\arm9.bin\" -7 \"{exportedFilesPath}\\arm7.bin\" -y9 \"{exportedFilesPath}\\y9.bin\" -y7 \"{exportedFilesPath}\\y7.bin\" -d \"{exportedFilesPath}\\data\" -y \"{exportedFilesPath}\\overlay\" -t \"{exportedFilesPath}\\banner.bin\" -h \"{exportedFilesPath}\\header.bin\"";
+            var validationErros = AssertFiles(exportedFilesPath);
+            if (validationErros.Count > 0)
             {
-                ExecutarComando(comando);
-
-                if (!File.Exists(nomeDaNovaRom)) 
-                {
-                   Mensagem = "Ocorreu um erro na criação da nova Rom.";
-                   return; 
-                }
-                    
-
-                Mensagem = $"ROM criada: {nomeDaNovaRom}";
-                return;
-
+                Message = $"Falha ao recriar ROM.\r\nFaltam os seguites arquivos necessários no diretório {exportedFilesPath}:\r\n{string.Join(",\r\n", validationErros)}";
             }
+            else
+            {
+                CommandExecute(command);
 
-            Mensagem = $"Falha ao recriar ROM.\r\nFaltam os seguites arquivos necessários no diretório {dirRomDesmontada}:\r\n{string.Join(",\r\n", validacaoDeDiretorio)}";
+                if (!File.Exists(fileName))
+                    Message = "Ocorreu um erro na criação da nova Rom.";
+                else 
+                    Message = $"ROM criada: {fileName}";
+            }
 
         }
 
-        private static bool ValidacoesDeDiretorios(string dirCriado, string dirRom)
-        {
-            if (!Directory.Exists(dirCriado))
-            {
-                Mensagem = "Não foi possível criar diretório para exportação.";
-                return false;
-            }
 
-            if (!File.Exists(dirRom))
-            {
-                Mensagem = "Não foi possível encontrar caminho para a ROM.";
-                return false;
-            }
-
-
-            return true;
-        }
 
         #region Validações
 
-        private static bool ValidacoesDeExportacao(string dirDestino)
+        private static bool ValidatePaths(string newDirPath, string ndsFilePath)
         {
-            if (!File.Exists($"{dirDestino}\\arm9.bin"))
+            if (!Directory.Exists(newDirPath))
             {
-                Mensagem = "A operação não foi possível exportar a rom, arquivo .nds inválido";
+                Message = "Não foi possível criar diretório para exportação.";
+                return false;
+            }
+
+            if (!File.Exists(ndsFilePath))
+            {
+                Message = "Não foi possível encontrar caminho para a ROM.";
                 return false;
             }
 
@@ -91,36 +73,48 @@ namespace JacutemAAI2.WPF.Ferramentas.Externas
             return true;
         }
 
-        private static List<string> ValideSeDiretorioPodeSerUsadoParaCriarRom(string dirDestino)
+        private static bool ValidateNdsExtraction(string targetPath)
         {
-            var faltando = new List<string>();
-            foreach (var arquivo in _arquivosNecessarioParaCriarRom)
+            if (!File.Exists($"{targetPath}\\arm9.bin"))
             {
-                if (!File.Exists($"{dirDestino}\\{arquivo}"))
+                Message = "Não foi possível exportar a rom, arquivo .nds inválido";
+                return false;
+            }
+
+
+            return true;
+        }
+
+        private static List<string> AssertFiles(string targetPath)
+        {
+            var missing = new List<string>();
+            foreach (var fileName in romFilesMap)
+            {
+                if (!File.Exists($"{targetPath}\\{fileName}"))
                 {
-                    faltando.Add($"{dirDestino}\\{arquivo}");
+                    missing.Add($"{targetPath}\\{fileName}");
                 }
             }
 
-            return faltando;
+            return missing;
         }
 
         #endregion
 
-        private static void DescomprimirArm9(string dirArm9)
+        private static void DecompressArm9(string arm9Path)
         {
-            byte[] arm9ComHeader = File.ReadAllBytes(dirArm9);
-            byte[] arm9SemHeader = new byte[arm9ComHeader.Length - 12];
-            Array.Copy(arm9ComHeader, arm9SemHeader, arm9SemHeader.Length);
-            File.WriteAllBytes(dirArm9, arm9SemHeader);
-            string comando = $"/c _Tools\\blz.exe -d \"{dirArm9}\"";
-            ExecutarComando(comando);
+            byte[] arm9WithHeader = File.ReadAllBytes(arm9Path);
+            byte[] arm9WithoutHeader = new byte[arm9WithHeader.Length - 12];
+            Array.Copy(arm9WithHeader, arm9WithoutHeader, arm9WithoutHeader.Length);
+            File.WriteAllBytes(arm9Path, arm9WithoutHeader);
+            string command = $"/c {_blzToolPath} -d \"{arm9Path}\"";
+            CommandExecute(command);
         }
 
-        private static void ExecutarComando(string comando)
+        private static void CommandExecute(string command)
         {
             Process process = new Process();
-            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", comando);
+            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", command);
             process.StartInfo = processInfo;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
@@ -131,7 +125,7 @@ namespace JacutemAAI2.WPF.Ferramentas.Externas
         
 
 
-        private static readonly IEnumerable<string> _arquivosNecessarioParaCriarRom = new List<string>()
+        private static readonly IEnumerable<string> romFilesMap = new List<string>()
         {
             @"arm7.bin",
             @"arm9.bin",

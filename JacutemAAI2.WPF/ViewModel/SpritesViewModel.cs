@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using FormatosNitro.Imagens;
+using FormatosNitro.Imagens.FNcer;
+using FormatosNitro.Imagens.FNcgr;
 using JacutemAAI2.WPF.Ferramentas.Internas;
 using JacutemAAI2.WPF.Images;
 using JacutemAAI2.WPF.Images.ImagesMapPath;

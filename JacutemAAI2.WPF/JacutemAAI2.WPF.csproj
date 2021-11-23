@@ -283,11 +283,12 @@
     <Compile Include="Ferramentas\Externas\NdsTool.cs" />
     <Compile Include="Ferramentas\Internas\Arquivos\AAIBin.cs" />
     <Compile Include="Ferramentas\Internas\Arquivos\AAIBinEntry.cs" />
+    <Compile Include="Ferramentas\Internas\Arquivos\AAIBinSpecial.cs" />
     <Compile Include="Ferramentas\Internas\BmpExtesions.cs" />
     <Compile Include="Ferramentas\Internas\PaletteVisualGenerator.cs" />
-    <Compile Include="Gerenciadores\BinaryManager.cs" />
-    <Compile Include="Gerenciadores\GerenciadoDeConfiguracoes.cs" />
-    <Compile Include="Gerenciadores\GerenciadorDeRecursos.cs" />
+    <Compile Include="Managers\BinaryManager.cs" />
+    <Compile Include="Managers\ConfigurationManager.cs" />
+    <Compile Include="Managers\ResourceManager.cs" />
     <Compile Include="Images\NDSImageFactory.cs" />
     <Compile Include="Images\ImageMetadata.cs" />
     <Compile Include="Images\ImagesMapPath\BGSPaths.cs" />
@@ -301,7 +302,7 @@
     <Compile Include="ViewModel\BgViewModel.cs" />
     <Compile Include="ViewModel\BinariosViewModel.cs" />
     <Compile Include="ViewModel\RomViewModel.cs" />
-    <Compile Include="Gerenciadores\GerenciadoEstaticoDeViewsModels.cs" />
+    <Compile Include="Managers\StaticViewModelManager.cs" />
     <Compile Include="ViewModel\ImageViewModelBase.cs" />
     <Compile Include="Views\TelaPrincipalView.xaml.cs">
       <DependentUpon>TelaPrincipalView.xaml</DependentUpon>

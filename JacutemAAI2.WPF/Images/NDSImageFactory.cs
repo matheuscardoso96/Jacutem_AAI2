@@ -1,18 +1,23 @@
 ﻿using FormatosNitro.Imagens;
-using JacutemAAI2.WPF.Gerenciadores;
+using FormatosNitro.Imagens.FBtx;
+using FormatosNitro.Imagens.FNcer;
+using FormatosNitro.Imagens.FNcgr;
+using FormatosNitro.Imagens.FNclr;
+using FormatosNitro.Imagens.FNscr;
+using JacutemAAI2.WPF.Managers;
 using System.IO;
 
 namespace JacutemAAI2.WPF.Images
 {
     public static class NDSImageFactory
     {
+
         public static Ncgr LoadNgcr(string argumentosImg)
         {
             string[] argSplit = argumentosImg.Split(',');
-            
-            //BinaryReader leitorNclr = new BinaryReader(File.OpenRead(argSplit[1]));
-            //Nclr nclr = new Nclr(leitorNclr, argSplit[1]); 
+  
             BinaryReader leitorNclr = new BinaryReader(new MemoryStream(BinaryManager.GetFile(argSplit[1])));
+
             Nclr nclr = new Nclr(leitorNclr, argSplit[1]);
             
             BinaryReader leitorNgcr = new BinaryReader(new MemoryStream(BinaryManager.GetFile(argSplit[0])));
@@ -44,7 +49,6 @@ namespace JacutemAAI2.WPF.Images
 
         public static Btx LoadBtx(string argumentosImg)
         {
-            //BinaryReader br = new BinaryReader(File.OpenRead(argumentosImg.Split(',')[0]));
             BinaryReader br = new BinaryReader(new MemoryStream(BinaryManager.GetFile(argumentosImg.Split(',')[0])));
             return new Btx(br, argumentosImg);
         }

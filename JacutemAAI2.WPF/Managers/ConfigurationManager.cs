@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JacutemAAI2.WPF.Gerenciadores
+﻿namespace JacutemAAI2.WPF.Managers
 {
-    public static class GerenciadoDeConfiguracoes
+    public static class ConfigurationManager
     {
         public static string ObtenhaDiretorioRomDesmotanda() 
         {

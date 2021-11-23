@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-//using ImageLibGbaDS;
-using System.Threading.Tasks;
 using LibDeImagensGbaDs.Conversor;
 using LibDeImagensGbaDs.Enums;
 using LibDeImagensGbaDs.Paleta;
 
-namespace FormatosNitro.Imagens
+namespace FormatosNitro.Imagens.FBtx
 {
     public class Btx
     {
@@ -101,10 +98,10 @@ namespace FormatosNitro.Imagens
                 TextureInfo textureInfo = new TextureInfo();
                 textureInfo.Offset = textureOffset << 3;
                 textureInfo.Index = i;
-                textureInfo.Width = (8 << (paramss & 7));
-                paramss = paramss >> 3;
-                textureInfo.Height = (8 << (paramss & 7));
-                paramss = paramss >> 3;
+                textureInfo.Width = 8 << (paramss & 7);
+                paramss >>= 3;
+                textureInfo.Height = 8 << (paramss & 7);
+                paramss >>= 3;
                 textureInfo.Format = paramss & 7;
                 txtInfo.Add(textureInfo);
 
@@ -308,35 +305,6 @@ namespace FormatosNitro.Imagens
             }
 
         }
-    }
-
-    public class TextureInfo
-    {
-        public int Index { get; set; }
-        public int Params { get; set; }
-        public int Offset { get; set; }
-        public int Height { get; set; }
-        public int Width { get; set; }
-        public int Format { get; set; }
-        public ColorDepth Bpp { get; set; }
-        public int PaletteIndex { get; set; }
-        public int ColorCount { get; set; }
-        public string TextureName { get; set; }
-        public Bitmap TextureImage { get; set; }
-        public override string ToString()
-        {
-            return TextureName;
-        }
-
-    }
-
-    public class PaletteInfo
-    {
-        public int Offset { get; set; }
-        public string PaletteName { get; set; }
-        public Color[] Palette { get; set; }
-        public byte[] PaletteBytes { get; set; }
-
     }
 
 }

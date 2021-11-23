@@ -1,5 +1,5 @@
 ﻿using JacutemAAI2.WPF.ViewModel;
-using JacutemAAI2.WPF.Gerenciadores;
+using JacutemAAI2.WPF.Managers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,7 +26,7 @@ namespace JacutemAAI2.WPF.Controls
         public Rom()
         {
             InitializeComponent();
-            DataContext = GerenciadoEstaticoDeViewsModels.RomViewModel;
+            DataContext = StaticViewModelManager.RomViewModel;
         }
 
       

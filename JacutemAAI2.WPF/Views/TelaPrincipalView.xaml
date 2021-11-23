@@ -29,9 +29,9 @@
                 <Uc:Rom/>
             
             </TabItem>
-            <TabItem Header="BINÁRIOS">
+            <!--<TabItem Header="BINÁRIOS">
                 <Uc:Binarios/>
-            </TabItem>
+            </TabItem>-->
             <TabItem Header="IMAGENS">
                 <Uc:Imagens/>
             </TabItem>

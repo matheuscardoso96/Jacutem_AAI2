@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using FormatosNitro.Imagens.FNcgr;
 
 namespace JacutemAAI2.WPF.ViewModel
 {

@@ -8,391 +8,157 @@ namespace JacutemAAI2.WPF.Ferramentas.Internas
 {
     public class AAIBin
     {
-        public static string Mensagem;
+        private const string _binaryExportPath = "__Binarios";
+        private const string _jpn = "jpn";
+        private const string _com = "com";
+        public static string Message { get; set; }
         public List<AAIBinEntry> Entries { get; set; }
-        public string BinDiretory { get; set; }
+        public string BinPath { get; set; }
+        public string ExportPath { get; set; }
         private readonly LZ11 _lz11;
+       
 
         public AAIBin(string dirBin)
         {
             _lz11 = new LZ11();
-            BinDiretory = dirBin;
+            BinPath = dirBin;
             using (BinaryReader br = new BinaryReader(File.OpenRead(dirBin)))
             {
-                Entries = LerEntradas(br);
+                Entries = ReadEntries(br);
             }
-           
-        }
 
-        public byte[] GetFile(AAIBinEntry entry)
-        {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(BinDiretory)))
+            if (IsExportNeeded(dirBin))
             {
-                br.BaseStream.Position = entry.Offset;
-                byte[] arquivo = br.ReadBytes((int)entry.Size);
-                if (entry.IsCompressed)
-                    arquivo = DescomprimirComLZ11(_lz11, arquivo);
-
-                return arquivo;
+                ExportFiles(dirBin, ExportPath);
             }
         }
 
-        //public static void Exportar(string dirBin)
-        //{
-        //    string subPasta = dirBin.Contains("jpn") ? "jpn" : "com";
-        //    if (!File.Exists(dirBin))
-        //    {
-        //        Mensagem = $"Não foi possível encontrar o arquivo {Path.GetFileName(dirBin)}";
-        //        return;
-        //    }
-
-        //    string dirExt = $"__Binarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
-
-        //    if (!Directory.Exists(dirExt))
-        //        Directory.CreateDirectory(dirExt);
-
-        //    AbraArquivoEhExporte(dirBin, dirExt, subPasta);
-
-        //    Mensagem = $"Arquivo {Path.GetFileName(dirBin)} exportado com sucesso para a pasta __Binarios\\{Path.GetFileName(dirBin).Replace(Path.GetExtension(dirBin), "")}";
-
-        //}
-
-        //private static void AbraArquivoEhExporte(string dirBin, string dirExt, string subPasta)
-        //{
-        //    LZ11 lZ11 = new LZ11();
-        //    var listaDeArquivos = new List<string>();
-
-        //    using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
-        //    {
-        //        List<AAIBinEntry> entradas = LerEntradas(br);
-
-        //        int contador = 0;
-
-        //        foreach (AAIBinEntry entrada in entradas)
-        //        {
-        //            br.BaseStream.Position = entrada.Offset;
-        //            byte[] arquivo = br.ReadBytes((int)entrada.Size);
-        //            if (entrada.IsCompressed)
-        //                arquivo = DescomprimirComLZ11(lZ11, arquivo);
-
-        //            int ext = 0;
-
-        //            if (arquivo.Length >= 4)
-        //                ext = BitConverter.ToInt32(arquivo, 0);
-
-        //            string extensao = ext == 0 ? ".bin" : ObtenhaExtensao(ext);
-        //            string prefixoCompressao = entrada.IsCompressed ? "LZ11_" : "";
-        //            File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin).Replace(".bin", extensao)}", arquivo);
-        //            listaDeArquivos.Add($"{dirExt}\\{contador:0000}_{prefixoCompressao}{Path.GetFileName(dirBin).Replace(".bin", extensao)}");
-        //            contador++;
-        //        }
-
-        //        File.WriteAllLines($"__Binarios\\_InfoBinarios\\{subPasta}_{Path.GetFileName(dirBin).Replace(".bin", ".txt")}", listaDeArquivos);
-        //    }
-
-        //}
-
-        public static void ExportarTodos(IEnumerable<ItemListasDeBinarios> Binarios)
+        public bool IsExportNeeded(string dirBin)
         {
+            string folderPrefix = dirBin.Contains(_jpn) ? _jpn : _com;
+            string exportPath = $"{_binaryExportPath}\\{folderPrefix}_{Path.GetFileName(dirBin).Replace(".bin", "")}";
+            ExportPath = exportPath;     
 
-            //foreach (var bin in Binarios)
-            //{
-            //    Exportar(bin.Diretorio);
-
-            //}
-
-            Mensagem = $"Arquivos exportados com sucesso para a pasta __Binarios";
-
-        }
-
-        public static List<ItemListasDeBinarios> ObtenhaBinariosDaRom(string dirRomMesmontada)
-        {
-
-            List<ItemListasDeBinarios> Binarios = new List<ItemListasDeBinarios>();
-            if (Directory.Exists($"{dirRomMesmontada}\\data"))
+            if (!Directory.Exists(exportPath))
             {
-                string[] bins = Directory.GetFiles($"{dirRomMesmontada}\\data", "*.bin", SearchOption.AllDirectories);
-
-                foreach (var dirBin in bins)
-                {
-                    if (dirBin.Contains("data\\data")) { continue; }
-
-                    Binarios.Add(new ItemListasDeBinarios() { Nome = Path.GetFileName(dirBin), Diretorio = dirBin });
-                }
+                Directory.CreateDirectory(exportPath);
+                return true;
             }
-           
-
-            return Binarios;
+            
+           return CheckFileCount(exportPath);
         }
 
-        public static List<ItemListasDeBinarios> ObtenhaListasDEImportaco(string dirInfoBinario)
+        private bool CheckFileCount(string exportPath) 
         {
-            List<ItemListasDeBinarios> listas = Directory.GetFiles(dirInfoBinario, "*.txt", SearchOption.AllDirectories).Select(x => new ItemListasDeBinarios() { Nome = Path.GetFileName(x), Diretorio = x } ).ToList();
-            return listas;
-        }
-
-
-        private static List<AAIBinEntry> LerEntradas(BinaryReader br)
-        {
-            var entradas = new List<AAIBinEntry>();
-            int quantidadeDeEntradas = br.ReadInt32() / 8;
-            br.BaseStream.Position = 0;
-
-            for (int i = 0; i < quantidadeDeEntradas; i++)
+            if (Directory.GetFiles(exportPath, "*", SearchOption.TopDirectoryOnly).Length != Entries.Count)
             {
-                bool ehUltimo = false;
-                if (i == quantidadeDeEntradas - 1)
-                    ehUltimo = true;
-
-                entradas.Add(new AAIBinEntry(br, ehUltimo));
-
-            }
-
-            return entradas;
-
-        }
-
-        private static string ObtenhaExtensao(int ext)
-        {
-            switch (ext)
-            {
-                case 0x4E434752: return ".ncgr";
-                case 0x4E434C52: return ".nclr";
-                case 0x4E534352: return ".nscr";
-                case 0x4E414E52: return ".nanr";
-                case 0x4E434552: return ".ncer";
-                case 0x53505420: return ".spt";
-                case 0x30444D42: return ".bmd";
-                case 0x30585442: return ".btx";
-                case 0x30414342: return ".bca";
-                case 0x5441444D: return ".mdat";
-                case 0x30414D42: return ".bma";
-                case 0x30415642: return ".bva";
-                default: return ".bin";
-            }
-        }
-
-        private static byte[] DescomprimirComLZ11(LZ11 LZ11, byte[] arquivo)
-        {
-            MemoryStream output = new MemoryStream();
-            LZ11.Decompress(new MemoryStream(arquivo), arquivo.Length, output);
-            return output.ToArray();
-        }
-
-        #region importarAAIBin
-
-        public static void Importar(string dirTxt)
-        {
-
-            string prefixo = Path.GetFileName(dirTxt.Replace(".txt", ".bin")).Contains("jpn") ? "jpn\\" : "com\\";
-            string dirNovoArquivo = $"ROM_Desmontada\\data\\{prefixo}{Path.GetFileName(dirTxt.Replace(".txt", ".bin").Replace("com_", "").Replace("jpn_", ""))}";
-            var listaDeArquivos = File.ReadAllLines(dirTxt).ToList();
-            CriarNovoBinario(listaDeArquivos, dirNovoArquivo);
-
-            Mensagem = $"{Path.GetFileName(dirTxt.Replace(".txt", ".bin"))} criado e substituido na pasta Rom_Desmotada com sucesso.";
-        }
-
-        public static void ImportarTodos(IEnumerable<ItemListasDeBinarios> listasDeInportacao)
-        {
-            List<string> Erros = new List<string>();
-
-            foreach (var bin in listasDeInportacao)
-            {
-                if (File.Exists(bin.Diretorio))
-                {
-                    Importar(bin.Diretorio);
-                }
-                else
-                {
-                    Erros.Add($"Não foi possível encontrar {Path.GetFileName(bin.Diretorio)}");
-                }
-                
-
-            }
-
-            if (Erros.Count > 0)
-            {
-                Mensagem = $"Arquivos importadors mas com alguns erros. {string.Join("\r\n", Erros)}";
+                return true;
             }
             else
             {
-                Mensagem = "Arquivos importadors com sucesso.";
+                return false;
+            }
+        }
+
+        private static List<AAIBinEntry> ReadEntries(BinaryReader br)
+        {
+            var entries = new List<AAIBinEntry>();
+            int entryCount = br.ReadInt32() / 8;
+            br.BaseStream.Position = 0;
+
+            for (int i = 0; i < entryCount; i++)
+            {
+                bool isLastEntry = false;
+                if (i == entryCount - 1)
+                    isLastEntry = true;
+
+                entries.Add(new AAIBinEntry(br, isLastEntry));
+
             }
 
-            
+            return entries;
 
         }
 
-        private static void CriarNovoBinario(List<string> listaDeArquivos, string dirNovoArquivo)
+        private void ExportFiles(string dirBin, string dirExt)
         {
-            var entradas = new List<AAIBinEntry>();
-            LZ11 LZ11 = new LZ11();
-            uint tamanhoTabela = (uint)listaDeArquivos.Count * 8;
-            uint endereco = tamanhoTabela;
-            File.Create("temp.bin").Close();
-
-            using (BinaryWriter bw = new BinaryWriter(File.Open("temp.bin", FileMode.Append)))
+            using (BinaryReader br = new BinaryReader(File.Open(dirBin, FileMode.Open)))
             {
-                
-                foreach (var caminho in listaDeArquivos)
+                int contador = 0;
+
+                foreach (AAIBinEntry entrada in Entries)
                 {
-                    bool comprimido = caminho.Contains("LZ11");
- 
-                    
-                    byte[] arquivo = File.ReadAllBytes(comprimido ? caminho.Replace("LZ11_", "") : caminho);
-                    uint tamanhoArquivo = (uint)arquivo.Length;
-
-                    if (comprimido)
-                        arquivo = ComprimirComLZ11(LZ11, arquivo);
-
-                    bw.Write(arquivo);
-                    entradas.Add(new AAIBinEntry(endereco, tamanhoArquivo, comprimido));
-                    endereco += (uint)arquivo.Length;
-
-
+                    br.BaseStream.Position = entrada.Offset;
+                    byte[] file = br.ReadBytes((int)entrada.Size);
+                    File.WriteAllBytes($"{dirExt}\\{contador:0000}_{Path.GetFileName(dirBin)}", file);
+                    contador++;
                 }
 
             }
-
-            byte[] tabelaNova = new byte[tamanhoTabela];
-            tabelaNova = CrieUmaNovaTabela(tabelaNova, entradas);
-            CrieNovoBinarioComTabela(dirNovoArquivo, tabelaNova);
-
-            
         }
 
-        private static byte[] CrieUmaNovaTabela(byte[] tabelaNova, List<AAIBinEntry> entradas)
+
+        public byte[] GetFile(AAIBinEntry entry,string fileName)
         {
-            MemoryStream ms = new MemoryStream(tabelaNova);
+            string path = GetFileFullPath(fileName);
+            byte[] arquivo = File.ReadAllBytes(path);
+            return entry.IsCompressed ? DecompressOrCompress(_lz11, arquivo,false) : arquivo;
 
-            using (BinaryWriter bw = new BinaryWriter(ms))
+        }
+
+        public void ReplaceFile(AAIBinEntry fileEntryToChange, byte[] file, string fileName)
+        {
+            string path = GetFileFullPath(fileName);
+            File.WriteAllBytes(path, fileEntryToChange.IsCompressed? file: DecompressOrCompress(_lz11,file, true));
+        }
+
+        private string GetFileFullPath(string fileName) 
+        {
+            return $"{ExportPath}\\{fileName.Replace(Path.GetExtension(fileName), ".bin")}";
+        }
+
+        public void PackIntoBinary() 
+        {           
+            uint tamanhoTabela = (uint)Entries.Count * 8;
+            uint offset = tamanhoTabela;
+
+            MemoryStream newBinary = new MemoryStream();
+            using (BinaryWriter bw = new BinaryWriter(newBinary))
             {
-                foreach (var entrada in entradas)
-                    entrada.WriteEntry(bw);
+                bw.BaseStream.Position = offset;
 
-                tabelaNova = ms.ToArray();
+                for (int i = 0; i < Entries.Count; i++)
+                {
+                    byte[] file = File.ReadAllBytes($"{ExportPath}\\{i:0000}.bin");
+                    Entries[i].Size = (uint)file.Length;
+                    Entries[i].Offset = offset;
+                    offset += (uint)file.Length;
+                    bw.Write(file);
+                }
+
+                bw.BaseStream.Position = 0;
+                Entries.ForEach(e => e.WriteEntry(bw));
             }
 
-            return tabelaNova;
+            File.WriteAllBytes(BinPath,newBinary.ToArray());
         }
-
-        private static void CrieNovoBinarioComTabela(string dirNovoArquivo, byte[] tabelaNova)
+        private static byte[] DecompressOrCompress(LZ11 LZ11, byte[] arquivo, bool compress)
         {
-            File.Create(dirNovoArquivo).Close();
-
-            using (BinaryWriter bw = new BinaryWriter(File.Open(dirNovoArquivo, FileMode.Append)))
-            {
-                bw.Write(tabelaNova);
-                byte[] temp = File.ReadAllBytes("temp.bin");
-                bw.Write(temp);
-                File.Delete("temp.bin");
-
-            }
-        }
-
-        private static byte[] ComprimirComLZ11(LZ11 LZ11, byte[] arquivo)
-        {
-
             MemoryStream output = new MemoryStream();
-            LZ11.Compress(new MemoryStream(arquivo), arquivo.Length, output);
+
+            if (compress)
+            {
+                _ = LZ11.Compress(new MemoryStream(arquivo), arquivo.Length, output);
+            }
+            else
+            {
+                _ = LZ11.Decompress(new MemoryStream(arquivo), arquivo.Length, output);
+            }
+
             return output.ToArray();
         }
 
-        #endregion
-
-        public static void ExporteBin(string binario)
-        {
-            using (BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(binario))))
-            {
-                int tamanhoArquivo = (int)br.BaseStream.Length;
-                List<int> ponteiros = new List<int>();
-                List<int> tamanhos = new List<int>();
-                int ponteiro1 = br.ReadInt32();
-                int ponteiro2 = br.ReadInt32();
-                int ponteiro3 = br.ReadInt32();
-                ponteiros.Add(ponteiro1);
-                tamanhos.Add(ponteiro2 - ponteiro1);
-                ponteiros.Add(ponteiro2);
-                tamanhos.Add(ponteiro3 - ponteiro2);
-                ponteiros.Add(ponteiro3);
-                tamanhos.Add(tamanhoArquivo - ponteiro3);
-
-
-                if (!Directory.Exists(binario.Replace(".bin", "")))
-                {
-                    Directory.CreateDirectory(binario.Replace(".bin", ""));
-
-                }
-
-                br.BaseStream.Position = ponteiros[0];
-                byte[] ncer = br.ReadBytes(tamanhos[0]);
-
-
-                File.WriteAllBytes(binario.Replace(".bin", "") + "\\" + Path.GetFileName(binario).Replace(".bin", ".ncer"), ncer);
-
-                br.BaseStream.Position = ponteiros[1];
-                byte[] nanr = br.ReadBytes(tamanhos[1]);
-                File.WriteAllBytes(binario.Replace(".bin", "") + "\\" + Path.GetFileName(binario).Replace(".bin", ".nanr"), nanr);
-
-                br.BaseStream.Position = ponteiros[2];
-                byte[] ncgr = br.ReadBytes(tamanhos[2]);
-                File.WriteAllBytes(binario.Replace(".bin", "") + "\\" + Path.GetFileName(binario).Replace(".bin", ".ncgr"), ncgr);
-
-
-            }
-        }
-
-        public static void ImporteBin(string dir, string dirSalva)
-        {
-            string[] dirArquivos = Directory.GetFiles(dir);
-
-            byte[] ncer = new byte[] { };
-            byte[] nanr = new byte[] { };
-            byte[] ncgr = new byte[] { };
-
-            foreach (var item in dirArquivos)
-            {
-                if (item.Contains("ncer"))
-                {
-                    ncer = File.ReadAllBytes(item);
-                }
-                else if (item.Contains("nanr"))
-                {
-                    nanr = File.ReadAllBytes(item);
-                }
-                else
-                {
-                    ncgr = File.ReadAllBytes(item);
-                }
-            }
-
-            byte[] arquivoBinarioFinal = new byte[ncer.Length + nanr.Length + ncgr.Length + 12];
-            MemoryStream ms = new MemoryStream(arquivoBinarioFinal);
-            using (BinaryWriter bw = new BinaryWriter(ms))
-            {
-                bw.BaseStream.Position = 0xC;
-                bw.Write(ncer);
-                bw.Write(nanr);
-                bw.Write(ncgr);
-                bw.BaseStream.Position = 0x0;
-                bw.Write(0xC);
-                bw.Write(0xC + ncer.Length);
-                bw.Write(0xC + ncer.Length + nanr.Length);
-
-                arquivoBinarioFinal = ms.ToArray();
-            }
-
-
-            File.WriteAllBytes(dirSalva, arquivoBinarioFinal);
-
-        }
-
-    }
-
-    public class ItemListasDeBinarios
-    {
-        public string Nome { get; set; }
-        public string Diretorio { get; set; }
+        
 
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JacutemAAI2.WPF.Ferramentas.Externas;
 using Prism.Commands;
 using System.Windows.Forms;
-using JacutemAAI2.WPF.Gerenciadores;
+using JacutemAAI2.WPF.Managers;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -194,12 +194,12 @@ namespace JacutemAAI2.WPF.ViewModel
         public void AdicionarCaminhoDestino()
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.SelectedPath = GerenciadoDeConfiguracoes.ObtenhaUltimoDiretorioSelecionado();
+            folderBrowserDialog.SelectedPath = ConfigurationManager.ObtenhaUltimoDiretorioSelecionado();
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK) 
             {
                 DiretorioDestino = folderBrowserDialog.SelectedPath;
-                GerenciadoDeConfiguracoes.SetaUltimoDiretorioSelecionado(DiretorioDestino);
-                GerenciadoDeConfiguracoes.SalvarConfiguracoes();
+                ConfigurationManager.SetaUltimoDiretorioSelecionado(DiretorioDestino);
+                ConfigurationManager.SalvarConfiguracoes();
             }
                
         }
@@ -207,12 +207,12 @@ namespace JacutemAAI2.WPF.ViewModel
         public void AdicionarCaminhoRomDesmotada()
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.SelectedPath = GerenciadoDeConfiguracoes.ObtenhaUltimoDiretorioSelecionado();
+            folderBrowserDialog.SelectedPath = ConfigurationManager.ObtenhaUltimoDiretorioSelecionado();
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 DiretorioRomDesmontada = folderBrowserDialog.SelectedPath;
-                GerenciadoDeConfiguracoes.SetaUltimoDiretorioSelecionado(DiretorioRomDesmontada);
-                GerenciadoDeConfiguracoes.SalvarConfiguracoes();
+                ConfigurationManager.SetaUltimoDiretorioSelecionado(DiretorioRomDesmontada);
+                ConfigurationManager.SalvarConfiguracoes();
             }
 
         }
@@ -224,11 +224,12 @@ namespace JacutemAAI2.WPF.ViewModel
             TxtDirNdsEstaAtivo = false; 
             BtnExportarEstaAtivo = false;
             BtnSelecionarEstaAtivo  = false;
-            GerenciadoDeConfiguracoes.SetarDiretorioRomDesmotanda($"{_diretorioDestino}\\ROM_Desmontada");
-            GerenciadoDeConfiguracoes.SalvarConfiguracoes();
-            await Task.Run(() => NdsTool.DesmontarArquivoNds(_diretorioDaRom, GerenciadoDeConfiguracoes.ObtenhaDiretorioRomDesmotanda()));
-            GerenciadoEstaticoDeViewsModels.BinariosViewModel.VerificarListas();
-            System.Windows.MessageBox.Show(NdsTool.Mensagem);
+            ConfigurationManager.SetarDiretorioRomDesmotanda($"{_diretorioDestino}\\ROM_Desmontada");
+            ConfigurationManager.SalvarConfiguracoes();
+            await Task.Run(() => NdsTool.ExportNdsFiles(_diretorioDaRom, ConfigurationManager.ObtenhaDiretorioRomDesmotanda()));
+            await Task.Run(() => BinaryManager.Initialize());
+           // GerenciadoEstaticoDeViewsModels.BinariosViewModel.VerificarListas();
+            System.Windows.MessageBox.Show(NdsTool.Message);
             DiretorioDaRom = "";
             DiretorioDestino = "";
             TxtDirNdsEstaAtivo = true;
@@ -244,10 +245,10 @@ namespace JacutemAAI2.WPF.ViewModel
             BtnExportarEstaAtivo = false;
             BtnSelecionarEstaAtivo = false;
             BtnGerarNovaRomEstaAtivo = false;
-            GerenciadoDeConfiguracoes.SetarDiretorioRomDesmotanda($"{_diretorioRomDesmontada}");
-            GerenciadoDeConfiguracoes.SalvarConfiguracoes();
-            await Task.Run(() => NdsTool.NovoArquivoNds(GerenciadoDeConfiguracoes.ObtenhaDiretorioRomDesmotanda(), "AAI2_"));
-            System.Windows.MessageBox.Show(NdsTool.Mensagem);
+            ConfigurationManager.SetarDiretorioRomDesmotanda($"{_diretorioRomDesmontada}");
+            ConfigurationManager.SalvarConfiguracoes();
+            await Task.Run(() => NdsTool.CreateNewNdsFile(ConfigurationManager.ObtenhaDiretorioRomDesmotanda(), "AAI2_"));
+            System.Windows.MessageBox.Show(NdsTool.Message);
             TxtDirNdsEstaAtivo = true;
             BtnExportarEstaAtivo = true;
             BtnSelecionarEstaAtivo = true;

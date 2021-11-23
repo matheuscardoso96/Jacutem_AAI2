@@ -1,4 +1,4 @@
-﻿using JacutemAAI2.WPF.Gerenciadores;
+﻿using JacutemAAI2.WPF.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace JacutemAAI2.WPF.Controls
         public Textures()
         {
             InitializeComponent();
-            DataContext = GerenciadoEstaticoDeViewsModels.TexturesViewModel;
+            DataContext = StaticViewModelManager.TexturesViewModel;
         }
     }
 }

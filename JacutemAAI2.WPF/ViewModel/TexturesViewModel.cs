@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using JacutemAAI2.WPF.Images;
 using Microsoft.Win32;
+using FormatosNitro.Imagens.FBtx;
 
 namespace JacutemAAI2.WPF.ViewModel
 {
@@ -189,7 +190,7 @@ namespace JacutemAAI2.WPF.ViewModel
                 FilePaths.List.TryGetValue(btxName, out arg);
                 if (arg != null)
                 {
-                    Btx tmp = null; // new Btx(arg);
+                    Btx tmp = null; //= new Btx(arg);
                     
                     if (tmp.Errors.Count == 0)
                     {

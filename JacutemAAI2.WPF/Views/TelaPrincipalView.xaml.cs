@@ -1,4 +1,4 @@
-﻿using JacutemAAI2.WPF.Gerenciadores;
+﻿using JacutemAAI2.WPF.Managers;
 using System.Windows;
 
 namespace JacutemAAI2.WPF.Views
@@ -10,7 +10,7 @@ namespace JacutemAAI2.WPF.Views
     {
         public TelaPrincipalView()
         {
-            GerenciadorDeRecursos.VerficarFicarPastasDoPrograma();
+            ResourceManager.VerfyDirectories();
             InitializeComponent();
         }
     }
